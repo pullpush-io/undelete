@@ -56,7 +56,7 @@ class Subreddit extends React.Component {
           <span className='space' />
           <a href={`https://www.reddit.com/r/${subreddit}`} className='subreddit-title-link'>reddit</a>
           <span className='space' />
-          <a href={`https://snew.notabug.io/r/${subreddit}`} className='subreddit-title-link'>ceddit</a>
+          <a href={`https://reveddit.com/r/${subreddit}`} className='subreddit-title-link'>reveddit</a>
         </div>
         {
           noThreadsFound

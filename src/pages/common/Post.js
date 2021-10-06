@@ -51,7 +51,7 @@ export default (props) => {
         <div className='total-comments'>
           <Link className='grey-link' to={props.permalink}><b>{props.num_comments} comments</b></Link>&nbsp;
           <a className='grey-link' href={`https://www.reddit.com${props.permalink}`}><b>reddit</b></a>&nbsp;
-          <a className='grey-link' href={`https://snew.notabug.io${props.permalink}`}><b>ceddit</b></a>
+          <a className='grey-link' href={`https://reveddit.com${props.permalink}`}><b>reveddit</b></a>
         </div>
       </div>
     </div>
