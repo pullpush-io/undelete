@@ -6,7 +6,7 @@ const Header = props => (
   <header>
     <div id='header'>
       <h1>
-        <Link to='/'>Removeddit</Link>
+        <Link to='/'>Unddit</Link>
       </h1>
       <nav>
         <Link to='/r/all'>/r/all</Link>

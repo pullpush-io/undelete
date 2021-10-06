@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JubbeArt/removeddit.git"
+    "url": "git+https://github.com/gurnec/removeddit.git"
   },
   "keywords": [
     "reddit",
@@ -16,9 +16,9 @@
   "author": "Jesper Wrang",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/JubbeArt/removeddit/issues"
+    "url": "https://github.com/gurnec/removeddit/issues"
   },
-  "homepage": "https://github.com/JubbeArt/removeddit#readme",
+  "homepage": "https://github.com/gurnec/removeddit#readme",
   "standard": {
     "parser": "babel-eslint"
   },

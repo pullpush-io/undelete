@@ -1,4 +1,4 @@
-const baseURL = 'https://removeddit.com/api'
+const baseURL = 'http://unddit.com/api'
 
 export const getRemovedThreadIDs = (subreddit = '', page = 1) => {
   if (subreddit.toLowerCase() === 'all') {

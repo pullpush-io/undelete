@@ -8,7 +8,7 @@ This is a done by comparing the comments being stored in [Jason Baumgartners](ht
 Download [npm](https://www.npmjs.com/get-npm) 
 
 ```bash
-git clone https://github.com/JubbeArt/removeddit.git && cd removeddit
+git clone https://github.com/gurnec/removeddit.git && cd removeddit
 
 npm install
 npm start
