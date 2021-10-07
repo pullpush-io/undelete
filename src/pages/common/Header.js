@@ -9,8 +9,7 @@ const Header = props => (
         <Link to='/'>Unddit</Link>
       </h1>
       <nav>
-        <Link to='/r/all'>/r/all</Link>
-        <Link to='/about/'>about & FAQ</Link>
+        <Link to='/'>about & FAQ</Link>
       </nav>
     </div>
     <div id='status'>

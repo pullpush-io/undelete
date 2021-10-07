@@ -44,7 +44,7 @@ export default (props) => {
         <div className='thread-info'>
           submitted <span className='thread-time'>{prettyDate(props.created_utc)}</span> by&nbsp;
           <a className='thread-author author' href={userLink}>{props.author}</a>
-          &nbsp;to <Link className='subreddit-link author' to={`/r/${props.subreddit}`}>/r/{props.subreddit}</Link>
+          &nbsp;to /r/{props.subreddit}
         </div>
         {props.selftext &&
           <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: parse(props.selftext) }} />}
