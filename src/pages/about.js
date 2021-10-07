@@ -16,18 +16,18 @@ const About = props => {
           <b className='removed-text' title='Removed by mods'> removed </b>
           (by mods) and
           <b className='deleted-text' title='Deleted by users'> deleted </b>
-          (by users) comments/threads from  Reddit.
+          (by users) comments/posts from  Reddit.
         </p>
         <p>
           <b>Usage</b>: Drag this bookmarklet
-          <a className='bookmarklet' href='javascript:window.open(location.href.replace(/(old\.|np\.|new\.)?reddit\.com\/r\/|reveddit\.com\/v\//i, "unddit.com/r/"), "_blank")'>
+          <a className='bookmarklet' href='javascript:window.open(location.href.replace(/:\/\/([\w-]+.)?(reddit\.com\/r|reveddit\.com\/v)\//i, "://www.unddit.com/r/"), "_blank")'>
             Unddit
           </a>
           to your bookmark bar and use it to get from reddit to Unddit.
           <br /><br />
           Alternatively you can manually replace the <i>re</i> of <i>reddit</i> in the URL with <i>un</i>.
           <br />
-          E.g. <a href='/r/TwoXChromosomes/comments/6z1hch/'>https://www.unddit.com/r/TwoXChromosomes/comments/6z1hch/</a>
+          E.g. <a href='/r/Bitcoin/comments/7jzpir/'>https://unddit.com/r/Bitcoin/comments/7jzpir/</a>
         </p>
         <p>
           Created by
