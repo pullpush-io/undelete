@@ -50,6 +50,15 @@ export const prettyDate = createdUTC => {
   return `${Math.floor(dayDiff / 365)} years ago`
 }
 
+// Time difference in seconds to text, rounded up (e.g. x seconds/minutes/hours)
+export const prettyTimeDiff = secondDiff => {
+  if (secondDiff < 2) return `1 second`
+  if (secondDiff < 120) return `${secondDiff} seconds`
+  if (secondDiff < 7200) return `${Math.ceil(secondDiff / 60)} minutes`
+  if (secondDiff < 172800) return `${Math.ceil(secondDiff / 3600)} hours`
+  return `${Math.ceil(secondDiff / 86400)} days`
+}
+
 // Reddit format for scores, e.g. 12000 => 12k
 export const prettyScore = score => {
   if (score >= 100000) {

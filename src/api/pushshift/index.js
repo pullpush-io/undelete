@@ -1,6 +1,6 @@
 const chunkSize = 100;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
-const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,score,subreddit&q=*&link_id=`
+const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
 
 const sleep = ms =>
   new Promise(slept => setTimeout(slept, ms))
