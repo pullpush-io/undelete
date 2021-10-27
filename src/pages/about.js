@@ -63,7 +63,7 @@ const About = props => {
           Months later ceddit was fixed, but I didn't see any reason to remove what I had done.
           Today both sites live side by side and strive for the same goal.
         </p>
-        <p>
+        <div>
           There are some minor differences in them though:
           <ul>
             <li>
@@ -78,7 +78,7 @@ const About = props => {
               Ceddit provides user lookup while removeddit doesn't.
             </li>
           </ul>
-        </p>
+        </div>
 
         <h2 className='contact'>Links</h2>
         <p>
