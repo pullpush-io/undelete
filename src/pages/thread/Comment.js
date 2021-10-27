@@ -19,7 +19,7 @@ const Comment = (props) => {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
     } else if (props.created_utc < 1627776000) {  // Aug 1 2021
       const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
-      innerHTML = '<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>'
+      innerHTML = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
     // After around Aug 1 2021, Pushshift began updating comments from Reddit after around
     // 24-48 hours, including removing(?) comments that were removed from Reddit. The presence
