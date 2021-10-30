@@ -51,40 +51,45 @@ class Thread extends React.Component {
     // Get comment ids from pushshift
     getPushshiftComments(threadID)
       .then(pushshiftComments => {
+        console.log(`Pushshift: ${pushshiftComments.length} comments`)
+        const pushshiftCommentLookup = new Map(pushshiftComments.map(c => [c.id, c]))
+        const ids = []
+
         // Extract ids from pushshift response
-        const ids = pushshiftComments.map(comment => comment.id)
-        this.props.global.setLoading('Comparing comments to Reddit API...')
+        pushshiftComments.forEach(comment => {
+          ids.push(comment.id)
+          if (comment.parent_id != threadID && !pushshiftCommentLookup.has(comment.parent_id)) {
+            ids.push(comment.parent_id)
+          }
+        });
+
         // Get all the comments from reddit
+        this.props.global.setLoading('Comparing comments to Reddit API...')
         return getRedditComments(ids)
           .then(redditComments => {
-            // Temporary lookup for updating score
-            const redditCommentLookup = {}
-            redditComments.forEach(comment => {
-              redditCommentLookup[comment.id] = comment
-            })
-
-            // Replace pushshift score with reddit (its usually more accurate)
-            pushshiftComments.forEach(comment => {
-              const redditComment = redditCommentLookup[comment.id]
-              if (redditComment !== undefined) {
-                comment.score = redditComment.score
-              }
-            })
-
+            console.log(`Reddit: ${redditComments.length} comments`)
             const removed = []
             const deleted = []
 
-            // Check what as removed / deleted according to reddit
             redditComments.forEach(comment => {
+              const pushshiftComment = pushshiftCommentLookup.get(comment.id)
+              if (pushshiftComment === undefined) {
+                // When a parent comment is missing from pushshift, use the reddit comment instead
+                comment.parent_id = comment.parent_id.substring(3)
+                comment.link_id = comment.link_id.substring(3)
+                pushshiftComments.push(comment)
+              } else {
+                // Replace pushshift score with reddit (it's usually more accurate)
+                pushshiftComment.score = comment.score
+              }
+
+              // Check what is removed / deleted according to reddit
               if (isRemoved(comment.body)) {
                 removed.push(comment.id)
               } else if (isDeleted(comment.body)) {
                 deleted.push(comment.id)
               }
             })
-
-            console.log(`Pushshift: ${pushshiftComments.length} comments`)
-            console.log(`Reddit: ${redditComments.length} comments`)
 
             this.props.global.setSuccess()
             this.setState({
