@@ -7,18 +7,18 @@ import {
 } from '../../utils'
 
 const arrayToLookup = (commentList, removed, deleted) => {
-  const lookup = {}
+  const lookup = new Map()
 
   commentList.forEach(comment => {
     comment.replies = []
 
-    if (removed.includes(comment.id)) {
+    if (removed.has(comment.id)) {
       comment.removed = true
-    } else if (deleted.includes(comment.id)) {
+    } else if (deleted.has(comment.id)) {
       comment.deleted = true
     }
 
-    lookup[comment.id] = comment
+    lookup.set(comment.id, comment)
   })
 
   return lookup
@@ -28,25 +28,23 @@ const unflatten = (comments, root, removed, deleted) => {
   const lookup = arrayToLookup(comments, removed, deleted)
   const commentTree = []
 
-  Object.keys(lookup).forEach(commentID => {
-    const comment = lookup[commentID]
+  lookup.forEach(comment => {
     const parentID = comment.parent_id
+    let parentComment
 
     if (parentID === root) {
       commentTree.push(comment)
+    } else if ((parentComment = lookup.get(parentID)) !== undefined) {
+      parentComment.replies.push(comment)
     } else {
-      if (lookup[parentID] === undefined) {
-        console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
-        return
-      }
-
-      lookup[parentID].replies.push(comment)
+      console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
     }
   })
 
-  if (lookup[root] !== undefined) {
-    lookup[root].replies = commentTree
-    return [lookup[root]]
+  let rootComment
+  if ((rootComment = lookup.get(root)) !== undefined) {
+    rootComment.replies = commentTree
+    return rootComment
   }
 
   return commentTree

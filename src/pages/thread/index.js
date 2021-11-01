@@ -19,8 +19,8 @@ class Thread extends React.Component {
   state = {
     post: {},
     pushshiftComments: [],
-    removed: [],
-    deleted: [],
+    removed: new Set(),
+    deleted: new Set(),
     loadingComments: true
   }
 
@@ -73,8 +73,8 @@ class Thread extends React.Component {
         return getRedditComments(ids)
           .then(redditComments => {
             console.log(`Reddit: ${redditComments.length} comments`)
-            const removed = []
-            const deleted = []
+            const removed = new Set()
+            const deleted = new Set()
 
             redditComments.forEach(comment => {
               const pushshiftComment = pushshiftCommentLookup.get(comment.id)
@@ -90,9 +90,9 @@ class Thread extends React.Component {
 
               // Check what is removed / deleted according to reddit
               if (isRemoved(comment.body)) {
-                removed.push(comment.id)
+                removed.add(comment.id)
               } else if (isDeleted(comment.body)) {
-                deleted.push(comment.id)
+                deleted.add(comment.id)
               }
             })
 
@@ -124,8 +124,8 @@ class Thread extends React.Component {
           <React.Fragment>
             <CommentInfo
               total={this.state.pushshiftComments.length}
-              removed={this.state.removed.length}
-              deleted={this.state.deleted.length}
+              removed={this.state.removed.size}
+              deleted={this.state.deleted.size}
             />
             <SortBy />
             {isSingleComment &&
