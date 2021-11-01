@@ -27,7 +27,7 @@ const Comment = (props) => {
     else if (props.hasOwnProperty('retrieved_utc')) {
       innerHTML = `<p>[removed within ${prettyTimeDiff(props.retrieved_utc - props.created_utc)}]</p>`
     } else {
-      innerHTML = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc)}]</p>`
+      innerHTML = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc, true)}]</p>`
     }
   } else {
     innerHTML = parse(props.body)
