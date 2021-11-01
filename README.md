@@ -1,6 +1,6 @@
 # Unddit
-[Unddit](https://www.unddit.com) is a site for undoing the removal of comments from [Reddit](https://www.reddit.com).
-Just go to any reddit post and replace the `re` of `reddit` in the URL with `un` to see all removed comments.
+[Unddit](https://www.unddit.com) is a site for undoing the removal of comments for [Reddit](https://www.reddit.com).
+Just go to any Reddit post and replace the `re` of `reddit` in the URL with `un` to see all removed comments.
 
 This is a done by comparing the comments being stored in [Jason Baumgartner's](https://pushshift.io/) [Pushshift Reddit API](https://github.com/pushshift/api) and the ones from Reddit's API. The frontend, developed by Jesper Wrang and originally available at [removeddit.com](https://removeddit.com), is written in [React](https://reactjs.org/) and uses [Sass](https://sass-lang.com/) as the CSS Preprocessor.
 

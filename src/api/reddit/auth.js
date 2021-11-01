@@ -2,7 +2,8 @@
 // The app NEEDS TO BE an installed app and NOT a web apps
 
 // Current using dummy ID from throwaway
-const clientID = 'Gu4d7t1AglWJVg'
+const clientID = 'ZmYXJ5RaSDhF-77YaFulWw'
+const userAgent = 'com.unddit.www (by /u/unddit-com)'
 
 // Token for reddit API
 let token
@@ -17,7 +18,8 @@ const getToken = () => {
   const tokenInit = {
     headers: {
       Authorization: `Basic ${window.btoa(`${clientID}:`)}`,
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8'
+      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+      'User-Agent': userAgent
     },
     method: 'POST',
     body: `grant_type=${encodeURIComponent('https://oauth.reddit.com/grants/installed_client')}&device_id=DO_NOT_TRACK_THIS_DEVICE`
@@ -36,7 +38,8 @@ export const getAuth = () => {
   return getToken()
     .then(token => ({
       headers: {
-        Authorization: `bearer ${token}`
+        Authorization: `bearer ${token}`,
+        'User-Agent': userAgent
       }
     }))
 }
