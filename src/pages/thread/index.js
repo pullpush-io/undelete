@@ -54,14 +54,19 @@ class Thread extends React.Component {
         console.log(`Pushshift: ${pushshiftComments.length} comments`)
         const pushshiftCommentLookup = new Map(pushshiftComments.map(c => [c.id, c]))
         const ids = []
+        const missingIds = new Set()
 
         // Extract ids from pushshift response
         pushshiftComments.forEach(comment => {
           ids.push(comment.id)
-          if (comment.parent_id != threadID && !pushshiftCommentLookup.has(comment.parent_id)) {
+          if (comment.parent_id != threadID &&
+              !pushshiftCommentLookup.has(comment.parent_id) &&
+              !missingIds.has(comment.parent_id)) {
             ids.push(comment.parent_id)
+            missingIds.add(comment.parent_id)
           }
         });
+        missingIds.clear()
 
         // Get all the comments from reddit
         this.props.global.setLoading('Comparing comments to Reddit API...')
