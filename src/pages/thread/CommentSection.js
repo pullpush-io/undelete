@@ -44,7 +44,7 @@ const unflatten = (comments, root, removed, deleted) => {
   let rootComment
   if ((rootComment = lookup.get(root)) !== undefined) {
     rootComment.replies = commentTree
-    return rootComment
+    return [rootComment]
   }
 
   return commentTree
