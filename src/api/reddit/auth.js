@@ -1,3 +1,5 @@
+import { fetchJson } from '../../utils'
+
 // Change this to your own client ID: https://www.reddit.com/prefs/apps
 // The app NEEDS TO BE an installed app and NOT a web apps
 
@@ -25,11 +27,14 @@ const getToken = () => {
     body: `grant_type=${encodeURIComponent('https://oauth.reddit.com/grants/installed_client')}&device_id=DO_NOT_TRACK_THIS_DEVICE`
   }
 
-  return window.fetch('https://www.reddit.com/api/v1/access_token', tokenInit)
-    .then(response => response.json())
+  return fetchJson('https://www.reddit.com/api/v1/access_token', tokenInit)
     .then(response => {
       token = response.access_token
       return token
+    })
+    .catch(error => {
+      console.error('reddit.getToken ->')
+      throw error
     })
 }
 

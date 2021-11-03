@@ -1,3 +1,5 @@
+import { fetchJson } from '../../utils'
+
 const chunkSize = 100;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
 const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
@@ -9,18 +11,17 @@ const max = (a, b) =>
   a > b ? a : b
 
 export const getPost = threadID =>
-  window.fetch(`${postURL}${threadID}`)
-    .then(response => response.json())
+  fetchJson(`${postURL}${threadID}`)
     .then(({ data }) => data[0])
-    .catch(() => {
+    .catch(error => {
+      console.error('pushshift.getPost: ' + error)
       throw new Error('Could not get removed post')
     })
 
 // Helper function that fetches a list of comments using a binary backoff,
 // and also returns the next delay which should be passed back in
 const fetchComments = (threadID, after, delay) =>
-  window.fetch(`${commentURL}${threadID}&after=${after}`)
-    .then(response => response.json())
+  fetchJson(`${commentURL}${threadID}&after=${after}`)
     .then(({ data }) =>
       [ data.map(comment => ({
           ...comment,
@@ -30,9 +31,11 @@ const fetchComments = (threadID, after, delay) =>
         delay
       ]
     )
-    .catch(() => {
-      if (delay > 8000)
+    .catch(error => {
+      if (delay > 8000) {
+        console.error('pushshift.fetchComments: ' + error)
         throw new Error('Could not get removed comments');
+      }
       return sleep(delay)
         .then(() => fetchComments(threadID, after, delay * 2))
     })

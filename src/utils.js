@@ -2,6 +2,22 @@ import SnuOwnd from 'snuownd'
 
 const markdown = SnuOwnd.getParser()
 
+// Fetches JSON at the given url or throws a descriptive Error
+export const fetchJson = (url, init = {}) =>
+  window.fetch(url, init)
+    .then(response => response.ok ?
+      response.json()
+        .catch(error => {
+          throw new Error((response.statusText || response.status) + ', ' + error)
+        }) :
+      response.text()
+        .catch(error => {
+          throw new Error((response.statusText || response.status) + ', ' + error)
+        }).then(text => {
+          throw new Error((response.statusText || response.status) + ': ' + text)
+        })
+    )
+
 // Flatten arrays one level
 export const flatten = arr => arr.reduce(
   (accumulator, value) => accumulator.concat(value),
