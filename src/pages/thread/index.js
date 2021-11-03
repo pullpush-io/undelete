@@ -66,6 +66,7 @@ class Thread extends React.Component {
             missingIds.add(comment.parent_id)
           }
         });
+        pushshiftComments = undefined
         missingIds.clear()
 
         // Get all the comments from reddit
@@ -82,7 +83,7 @@ class Thread extends React.Component {
                 // When a parent comment is missing from pushshift, use the reddit comment instead
                 comment.parent_id = comment.parent_id.substring(3)
                 comment.link_id = comment.link_id.substring(3)
-                pushshiftComments.push(comment)
+                pushshiftCommentLookup.set(comment.id, comment)
               } else {
                 // Replace pushshift score with reddit (it's usually more accurate)
                 pushshiftComment.score = comment.score
@@ -93,12 +94,17 @@ class Thread extends React.Component {
                 removed.add(comment.id)
               } else if (isDeleted(comment.body)) {
                 deleted.add(comment.id)
+              } else if (pushshiftComment !== undefined && isRemoved(pushshiftComment.body)) {
+                // If it's deleted in pushshift, but later restored by a mod, use the restored
+                comment.parent_id = comment.parent_id.substring(3)
+                comment.link_id = comment.link_id.substring(3)
+                pushshiftCommentLookup.set(comment.id, comment)
               }
             })
 
             this.props.global.setSuccess()
             this.setState({
-              pushshiftComments,
+              pushshiftComments: Array.from(pushshiftCommentLookup.values()),
               removed,
               deleted,
               loadingComments: false
