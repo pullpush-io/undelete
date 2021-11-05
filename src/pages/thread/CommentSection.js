@@ -6,35 +6,20 @@ import {
   showRemovedAndDeleted, showRemoved, showDeleted
 } from '../../utils'
 
-const arrayToLookup = (commentList, removed, deleted) => {
-  const lookup = new Map()
-
-  commentList.forEach(comment => {
-    comment.replies = []
-
-    if (removed.has(comment.id)) {
-      comment.removed = true
-    } else if (deleted.has(comment.id)) {
-      comment.deleted = true
-    }
-
-    lookup.set(comment.id, comment)
-  })
-
-  return lookup
-}
-
-const unflatten = (comments, root, removed, deleted) => {
-  const lookup = arrayToLookup(comments, removed, deleted)
+const unflatten = (commentMap, root, removed, deleted) => {
   const commentTree = []
 
-  lookup.forEach(comment => {
+  commentMap.forEach(comment => {
+    comment.replies = []
+  })
+
+  commentMap.forEach(comment => {
     const parentID = comment.parent_id
     let parentComment
 
     if (parentID === root) {
       commentTree.push(comment)
-    } else if ((parentComment = lookup.get(parentID)) !== undefined) {
+    } else if ((parentComment = commentMap.get(parentID)) !== undefined) {
       parentComment.replies.push(comment)
     } else {
       console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
@@ -42,7 +27,7 @@ const unflatten = (comments, root, removed, deleted) => {
   })
 
   let rootComment
-  if ((rootComment = lookup.get(root)) !== undefined) {
+  if ((rootComment = commentMap.get(root)) !== undefined) {
     rootComment.replies = commentTree
     return [rootComment]
   }

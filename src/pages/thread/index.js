@@ -18,9 +18,9 @@ import CommentInfo from './CommentInfo'
 class Thread extends React.Component {
   state = {
     post: {},
-    pushshiftComments: [],
-    removed: new Set(),
-    deleted: new Set(),
+    pushshiftCommentLookup: new Map(),
+    removed: [],
+    deleted: [],
     loadingComments: true
   }
 
@@ -74,16 +74,17 @@ class Thread extends React.Component {
         return getRedditComments(ids)
           .then(redditComments => {
             console.log(`Reddit: ${redditComments.length} comments`)
-            const removed = new Set()
-            const deleted = new Set()
+            const removed = []
+            const deleted = []
 
             redditComments.forEach(comment => {
-              const pushshiftComment = pushshiftCommentLookup.get(comment.id)
+              let pushshiftComment = pushshiftCommentLookup.get(comment.id)
               if (pushshiftComment === undefined) {
                 // When a parent comment is missing from pushshift, use the reddit comment instead
                 comment.parent_id = comment.parent_id.substring(3)
                 comment.link_id = comment.link_id.substring(3)
-                pushshiftCommentLookup.set(comment.id, comment)
+                pushshiftComment = comment
+                pushshiftCommentLookup.set(comment.id, pushshiftComment)
               } else {
                 // Replace pushshift score with reddit (it's usually more accurate)
                 pushshiftComment.score = comment.score
@@ -91,10 +92,12 @@ class Thread extends React.Component {
 
               // Check what is removed / deleted according to reddit
               if (isRemoved(comment.body)) {
-                removed.add(comment.id)
+                removed.push(comment.id)
+                pushshiftComment.removed = true
               } else if (isDeleted(comment.body)) {
-                deleted.add(comment.id)
-              } else if (pushshiftComment !== undefined && isRemoved(pushshiftComment.body)) {
+                deleted.push(comment.id)
+                pushshiftComment.deleted = true
+              } else if (pushshiftComment !== comment && isRemoved(pushshiftComment.body)) {
                 // If it's deleted in pushshift, but later restored by a mod, use the restored
                 comment.parent_id = comment.parent_id.substring(3)
                 comment.link_id = comment.link_id.substring(3)
@@ -104,7 +107,7 @@ class Thread extends React.Component {
 
             this.props.global.setSuccess()
             this.setState({
-              pushshiftComments: Array.from(pushshiftCommentLookup.values()),
+              pushshiftCommentLookup,
               removed,
               deleted,
               loadingComments: false
@@ -129,9 +132,9 @@ class Thread extends React.Component {
           (!this.state.loadingComments && root) &&
           <React.Fragment>
             <CommentInfo
-              total={this.state.pushshiftComments.length}
-              removed={this.state.removed.size}
-              deleted={this.state.deleted.size}
+              total={this.state.pushshiftCommentLookup.size}
+              removed={this.state.removed.length}
+              deleted={this.state.deleted.length}
             />
             <SortBy />
             {isSingleComment &&
@@ -142,7 +145,7 @@ class Thread extends React.Component {
             }
             <CommentSection
               root={root}
-              comments={this.state.pushshiftComments}
+              comments={this.state.pushshiftCommentLookup}
               removed={this.state.removed}
               deleted={this.state.deleted}
             />
