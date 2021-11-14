@@ -18,12 +18,6 @@ export const fetchJson = (url, init = {}) =>
         })
     )
 
-// Flatten arrays one level
-export const flatten = arr => arr.reduce(
-  (accumulator, value) => accumulator.concat(value),
-  []
-)
-
 // Take on big array and split it into an array of chunks with correct size
 export const chunk = (arr, size) => {
   const chunks = []

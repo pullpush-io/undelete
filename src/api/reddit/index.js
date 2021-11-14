@@ -1,4 +1,4 @@
-import { fetchJson, chunk, flatten } from '../../utils'
+import { fetchJson, chunk } from '../../utils'
 import { getAuth } from './auth'
 
 const errorHandler = (error, from) => {
@@ -25,8 +25,7 @@ export const getPost = (subreddit, threadID) => (
 // Helper function that fetches a list of comments
 const fetchComments = (commentIDs, auth) => {
   return fetchJson(`https://oauth.reddit.com/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`, auth)
-    .then(results => results.data.children)
-    .then(commentsData => commentsData.map(commentData => commentData.data))
+    .then(results => results.data.children.map(({data}) => data))
 }
 
 export const getComments = commentIDs => {
@@ -34,7 +33,7 @@ export const getComments = commentIDs => {
     .then(auth => (
       Promise.all(chunk(commentIDs, 100)
         .map(ids => fetchComments(ids, auth)))
-        .then(flatten)
+        .then(results => results.flat())
     ))
     .catch(error => errorHandler(error, 'reddit.getComments'))
 }
