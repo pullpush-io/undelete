@@ -26,14 +26,14 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID } = this.props.match.params
-    this.props.global.setLoading('Loading comments from Pushshift...')
+    this.props.global.setLoading('Loading post...')
 
-    // Get thread from reddit
+    // Get post from reddit
     getPost(subreddit, threadID)
       .then(post => {
-        this.setState({ post })
         document.title = post.title
-        // Fetch the thread from pushshift if it was deleted/removed
+        this.setState({ post })
+        // Fetch the post from pushshift if it was deleted/removed
         if (isDeleted(post.selftext) || isRemoved(post.selftext)) {
           getRemovedPost(threadID)
             .then(removedPost => {
@@ -46,7 +46,21 @@ class Thread extends React.Component {
             })
         }
       })
-      .catch(this.props.global.setError)
+      .catch(error => {
+        this.props.global.setError(error)
+        // Fetch the post from pushshift on other errors (e.g. posts from banned subreddits)
+        getRemovedPost(threadID)
+          .then(removedPost => {
+            document.title = removedPost.title
+            this.setState({ post: { ...removedPost, removed: true } })
+          })
+          .catch(error => {
+            this.props.global.setError(error)
+            // Create a dummy post so that comments will still be displayed
+            this.setState({ post: { subreddit, id: threadID } })
+          })
+      })
+      .finally(() => this.props.global.setLoading('Loading comments from Pushshift...'))
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID)
