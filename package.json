@@ -28,7 +28,7 @@
     "css": "sass --style compressed --no-source-map src/sass/index.sass dist/main.css"
   },
   "dependencies": {
-    "core-js": "^3.19.1",
+    "core-js": "^3.19.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.3.0",
@@ -39,17 +39,17 @@
   "devDependencies": {
     "@babel/cli": "^7.16.0",
     "@babel/core": "^7.16.0",
-    "@babel/eslint-parser": "^7.16.0",
+    "@babel/eslint-parser": "^7.16.3",
     "@babel/plugin-proposal-class-properties": "^7.16.0",
-    "@babel/preset-env": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
     "@babel/preset-react": "^7.16.0",
-    "acorn": "^8.5.0",
+    "acorn": "^8.6.0",
     "babel-loader": "^8.2.3",
     "eslint": "^7.32.0",
-    "sass": "^1.43.4",
+    "sass": "^1.43.5",
     "standard": "^16.0.4",
-    "webpack": "^5.61.0",
+    "webpack": "^5.64.4",
     "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.4.0"
+    "webpack-dev-server": "^4.6.0"
   }
 }
