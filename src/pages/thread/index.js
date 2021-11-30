@@ -60,7 +60,10 @@ class Thread extends React.Component {
             this.setState({ post: { subreddit, id: threadID } })
           })
       })
-      .finally(() => this.props.global.setLoading('Loading comments from Pushshift...'))
+      .finally(() => {
+        if (this.state.loadingComments)
+          this.props.global.setLoading('Loading comments from Pushshift...')
+      })
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID)
