@@ -1,6 +1,7 @@
 .comment 
+  min-width: 240px
   margin: 0 0 8px 0
-  padding: 5px 8px 5px 30px
+  padding: 5px 8px 5px 20px
   border: 1px solid #333
   border-radius: 3px
   color: #ddd
@@ -8,6 +9,13 @@
 
   .comment-head
     font-size: 10px
+
+  .comment-collapse
+    cursor: pointer
+
+  .comment-collapsed span, .comment-collapsed a:not(.comment-collapse)
+    color: #828282
+    font-style: oblique
 
   .comment-author 
     font-weight: bold

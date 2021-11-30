@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { prettyScore, prettyDate, prettyTimeDiff, parse, isRemoved } from '../../utils'
 
@@ -33,12 +33,13 @@ const Comment = (props) => {
     innerHTML = parse(props.body)
   }
 
+  const [collapsed, setCollapsed] = useState(false)
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
 
   return (
     <div id={props.id} className={commentStyle}>
-      <div className='comment-head'>
-        <a href='#' onClick={() => false} className='author'>[–]</a>
+      <div className={collapsed ? 'comment-head comment-collapsed' : 'comment-head'}>
+        <a onClick={() => setCollapsed(!collapsed)} className='comment-collapse'>[{collapsed ? '+' : '-'}]</a>
         <span className='space' />
         <a
           href={props.author !== '[deleted]' ? `https://www.reddit.com/user/${props.author}` : undefined}
@@ -52,20 +53,22 @@ const Comment = (props) => {
         <span className='space' />
         <span className='comment-time'>{prettyDate(props.created_utc)}</span>
       </div>
-      <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
-      <div className='comment-links'>
-        <Link to={permalink}>permalink</Link>
-        <a href={`https://www.reddit.com${permalink}`}>reddit</a>
-        <a href={`https://reveddit.com${permalink}`}>reveddit</a>
-      </div>
-      <div>
-        {props.replies.map(comment => (
-          <Comment
-            key={comment.id}
-            {...comment}
-            depth={props.depth + 1}
-          />
-        ))}
+      <div style={collapsed ? {display: 'none'} : {}}>
+        <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
+        <div className='comment-links'>
+          <Link to={permalink}>permalink</Link>
+          <a href={`https://www.reddit.com${permalink}`}>reddit</a>
+          <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+        </div>
+        <div>
+          {props.replies.map(comment => (
+            <Comment
+              key={comment.id}
+              {...comment}
+              depth={props.depth + 1}
+            />
+          ))}
+        </div>
       </div>
     </div>
   )
