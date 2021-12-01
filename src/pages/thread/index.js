@@ -66,7 +66,7 @@ class Thread extends React.Component {
       })
 
     // Get comment ids from pushshift
-    getPushshiftComments(threadID)
+    getPushshiftComments(threadID, this.props.global.state.maxComments)
       .then(pushshiftComments => {
         console.log(`Pushshift: ${pushshiftComments.length} comments`)
         const pushshiftCommentLookup = new Map(pushshiftComments.map(c => [c.id, c]))

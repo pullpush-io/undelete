@@ -7,9 +7,6 @@ const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunk
 const sleep = ms =>
   new Promise(slept => setTimeout(slept, ms))
 
-const max = (a, b) =>
-  a > b ? a : b
-
 export const getPost = threadID =>
   fetchJson(`${postURL}${threadID}`)
     .then(({ data }) => data[0])
@@ -40,14 +37,14 @@ const fetchComments = (threadID, after, delay) =>
         .then(() => fetchComments(threadID, after, delay * 2))
     })
 
-export const getComments = (threadID, chunks = 10, after = 0, delay = 500) =>
+const doGetComments = (threadID, chunks = 10, after = 0, delay = 500) =>
   fetchComments(threadID, after, delay)
     .then(([comments, newDelay]) => {
       if (comments.length < chunkSize/2 || chunks <= 1)
         return comments;
-      const newAfter = max(comments[comments.length - 1].created_utc - 1, after + 1);
+      const newAfter = Math.max(comments[comments.length - 1].created_utc - 1, after + 1);
       return (newDelay > 500 ? sleep(newDelay / 2) : Promise.resolve())
-        .then(() => getComments(threadID, chunks - 1, newAfter, newDelay))
+        .then(() => doGetComments(threadID, chunks - 1, newAfter, newDelay))
         .then(remainingComments => {
           const seenIDs = new Set(comments.map(c => c.id));
           for (var i = 0; i < remainingComments.length; i++) {
@@ -58,3 +55,6 @@ export const getComments = (threadID, chunks = 10, after = 0, delay = 500) =>
           return comments;
         })
     })
+
+export const getComments = (threadID, maxComments) =>
+  doGetComments(threadID, Math.ceil(maxComments / chunkSize))
