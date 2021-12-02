@@ -44,7 +44,8 @@ class Thread extends React.Component {
               }
               this.setState({ post: removedPost })
             })
-        }
+        } else if (post.removed_by_category)
+          post.removed = true
       })
       .catch(error => {
         this.props.global.setError(error)
