@@ -50,6 +50,7 @@ class GlobalState extends Container {
       maxComments = 100
     put(maxCommentsKey, maxComments)
     this.setState({maxComments})
+    return maxComments
   }
 
   setSuccess = () => this.setState({statusText: '', statusImage: '/images/success.png'})
