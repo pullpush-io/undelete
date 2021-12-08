@@ -118,11 +118,16 @@ class Thread extends React.Component {
               } else if (isDeleted(comment.body)) {
                 deleted.push(comment.id)
                 pushshiftComment.deleted = true
-              } else if (pushshiftComment !== comment && isRemoved(pushshiftComment.body)) {
-                // If it's deleted in pushshift, but later restored by a mod, use the restored
-                comment.parent_id = comment.parent_id.substring(3)
-                comment.link_id = comment.link_id.substring(3)
-                pushshiftCommentLookup.set(comment.id, comment)
+              } else if (pushshiftComment !== comment) {
+                if (isRemoved(pushshiftComment.body)) {
+                  // If it's deleted in pushshift, but later restored by a mod, use the restored
+                  comment.parent_id = comment.parent_id.substring(3)
+                  comment.link_id = comment.link_id.substring(3)
+                  pushshiftCommentLookup.set(comment.id, comment)
+                } else if (pushshiftComment.body != comment.body) {
+                  pushshiftComment.edited_body = comment.body
+                  pushshiftComment.edited = comment.edited
+                }
               }
             })
 

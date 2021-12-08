@@ -13,7 +13,7 @@ const Comment = (props) => {
     commentStyle += props.depth % 2 === 0 ? 'comment-even' : 'comment-odd'
   }
 
-  let innerHTML;
+  let innerHTML, editedInnerHTML;
   if (isRemoved(props.body) && props.removed) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
@@ -31,9 +31,12 @@ const Comment = (props) => {
     }
   } else {
     innerHTML = parse(props.body)
+    if (props.hasOwnProperty('edited_body'))
+      editedInnerHTML = parse(props.edited_body)
   }
 
   const [collapsed, setCollapsed] = useState(false)
+  const [showEdited, setShowEdited] = useState(false)
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
 
   return (
@@ -52,13 +55,19 @@ const Comment = (props) => {
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
         <span className='comment-time'>{prettyDate(props.created_utc)}</span>
+        {props.hasOwnProperty('edited_body') &&
+          <span className='comment-time'>* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
       </div>
       <div style={collapsed ? {display: 'none'} : {}}>
-        <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML }} />
+        <div className='comment-body' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />
         <div className='comment-links'>
           <Link to={permalink}>permalink</Link>
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
           <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+          {props.hasOwnProperty('edited_body') &&
+            <a onClick={() => setShowEdited(!showEdited)} title={
+              showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'
+            }>*edited</a>}
         </div>
         <div>
           {props.replies.map(comment => (
