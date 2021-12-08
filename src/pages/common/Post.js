@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, prettyDate, parse, redditThumbnails, isDeleted } from '../../utils'
+import { prettyScore, prettyDate, prettyTimeDiff, parse, redditThumbnails, isDeleted, isRemoved } from '../../utils'
 
 export default (props) => {
   if (!props.title) {
@@ -22,6 +22,18 @@ export default (props) => {
         <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
       </a>
     )
+  }
+
+  let innerHTML;
+  if ((!props.selftext || isRemoved(props.selftext)) && props.removed) {
+    if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
+      innerHTML = '<p>[removed too quickly to be archived]</p>'
+    } else {
+      const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
+      innerHTML = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
+    }
+  } else if (props.selftext) {
+    innerHTML = parse(props.selftext)
   }
 
   return (
@@ -46,8 +58,8 @@ export default (props) => {
           <a className='thread-author author' href={userLink}>{props.author}</a>
           &nbsp;to /r/{props.subreddit}
         </div>
-        {props.selftext &&
-          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: parse(props.selftext) }} />}
+        {innerHTML !== undefined &&
+          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: innerHTML }} />}
         <div className='total-comments'>
           <Link className='grey-link' to={props.permalink}><b>{props.num_comments} comments</b></Link>&nbsp;
           <a className='grey-link' href={`https://www.reddit.com${props.permalink}`}><b>reddit</b></a>&nbsp;
