@@ -25,7 +25,7 @@ export default (props) => {
   }
 
   let innerHTML;
-  if ((!props.selftext || isRemoved(props.selftext)) && props.removed) {
+  if (isRemoved(props.selftext) && props.removed) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
     } else {

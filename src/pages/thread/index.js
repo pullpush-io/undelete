@@ -34,20 +34,17 @@ class Thread extends React.Component {
         document.title = post.title
         this.setState({ post })
         // Fetch the post from pushshift if it was deleted/removed
-        if (isDeleted(post.selftext) || isRemoved(post.selftext)) {
+        if (isDeleted(post.selftext) || isRemoved(post.selftext) || post.removed_by_category) {
           getRemovedPost(threadID)
             .then(removedPost => {
               const displayedPost = removedPost === undefined ? post : removedPost
-              if (isRemoved(post.selftext)) {
-                displayedPost.removed = true
-              } else {
+              if (isDeleted(post.selftext)) {
                 displayedPost.deleted = true
+              } else {
+                displayedPost.removed = true
               }
               this.setState({ post: displayedPost })
             })
-        } else if (post.removed_by_category) {
-          post.removed = true
-          this.setState({ post })
         }
       })
       .catch(error => {
