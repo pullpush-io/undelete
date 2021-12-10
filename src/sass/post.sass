@@ -13,5 +13,22 @@
   margin: 5px 0
   background-color: $background
 
-#comment-sort input[type='number']:focus
-  color: #ffffff
+#comment-sort
+
+  input
+    border-color: $border
+
+    &[type='number']
+      width: 54px
+      appearance: textfield
+
+      &:hover, &:focus
+        appearance: none
+
+  input, select
+    &:hover, &:focus
+      color: $light
+
+  option
+    color: $light
+    background-color: $background

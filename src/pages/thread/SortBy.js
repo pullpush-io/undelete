@@ -31,7 +31,7 @@ const sortBy = props => {
         setReloadVisible(true)
     }} onBlur={e => {
       e.target.value = props.global.setMaxComments(e.target.value)
-    }} defaultValue={props.global.state.maxComments} type='number' size='5' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
+    }} defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
   {reloadVisible && <>
     <span className='space' />
     <input onClick={() => location.replace(location.href)} type='button' value='Reload' />
