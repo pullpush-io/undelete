@@ -30,15 +30,14 @@ const About = props => {
           E.g. <a href='/r/Bitcoin/comments/7jzpir/'>https://unddit.com/r/Bitcoin/comments/7jzpir/</a>
         </p>
         <p>
-          Created by
-          <a href='https://github.com/JubbeArt/'> Jesper Wrang </a> and uses
-          <a href='https://pushshift.io/'> Jason Baumgartner's </a> service for getting removed comments.
+          Created by <a href='https://github.com/JubbeArt/'>Jesper Wrang</a> and
+          uses <a href='https://pushshift.io/'>Jason Baumgartner's service</a> for getting removed comments.
         </p>
         <h2 className='todo'>FAQ</h2>
         <b className='question'>Q: I posted some sensitive information on Reddit. Can you delete this from your page?</b>
         <p>
           No, I can't remove anything myself since I am not the not the one storing all the deleted comments.
-          This is done by an external service run by Jason Baumgartner.
+          This is done by an external service called Pushshift.io.
           If you want something sensitive removed permanently you should follow the <a href='https://www.reddit.com/r/pushshift/comments/pat409/online_removal_request_form_for_removal_requests/'>instructions here</a>.
         </p>
         <b className='question'>Q: Didn't this site used to be named Removeddit?</b>
@@ -51,23 +50,30 @@ const About = props => {
         <b className='question'>Q: How does it work?</b>
         <p>
           This page is only possible because of the amazing work done by Jason.
-          His site <a href='https://pushshift.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in his own database.
-          Then sites like Unddit and reveddit can fetch these comment from Pushshift.
-          Unddit know what comment Reddit shows (from Reddit's API) and what comment should be showed (from Pushshift's API).
-          By comparing the comments from these 2 APIs, we can figure out what has been deleted and removed.
+          His service <a href='https://pushshift.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in a database.
+          Then sites like Unddit and Reveddit can fetch these comments from Pushshift.
+          Unddit knows what comments Reddit shows (from Reddit's API) and what comments should be shown (from Pushshift's API).
+          By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
         </p>
-        <b className='question'>Q: What's the difference between Ceddit and Removeddit?</b>
+        <b className='question'>Q: Why doesn't it work in Firefox?</b>
+        <p>
+          If you have enabled Strict Enhanced Tracking Protection in Firefox, this will prevent Unddit from contacting Reddit's API.
+          Luckily there is an easy workaround.
+          Click on the shield symbol on the left side of the address bar, and then switch off Enhanced Tracking Protection for this site.
+          It will still be enabled for other sites.
+        </p>
+        <b className='question'>Q: What's the difference between Ceddit and Removeddit/Unddit?</b>
         <p>
           Not much. Removeddit was created as a temporary replacement for Ceddit, at a time when Ceddit didn't work.
-          I thought this was necessary since I used Ceddit more then Reddit itself.
-          Months later Ceddit was fixed, but I didn't see any reason to remove what I had done.
+          Jesper thought this was necessary since he used Ceddit more then Reddit itself.
+          Months later Ceddit was fixed, but he didn't see any reason to remove what he had built.
           Today both sites live side by side and strive for the same goal.
         </p>
         <div>
           There are some minor differences in them though:
           <ul>
             <li>
-              Ceddit respect user made deletions while Removeddit does not. This decision was made early on and I feel like it's too late to change now.
+              Ceddit respects user-made deletions while Removeddit does not. This decision was made early on and I feel like it's too late to change now.
               If I had created Removeddit today I might had thought more about what was right here.
             </li>
             <li>
