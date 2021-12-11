@@ -36,8 +36,8 @@ export const isRemoved = textBody => textBody === '\\[removed\\]' || textBody ==
 // Default thumbnails for reddit threads
 export const redditThumbnails = ['self', 'default', 'image', 'nsfw']
 
-// Parse comments
-export const parse = text => markdown.render(text)
+// Parse comments (see https://www.reddit.com/dev/api/#response_body_encoding)
+export const parse = text => markdown.render(text.replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&'))
 
 // UTC to "Reddit time format" (e.g. 5 hours ago, just now, etc...)
 export const prettyDate = createdUTC => {
