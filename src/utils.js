@@ -54,10 +54,20 @@ export const prettyDate = createdUTC => {
     if (secondDiff < 7200) return 'an hour ago'
     if (secondDiff < 86400) return `${Math.floor(secondDiff / 3600)} hours ago`
   }
+  if (dayDiff < 2) return `1 day ago`
   if (dayDiff < 7) return `${dayDiff} days ago`
   if (dayDiff < 31) return `${Math.floor(dayDiff / 7)} weeks ago`
   if (dayDiff < 365) return `${Math.floor(dayDiff / 30)} months ago`
   return `${Math.floor(dayDiff / 365)} years ago`
+}
+
+// The date and time, to the second, formatted in the user's locale
+export const exactDateTime = utc => {
+  const datetime = new Date(utc * 1000)
+  if (new Date().toDateString() == datetime.toDateString())
+    return datetime.toLocaleTimeString([], {timeStyle: 'long'})
+  else
+    return datetime.toLocaleString([], {dateStyle: 'medium', timeStyle: 'long'})
 }
 
 // Time difference in seconds to text, rounded up by default (e.g. x seconds/minutes/hours)

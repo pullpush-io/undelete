@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, prettyDate, prettyTimeDiff, parse, isRemoved } from '../../utils'
+import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, isRemoved } from '../../utils'
 
 const Comment = (props) => {
   let commentStyle = 'comment '
@@ -54,9 +54,10 @@ const Comment = (props) => {
         <span className='space' />
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
-        <span className='comment-time'>{prettyDate(props.created_utc)}</span>
+        <span className='comment-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>
         {props.hasOwnProperty('edited_body') &&
-          <span className='comment-time'>* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
+          <span className='comment-time' title={props.edited ? exactDateTime(props.edited) : 'within 3 minutes'}
+          >* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
       </div>
       <div style={collapsed ? {display: 'none'} : {}}>
         <div className='comment-body' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />

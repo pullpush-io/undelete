@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, prettyDate, prettyTimeDiff, parse, redditThumbnails, isDeleted, isRemoved } from '../../utils'
+import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditThumbnails, isDeleted, isRemoved } from '../../utils'
 
 export default (props) => {
   if (!props.title) {
@@ -54,7 +54,7 @@ export default (props) => {
         }
         <span className='domain'>({props.domain})</span>
         <div className='thread-info'>
-          submitted <span className='thread-time'>{prettyDate(props.created_utc)}</span> by&nbsp;
+          submitted <span className='thread-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span> by&nbsp;
           <a className='thread-author author' href={userLink}>{props.author}</a>
           &nbsp;to /r/{props.subreddit}
         </div>
