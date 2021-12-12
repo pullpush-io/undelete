@@ -99,6 +99,7 @@ const commentSection = (props) => {
           key={comment.id}
           {...comment}
           depth={0}
+          postAuthor={props.postAuthor}
         />
       ))
       : <p>No comments found</p>

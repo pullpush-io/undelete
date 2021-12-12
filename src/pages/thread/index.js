@@ -141,7 +141,7 @@ class Thread extends React.Component {
   }
 
   render () {
-    const { subreddit, id } = this.state.post
+    const { subreddit, id, author } = this.state.post
     const { commentID } = this.props.match.params
     const linkToRestOfComments = `/r/${subreddit}/comments/${id}/_/`
 
@@ -171,6 +171,7 @@ class Thread extends React.Component {
               comments={this.state.pushshiftCommentLookup}
               removed={this.state.removed}
               deleted={this.state.deleted}
+              postAuthor={author}
             />
           </React.Fragment>
         }
