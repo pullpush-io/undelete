@@ -55,7 +55,7 @@ const Comment = (props) => {
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
         <span className='comment-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>
-        {props.hasOwnProperty('edited_body') &&
+        {(props.hasOwnProperty('edited_body') || props.edited) &&
           <span className='comment-time' title={props.edited ? exactDateTime(props.edited) : 'within 3 minutes'}
           >* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
       </div>
