@@ -26,6 +26,7 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID } = this.props.match.params
+    this.curMaxComments = this.props.global.state.maxComments
     this.props.global.setLoading('Loading post...')
 
     // Get post from reddit
@@ -65,6 +66,26 @@ class Thread extends React.Component {
         if (this.state.loadingComments)
           this.props.global.setLoading('Loading comments from Pushshift...')
       })
+
+    this.getComments()
+  }
+
+  componentDidUpdate () {
+    if (this.props.global.state.maxComments > this.curMaxComments) {
+      this.curMaxComments = this.props.global.state.maxComments
+      this.setState({
+        pushshiftCommentLookup: new Map(),
+        removed: [],
+        deleted: [],
+        loadingComments: true
+      })
+      this.props.global.setLoading('Loading comments from Pushshift...')
+      this.getComments()
+    }
+  }
+
+  getComments () {
+    const { threadID } = this.props.match.params
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID, this.props.global.state.maxComments)

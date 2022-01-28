@@ -18,7 +18,8 @@ export const filter = {
   deleted: 'SHOW_DELETED'
 }
 
-export const maxCommentsLimit = 20000
+export const maxCommentsDefault = 800
+export const maxCommentsLimit   = 20000
 
 // Keys for localStorage
 const sortKey = 'commentSort'
@@ -29,7 +30,7 @@ class GlobalState extends Container {
   state = {
     commentSort: get(sortKey, sort.top),
     commentFilter: get(filterKey, filter.removedDeleted),
-    maxComments: get(maxCommentsKey, 800),
+    maxComments: get(maxCommentsKey, maxCommentsDefault),
     statusText: '',
     statusImage: undefined
   }
@@ -44,14 +45,15 @@ class GlobalState extends Container {
     this.setState({commentFilter: filterType})
   }
 
-  setMaxComments (maxComments) {
+  saveMaxComments (maxComments) {
     maxComments = Math.min(Math.round(maxComments), maxCommentsLimit)
     if (!(maxComments >= 100))  // also true when maxComments isn't a number
       maxComments = 100
     put(maxCommentsKey, maxComments)
-    this.setState({maxComments})
     return maxComments
   }
+
+  loadMaxComments = () => this.setState({maxComments: get(maxCommentsKey, maxCommentsDefault)})
 
   setSuccess = () => this.setState({statusText: '', statusImage: '/images/success.png'})
   setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif'})
@@ -63,7 +65,7 @@ class GlobalState extends Container {
 export const connect = Component => {
   return props => (
     <Subscribe to={[GlobalState]}>
-      {gloablState => <Component {...props} global={gloablState} />}
+      {globalState => <Component {...props} global={globalState} />}
     </Subscribe>
   )
 }

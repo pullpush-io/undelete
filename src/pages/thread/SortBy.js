@@ -34,14 +34,13 @@ const sortBy = props => {
   <label htmlFor='maxComments'>max. to download:</label>
     <span className='space' />
     <input id='maxComments' onChange={e => {
-      if (parseInt(e.target.value) > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit)
-        setReloadVisible(true)
+      setReloadVisible(parseInt(e.target.value) > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit)
     }} onBlur={e => {
-      e.target.value = props.global.setMaxComments(e.target.value)
+      e.target.value = props.global.saveMaxComments(e.target.value)
     }} defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
   {reloadVisible && <>
     <span className='space' />
-    <input onClick={() => location.replace(location.href)} type='button' value='Reload' />
+    <input onClick={() => {props.global.loadMaxComments(); setReloadVisible(false)}} type='button' value='Reload' />
   </>}
   </div>
   )
