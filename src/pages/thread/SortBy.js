@@ -3,6 +3,7 @@ import {connect, sort, filter, maxCommentsLimit} from '../../state'
 
 const sortBy = props => {
   const [reloadVisible, setReloadVisible] = useState(false)
+  const isFirefox = typeof InstallTrigger !== 'undefined'
   let usedMouse;
 
   return (
@@ -37,7 +38,11 @@ const sortBy = props => {
       setReloadVisible(parseInt(e.target.value) > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit)
     }} onBlur={e => {
       e.target.value = props.global.saveMaxComments(e.target.value)
-    }} defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
+    }} {
+      ...(isFirefox ? {onClick: e => {
+        e.target.focus()
+      }} : {})
+    } defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
   {reloadVisible && <>
     <span className='space' />
     <input onClick={() => {props.global.loadMaxComments(); setReloadVisible(false)}} type='button' value='Reload' />
