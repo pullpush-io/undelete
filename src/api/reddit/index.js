@@ -1,6 +1,7 @@
 import { fetchJson, chunk } from '../../utils'
 
 const baseURL = 'https://api.reddit.com'
+const requestSettings = {headers: {"Accept-Language": "en"}}
 
 const errorHandler = (error, from) => {
   console.error(from + ': ' + error)
@@ -9,7 +10,7 @@ const errorHandler = (error, from) => {
 
 // Return the post itself
 export const getPost = (subreddit, threadID) => (
-  fetchJson(`${baseURL}/comments/${threadID}.json?limit=1`)
+  fetchJson(`${baseURL}/comments/${threadID}.json?limit=1`, requestSettings)
     .then(thread => thread[0].data.children[0].data)
     .catch(error => errorHandler(error, 'reddit.getPost'))
 )
@@ -23,7 +24,7 @@ export const getPost = (subreddit, threadID) => (
 
 // Helper function that fetches a list of comments
 const fetchComments = (commentIDs) => (
-  fetchJson(`${baseURL}/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`)
+  fetchJson(`${baseURL}/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`, requestSettings)
     .then(results => results.data.children.map(({data}) => data))
 )
 
