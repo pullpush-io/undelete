@@ -46,7 +46,7 @@ const Comment = (props) => {
         <span className='space' />
         <a
           href={props.author !== '[deleted]' ? `https://www.reddit.com/user/${props.author}` : undefined}
-          className={props.author == props.postAuthor ? 'author comment-author comment-poster' : 'author comment-author'}
+          className={props.author === props.postAuthor ? 'author comment-author comment-poster' : 'author comment-author'}
         >
           {props.author}
           {props.deleted && ' (deleted by user)'}

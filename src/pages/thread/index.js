@@ -192,7 +192,7 @@ class Thread extends React.Component {
               comments={this.state.pushshiftCommentLookup}
               removed={this.state.removed}
               deleted={this.state.deleted}
-              postAuthor={author}
+              postAuthor={isDeleted(author) ? null : author}
             />
           </React.Fragment>
         }
