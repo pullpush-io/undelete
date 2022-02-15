@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { connect } from '../state'
 
 const About = props => {
@@ -6,6 +7,14 @@ const About = props => {
   if (props.global.state.statusImage !== undefined) {
     props.global.clearStatus()
   }
+
+  const { hash } = useLocation();
+
+  useEffect(() => {
+    const id = hash.substr(1)
+    if (id)
+      document.getElementById(id)?.scrollIntoView({behavior: "smooth"})
+  }, [hash])
 
   return (
     <div id='main'>
@@ -27,27 +36,32 @@ const About = props => {
           <br /><br />
           Alternatively you can manually replace the <i>re</i> of <i>reddit</i> in the URL with <i>un</i>.
           <br />
-          E.g. <a href='/r/Bitcoin/comments/7jzpir/'>https://unddit.com/r/Bitcoin/comments/7jzpir/</a>
+          E.g. <Link to='/r/Bitcoin/comments/7jzpir/'>https://unddit.com/r/Bitcoin/comments/7jzpir/</Link>
         </p>
         <p>
           Created by <a href='https://github.com/JubbeArt/'>Jesper Wrang</a> and
           uses <a href='https://pushshift.io/'>Jason Baumgartner's service</a> for getting removed comments.
         </p>
         <h2 className='todo'>FAQ</h2>
-        <b className='question'>Q: I posted some sensitive information on Reddit. Can you delete this from your page?</b>
+        <div id='delete' className={hash == '#delete' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#delete'>Q:</Link> I posted some sensitive information on Reddit. Can you delete this from your page?</b>
         <p>
           No, I can't remove anything myself since I am not the not the one storing all the deleted comments.
           This is done by an external service called Pushshift.io.
           If you want something sensitive removed permanently you should follow the <a href='https://www.reddit.com/r/pushshift/comments/pat409/online_removal_request_form_for_removal_requests/'>instructions here</a>.
         </p>
-        <b className='question'>Q: Didn't this site used to be named Removeddit?</b>
+        </div>
+        <div id='removeddit' className={hash == '#removeddit' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#removeddit'>Q:</Link> Didn't this site used to be named Removeddit?</b>
         <p>
           The Removeddit site stopped working a short while ago, and this site was made to partially replace it.
           All creddit for the software which makes this site possible goes to the original author, Jesper Wrang.
           Any bugs or problems are due to this site's operator.
           In particular, Unddit does not currently support browsing subreddits, only specific posts.
         </p>
-        <b className='question'>Q: How does it work?</b>
+        </div>
+        <div id='how' className={hash == '#how' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#how'>Q:</Link> How does it work?</b>
         <p>
           This page is only possible because of the amazing work done by Jason.
           His service <a href='https://pushshift.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in a database.
@@ -55,14 +69,27 @@ const About = props => {
           Unddit knows what comments Reddit shows (from Reddit's API) and what comments should be shown (from Pushshift's API).
           By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
         </p>
-        <b className='question'>Q: Why doesn't it work in Firefox?</b>
+        </div>
+        <div id='firefox' className={hash == '#firefox' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#firefox'>Q:</Link> Why doesn't it work in Firefox?</b>
         <p>
           If you have enabled Strict Enhanced Tracking Protection in Firefox, this will prevent Unddit from contacting Reddit's API.
           Luckily there is an easy workaround.
           Click on the shield symbol on the left side of the address bar, and then switch off Enhanced Tracking Protection for this site.
           It will still be enabled for other sites.
         </p>
-        <b className='question'>Q: What's the difference between Ceddit and Removeddit/Unddit?</b>
+        </div>
+        <div id='edge' className={hash == '#edge' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#edge'>Q:</Link> Why doesn't it work in Edge?</b>
+        <p>
+          If you have enabled Strict Tracking Protection in Edge, this will prevent Unddit from contacting Reddit's API.
+          Luckily there is an easy workaround.
+          Click on the padlock symbol on the left side of the address bar, and then switch off Tracking Protection for this site.
+          It will still be enabled for other sites.
+        </p>
+        </div>
+        <div id='difference' className={hash == '#difference' ? 'highlighted' : ''}>
+        <b className='question'><Link to='/about#difference'>Q:</Link> What's the difference between Ceddit and Removeddit/Unddit?</b>
         <p>
           Not much. Removeddit was created as a temporary replacement for Ceddit, at a time when Ceddit didn't work.
           Jesper thought this was necessary since he used Ceddit more then Reddit itself.
@@ -84,6 +111,7 @@ const About = props => {
               Ceddit provides user lookup while Removeddit doesn't.
             </li>
           </ul>
+        </div>
         </div>
 
         <h2 className='contact'>Links</h2>

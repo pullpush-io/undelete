@@ -6,10 +6,10 @@ const Header = props => (
   <header>
     <div id='header'>
       <h1>
-        <Link to='/'>Unddit</Link>
+        <Link to='/about'>Unddit</Link>
       </h1>
       <nav>
-        <Link to='/'>about & FAQ</Link>
+        <Link to='/about'>about & FAQ</Link>
       </nav>
     </div>
     <div id='status'>
