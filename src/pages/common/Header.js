@@ -15,6 +15,8 @@ const Header = props => (
     <div id='status'>
       {props.global.state.statusText &&
         <p id='status-text'>{props.global.state.statusText}</p>}
+      {props.global.state.statusHelpUrl &&
+        <Link id='status-helpurl' to={props.global.state.statusHelpUrl}>Need help?</Link>}
       {props.global.state.statusImage &&
         <img id='status-image' src={props.global.state.statusImage} alt='status' />}
     </div>

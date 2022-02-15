@@ -157,6 +157,24 @@ class Thread extends React.Component {
               loadingComments: false
             })
           })
+          .catch(e => {
+            if (e.origError.name == 'TypeError') {  // The exception when blocked by Tracking Protection
+              // https://stackoverflow.com/a/9851769
+              const isFirefox = typeof InstallTrigger !== 'undefined'
+              if (isFirefox) {
+                this.props.global.setError(e, '/about#firefox')
+                return
+              } else {
+                const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)
+                const isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1)
+                if (isEdgeChromium) {
+                  this.props.global.setError(e, '/about#edge')
+                  return
+                }
+              }
+            }
+            throw e
+          })
       })
       .catch(this.props.global.setError)
   }

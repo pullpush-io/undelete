@@ -32,6 +32,7 @@ class GlobalState extends Container {
     commentFilter: get(filterKey, filter.removedDeleted),
     maxComments: get(maxCommentsKey, maxCommentsDefault),
     statusText: '',
+    statusHelpUrl: undefined,
     statusImage: undefined
   }
 
@@ -55,10 +56,14 @@ class GlobalState extends Container {
 
   loadMaxComments = () => this.setState({maxComments: get(maxCommentsKey, maxCommentsDefault)})
 
-  setSuccess = () => this.setState({statusText: '', statusImage: '/images/success.png'})
+  setSuccess = () => this.setState({statusText: '', statusHelpUrl: undefined, statusImage: '/images/success.png'})
   setLoading = (text) => this.setState({statusText: text, statusImage: '/images/loading.gif'})
-  setError = (error) => this.setState({statusText: error.message, statusImage: '/images/error.png'})
-  clearStatus = () => this.setState({statusText: '', statusImage: undefined})
+  setError = (error, helpUrl = undefined) => {
+    this.setState({statusText: error.message, statusImage: '/images/error.png'})
+    if (helpUrl)
+      this.setState({statusHelpUrl: helpUrl})
+  }
+  clearStatus = () => this.setState({statusText: '', statusHelpUrl: undefined, statusImage: undefined})
 }
 
 // A redux-like connect function for Unstated

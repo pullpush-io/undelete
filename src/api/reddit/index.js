@@ -5,7 +5,9 @@ const requestSettings = {headers: {"Accept-Language": "en"}}
 
 const errorHandler = (error, from) => {
   console.error(from + ': ' + error)
-  throw new Error('Could not connect to Reddit')
+  const e = new Error('Could not connect to Reddit')
+  e.origError = error
+  throw e
 }
 
 // Return the post itself
