@@ -89,14 +89,13 @@ class Thread extends React.Component {
 
     // Get comment ids from pushshift
     getPushshiftComments(threadID, this.props.global.state.maxComments)
-      .then(pushshiftComments => {
-        console.log(`Pushshift: ${pushshiftComments.length} comments`)
-        const pushshiftCommentLookup = new Map(pushshiftComments.map(c => [c.id, c]))
+      .then(pushshiftCommentLookup => {
+        console.log(`Pushshift: ${pushshiftCommentLookup.size} comments`)
         const ids = []
         const missingIds = new Set()
 
         // Extract ids from pushshift response
-        pushshiftComments.forEach(comment => {
+        pushshiftCommentLookup.forEach(comment => {
           ids.push(comment.id)
           if (comment.parent_id != threadID &&
               !pushshiftCommentLookup.has(comment.parent_id) &&
@@ -105,7 +104,6 @@ class Thread extends React.Component {
             missingIds.add(comment.parent_id)
           }
         });
-        pushshiftComments = undefined
         missingIds.clear()
 
         // Get all the comments from reddit
