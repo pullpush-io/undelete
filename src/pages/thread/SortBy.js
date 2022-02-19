@@ -34,15 +34,14 @@ const sortBy = props => {
     <span className='space' />
   <label htmlFor='maxComments'>max. to download:</label>
     <span className='space' />
-    <input id='maxComments' onChange={e => {
-      setReloadVisible(parseInt(e.target.value) > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit)
-    }} onBlur={e => {
-      e.target.value = props.global.saveMaxComments(e.target.value)
-    }} {
-      ...(isFirefox ? {onClick: e => {
-        e.target.focus()
-      }} : {})
-    } defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
+    <input id='maxComments'
+      onKeyDown={e => e.key == "Enter" && e.target.blur()}
+      onChange= {e =>
+        setReloadVisible(parseInt(e.target.value) > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit)}
+      onBlur=   {e => e.target.value = props.global.saveMaxComments(e.target.value)}
+      { ...(isFirefox ? {
+        onClick: e => e.target.focus() } : {}) }
+      defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
   {reloadVisible && <>
     <span className='space' />
     <input onClick={() => {props.global.loadMaxComments(); setReloadVisible(false)}} type='button' value='Reload' />
