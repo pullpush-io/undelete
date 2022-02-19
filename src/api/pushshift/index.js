@@ -67,10 +67,8 @@ export const getPost = async threadID => {
   }
 }
 
-export const getComments = async (threadID, maxComments) => {
-  let chunks = Math.ceil(maxComments / chunkSize)
-  let after = 0, comments
-  const allComments = new Map()
+export const getComments = async (allComments, threadID, maxComments, after) => {
+  let chunks = Math.ceil(maxComments / chunkSize), comments
   while (true) {
 
     let delay = 0
@@ -97,8 +95,8 @@ export const getComments = async (threadID, maxComments) => {
     }))
     if (comments.length < chunkSize/2 || chunks <= 1)
       break
-    chunks -= 1
+    chunks--
     after = Math.max(comments[comments.length - 1].created_utc - 1, after + 1)
   }
-  return allComments
+  return comments[comments.length - 1].created_utc
 }

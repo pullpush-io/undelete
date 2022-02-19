@@ -21,7 +21,8 @@ class Thread extends React.Component {
     pushshiftCommentLookup: new Map(),
     removed: [],
     deleted: [],
-    loadingComments: true
+    loadingComments: true,
+    reloadingComments: false
   }
 
   componentDidMount () {
@@ -67,32 +68,30 @@ class Thread extends React.Component {
           this.props.global.setLoading('Loading comments from Pushshift...')
       })
 
-    this.getComments()
+    this.getComments(this.props.global.state.maxComments, 0)
   }
 
   componentDidUpdate () {
-    if (this.props.global.state.maxComments > this.curMaxComments) {
+    const newCommentCount = this.props.global.state.maxComments - this.curMaxComments
+    if (newCommentCount > 0) {
       this.curMaxComments = this.props.global.state.maxComments
-      this.setState({
-        pushshiftCommentLookup: new Map(),
-        removed: [],
-        deleted: [],
-        loadingComments: true
-      })
-      this.props.global.setLoading('Loading comments from Pushshift...')
-      this.getComments()
+      this.setState({reloadingComments: true})
+      this.props.global.setLoading('Loading more comments from Pushshift...')
+      this.getComments(newCommentCount, this.lastCreatedUtc - 1)
     }
   }
 
-  getComments () {
+  getComments (newCommentCount, after) {
     const { threadID } = this.props.match.params
+    const pushshiftCommentLookup = this.state.pushshiftCommentLookup
 
     // Get comment ids from pushshift
-    getPushshiftComments(threadID, this.props.global.state.maxComments)
-      .then(pushshiftCommentLookup => {
+    getPushshiftComments(pushshiftCommentLookup, threadID, newCommentCount, after)
+      .then(lastCreatedUtc => {
         console.log(`Pushshift: ${pushshiftCommentLookup.size} comments`)
         const ids = []
         const missingIds = new Set()
+        this.lastCreatedUtc = lastCreatedUtc
 
         // Extract ids from pushshift response
         pushshiftCommentLookup.forEach(comment => {
@@ -152,7 +151,8 @@ class Thread extends React.Component {
               pushshiftCommentLookup,
               removed,
               deleted,
-              loadingComments: false
+              loadingComments: false,
+              reloadingComments: false
             })
           })
           .catch(e => {
@@ -196,7 +196,9 @@ class Thread extends React.Component {
               removed={this.state.removed.length}
               deleted={this.state.deleted.length}
             />
-            <SortBy />
+            <SortBy
+              reloadingComments={this.state.reloadingComments}
+            />
             {isSingleComment &&
               <div className='view-rest-of-comment'>
                 <div>you are viewing a single comment's thread.</div>

@@ -42,7 +42,7 @@ const sortBy = props => {
       { ...(isFirefox ? {
         onClick: e => e.target.focus() } : {}) }
       defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
-  {reloadVisible && <>
+  {reloadVisible && !props.reloadingComments && <>
     <span className='space' />
     <input onClick={() => {props.global.loadMaxComments(); setReloadVisible(false)}} type='button' value='Reload' />
   </>}
