@@ -46,6 +46,7 @@ class GlobalState extends Container {
     this.setState({commentFilter: filterType})
   }
 
+  // Contrains, saves, and returns it, but does not change the state (does not load more comments)
   saveMaxComments (maxComments) {
     maxComments = Math.min(Math.round(maxComments), maxCommentsLimit)
     if (!(maxComments >= 100))  // also true when maxComments isn't a number
@@ -54,7 +55,14 @@ class GlobalState extends Container {
     return maxComments
   }
 
-  loadMaxComments = () => this.setState({maxComments: get(maxCommentsKey, maxCommentsDefault)})
+  // Gets the saved setting, regardless of the current state
+  getMaxComments = () => get(maxCommentsKey, maxCommentsDefault)
+
+  // Sets the current state based on the saved setting (loads more comments)
+  loadMaxComments = () => this.setState({maxComments: this.getMaxComments()})
+
+  // Sets the current state loading moreComments, ignoring the saved setting
+  loadMoreComments = moreComments => this.setState({maxComments: this.state.maxComments + moreComments})
 
   setSuccess = () => {
     this.setState({statusText: '', statusHelpUrl: undefined, statusImage: '/images/success.png'})

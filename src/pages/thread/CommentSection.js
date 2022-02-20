@@ -1,6 +1,6 @@
 import React from 'react'
 import Comment from './Comment'
-import {connect, sort, filter} from '../../state'
+import {connect, sort, filter, maxCommentsDefault} from '../../state'
 import {
   topSort, bottomSort, newSort, oldSort,
   showRemovedAndDeleted, showRemoved, showDeleted
@@ -72,6 +72,7 @@ const commentSection = (props) => {
   console.time('render comment section')
   const commentTree = unflatten(props.comments, props.root, props.removed, props.deleted)
   const {commentFilter, commentSort} = props.global.state
+  const maxCommentsPreferred = props.global.getMaxComments()
 
   if (commentFilter === filter.removedDeleted) {
     filterCommentTree(commentTree, showRemovedAndDeleted)
@@ -94,14 +95,24 @@ const commentSection = (props) => {
 
   return (
     commentTree.length !== 0
-      ? commentTree.map(comment => (
+      ? <> {commentTree.map(comment => (
         <Comment
           key={comment.id}
           {...comment}
           depth={0}
           postAuthor={props.postAuthor}
         />
-      ))
+      ))}
+      <p className='load-more'>
+        {maxCommentsPreferred <= maxCommentsDefault / 2 &&
+          <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
+        }
+        <a onClick={() => props.global.loadMoreComments(maxCommentsDefault)}>load {maxCommentsDefault} more comments</a>
+        {maxCommentsPreferred >= maxCommentsDefault * 2 &&
+          <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
+        }
+      </p>
+      </>
       : <p>No comments found</p>
   )
 }
