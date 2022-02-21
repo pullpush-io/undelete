@@ -1,6 +1,6 @@
 import React from 'react'
 import Comment from './Comment'
-import {connect, sort, filter, maxCommentsDefault} from '../../state'
+import {sort, filter} from '../../state'
 import {
   topSort, bottomSort, newSort, oldSort,
   showRemovedAndDeleted, showRemoved, showDeleted
@@ -71,8 +71,7 @@ const filterCommentTree = (comments, filterFunction) => {
 const commentSection = (props) => {
   console.time('render comment section')
   const commentTree = unflatten(props.comments, props.root, props.removed, props.deleted)
-  const {commentFilter, commentSort} = props.global.state
-  const maxCommentsPreferred = props.global.getMaxComments()
+  const {commentFilter, commentSort} = props
 
   if (commentFilter === filter.removedDeleted) {
     filterCommentTree(commentTree, showRemovedAndDeleted)
@@ -95,26 +94,29 @@ const commentSection = (props) => {
 
   return (
     commentTree.length !== 0
-      ? <> {commentTree.map(comment => (
+      ? commentTree.map(comment => (
         <Comment
           key={comment.id}
           {...comment}
           depth={0}
           postAuthor={props.postAuthor}
         />
-      ))}
-      <p className='load-more'>
-        {maxCommentsPreferred <= maxCommentsDefault / 2 &&
-          <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
-        }
-        <a onClick={() => props.global.loadMoreComments(maxCommentsDefault)}>load {maxCommentsDefault} more comments</a>
-        {maxCommentsPreferred >= maxCommentsDefault * 2 &&
-          <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
-        }
-      </p>
-      </>
+      ))
       : <p>No comments found</p>
   )
 }
 
-export default connect(commentSection)
+const areEqual = (prevProps, nextProps) => {
+  if (prevProps.commentFilter !== nextProps.commentFilter ||
+      prevProps.commentSort   !== nextProps.commentSort   ||
+      prevProps.root          !== nextProps.root)
+    return false
+  if (nextProps.reloadingComments)
+    return true
+  return prevProps.total          === nextProps.total          &&
+         prevProps.removed.length === nextProps.removed.length &&
+         prevProps.deleted.length === nextProps.deleted.length &&
+         prevProps.postAuthor     === nextProps.postAuthor
+}
+
+export default React.memo(commentSection, areEqual)

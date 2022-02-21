@@ -14,6 +14,7 @@ import Post from '../common/Post'
 import CommentSection from './CommentSection'
 import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
+import LoadMore from './LoadMore'
 
 class Thread extends React.Component {
   state = {
@@ -21,6 +22,7 @@ class Thread extends React.Component {
     pushshiftCommentLookup: new Map(),
     removed: [],
     deleted: [],
+    loadedAllComments: false,
     loadingComments: true,
     reloadingComments: false
   }
@@ -87,7 +89,7 @@ class Thread extends React.Component {
 
     // Get comment ids from pushshift
     getPushshiftComments(pushshiftCommentLookup, threadID, newCommentCount, after)
-      .then(lastCreatedUtc => {
+      .then(([lastCreatedUtc, loadedAllComments]) => {
         console.log(`Pushshift: ${pushshiftCommentLookup.size} comments`)
         const ids = []
         const missingIds = new Set()
@@ -151,6 +153,7 @@ class Thread extends React.Component {
               pushshiftCommentLookup,
               removed,
               deleted,
+              loadedAllComments,
               loadingComments: false,
               reloadingComments: false
             })
@@ -186,11 +189,11 @@ class Thread extends React.Component {
     const root = isSingleComment ? commentID : id
 
     return (
-      <React.Fragment>
+      <>
         <Post {...this.state.post} />
         {
           (!this.state.loadingComments && root) &&
-          <React.Fragment>
+          <>
             <CommentInfo
               total={this.state.pushshiftCommentLookup.size}
               removed={this.state.removed.length}
@@ -211,10 +214,18 @@ class Thread extends React.Component {
               removed={this.state.removed}
               deleted={this.state.deleted}
               postAuthor={isDeleted(author) ? null : author}
+              commentFilter={this.props.global.state.commentFilter}  // need to explicitly
+              commentSort={this.props.global.state.commentSort}      // pass in these props
+              reloadingComments={this.state.reloadingComments}       // to ensure React.memo
+              total={this.state.pushshiftCommentLookup.size}         // works correctly
             />
-          </React.Fragment>
+            <LoadMore
+              loadedAllComments={this.state.loadedAllComments}
+              reloadingComments={this.state.reloadingComments}
+            />
+          </>
         }
-      </React.Fragment>
+      </>
     )
   }
 }

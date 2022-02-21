@@ -93,10 +93,11 @@ export const getComments = async (allComments, threadID, maxComments, after) => 
       parent_id: c.parent_id?.substring(3) || threadID,
       link_id:   c.link_id?.substring(3)   || threadID
     }))
-    if (comments.length < chunkSize/2 || chunks <= 1)
-      break
+    if (comments.length < chunkSize/2)
+      return [ comments[comments.length - 1].created_utc, true ]
+    if (chunks <= 1)
+      return [ comments[comments.length - 1].created_utc, false ]
     chunks--
     after = Math.max(comments[comments.length - 1].created_utc - 1, after + 1)
   }
-  return comments[comments.length - 1].created_utc
 }
