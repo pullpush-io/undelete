@@ -48,7 +48,7 @@ const sortBy = props => {
   { maxCommentsField > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit && !props.reloadingComments &&
   <span className='nowrap'>
     <span className='space' />
-    <input onClick={() => {props.global.loadMaxComments(); setReloadVisible(false)}} type='button' value='Reload' />
+    <input onClick={() => {props.global.loadMaxComments()}} type='button' value='Reload' />
   </span> }
   </div>
   )
