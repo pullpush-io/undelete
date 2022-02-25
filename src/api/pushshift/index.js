@@ -68,7 +68,7 @@ export const getPost = async threadID => {
 }
 
 export const getComments = async (allComments, threadID, maxComments, after) => {
-  let chunks = Math.ceil(maxComments / chunkSize), comments
+  let chunks = Math.ceil(maxComments / chunkSize), comments, lastCreatedUtc = 1
   while (true) {
 
     let delay = 0
@@ -93,11 +93,13 @@ export const getComments = async (allComments, threadID, maxComments, after) => 
       parent_id: c.parent_id?.substring(3) || threadID,
       link_id:   c.link_id?.substring(3)   || threadID
     }))
+    if (comments.length)
+      lastCreatedUtc = comments[comments.length - 1].created_utc
     if (comments.length < chunkSize/2)
-      return [ comments[comments.length - 1].created_utc, true ]
+      return [ lastCreatedUtc, true ]
     if (chunks <= 1)
-      return [ comments[comments.length - 1].created_utc, false ]
+      return [ lastCreatedUtc, false ]
     chunks--
-    after = Math.max(comments[comments.length - 1].created_utc - 1, after + 1)
+    after = Math.max(lastCreatedUtc - 1, after + 1)
   }
 }
