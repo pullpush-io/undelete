@@ -1,6 +1,7 @@
 import React from 'react'
 import { Subscribe, Container } from 'unstated'
 import { get, put } from './utils'
+import { chunkSize } from './api/pushshift'
 
 // Sort types for comments
 export const sort = {
@@ -19,7 +20,20 @@ export const filter = {
 }
 
 export const maxCommentsDefault = 800
+export const minCommentsLimit   = chunkSize
 export const maxCommentsLimit   = 20000
+
+// Contrains, saves, and returns it, but does not change the state (does not load more comments)
+export const saveMaxComments = maxComments => {
+  maxComments = Math.min(Math.round(maxComments), maxCommentsLimit)
+  if (!(maxComments >= minCommentsLimit))  // also true when maxComments isn't a number
+    maxComments = minCommentsLimit
+  put(maxCommentsKey, maxComments)
+  return maxComments
+}
+
+// Gets the saved setting, regardless of the current state
+export const getMaxComments = () => get(maxCommentsKey, maxCommentsDefault)
 
 // Keys for localStorage
 const sortKey = 'commentSort'
@@ -46,20 +60,8 @@ class GlobalState extends Container {
     this.setState({commentFilter: filterType})
   }
 
-  // Contrains, saves, and returns it, but does not change the state (does not load more comments)
-  saveMaxComments (maxComments) {
-    maxComments = Math.min(Math.round(maxComments), maxCommentsLimit)
-    if (!(maxComments >= 100))  // also true when maxComments isn't a number
-      maxComments = 100
-    put(maxCommentsKey, maxComments)
-    return maxComments
-  }
-
-  // Gets the saved setting, regardless of the current state
-  getMaxComments = () => get(maxCommentsKey, maxCommentsDefault)
-
   // Sets the current state based on the saved setting (loads more comments)
-  loadMaxComments = () => this.setState({maxComments: this.getMaxComments()})
+  loadMaxComments = () => this.setState({maxComments: getMaxComments()})
 
   // Sets the current state loading moreComments, ignoring the saved setting
   loadMoreComments = moreComments => this.setState({maxComments: this.state.maxComments + moreComments})

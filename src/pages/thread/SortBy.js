@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import {connect, sort, filter, maxCommentsLimit} from '../../state'
+import {connect, sort, filter, saveMaxComments, minCommentsLimit, maxCommentsLimit} from '../../state'
 
 const sortBy = props => {
   const [maxCommentsField, setMaxCommentsField] = useState(props.global.state.maxComments)
@@ -40,10 +40,11 @@ const sortBy = props => {
     <input id='maxComments'
       onKeyDown={e => e.key == "Enter" && e.target.blur()}
       onChange= {e => setMaxCommentsField(parseInt(e.target.value))}
-      onBlur=   {e => e.target.value = props.global.saveMaxComments(e.target.value)}
+      onBlur=   {e => e.target.value = saveMaxComments(e.target.value)}
       { ...(isFirefox ? {
         onClick: e => e.target.focus() } : {}) }
-      defaultValue={props.global.state.maxComments} type='number' maxLength='5' required min='100' max={maxCommentsLimit} step='100' />
+      defaultValue={props.global.state.maxComments} type='number' maxLength='5' required
+      min={minCommentsLimit} max={maxCommentsLimit} step={minCommentsLimit} />
   </span>
   { maxCommentsField > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit && !props.reloadingComments &&
   <span className='nowrap'>

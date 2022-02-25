@@ -1,8 +1,8 @@
 import React from 'react'
-import {connect, maxCommentsDefault} from '../../state'
+import {connect, getMaxComments, maxCommentsDefault} from '../../state'
 
 const loadMore = (props) => {
-  const maxCommentsPreferred = props.global.getMaxComments()
+  const maxCommentsPreferred = getMaxComments()
 
   if (props.reloadingComments)
     return <p className='loading-more'><span>loading...</span></p>
