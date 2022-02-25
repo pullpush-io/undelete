@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { connect } from '../state'
 
 const About = props => {
@@ -8,7 +8,7 @@ const About = props => {
     props.global.clearStatus()
   }
 
-  const { hash } = useLocation();
+  const { hash } = props.location;
 
   useEffect(() => {
     const id = hash.substr(1)
