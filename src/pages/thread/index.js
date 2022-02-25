@@ -9,7 +9,7 @@ import {
   getComments as getPushshiftComments
 } from '../../api/pushshift'
 import { isDeleted, isRemoved } from '../../utils'
-import { connect } from '../../state'
+import { connect, constrainMaxComments } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
 import SortBy from './SortBy'
@@ -29,7 +29,12 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID } = this.props.match.params
-    this.curMaxComments = this.props.global.state.maxComments
+    let maxCommentsQuery = parseInt((new URLSearchParams(this.props.location.search)).get('max_comments'))
+    if (maxCommentsQuery > this.props.global.state.maxComments)
+      // Directly mutating the state is not recommended, but it's only done once and is probably OK here
+      this.props.global.state.maxComments = this.curMaxComments = constrainMaxComments(maxCommentsQuery)
+    else
+      this.curMaxComments = this.props.global.state.maxComments
     this.props.global.setLoading('Loading post...')
 
     // Get post from reddit

@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import {connect, sort, filter, saveMaxComments, minCommentsLimit, maxCommentsLimit} from '../../state'
+import {connect, sort, filter, getMaxComments, saveMaxComments, minCommentsLimit, maxCommentsLimit} from '../../state'
 
 const sortBy = props => {
   const [maxCommentsField, setMaxCommentsField] = useState(props.global.state.maxComments)
+  const initSavedMaxComments = getMaxComments()
   const isFirefox = typeof InstallTrigger !== 'undefined'
   let usedMouse;
 
@@ -43,7 +44,7 @@ const sortBy = props => {
       onBlur=   {e => e.target.value = saveMaxComments(e.target.value)}
       { ...(isFirefox ? {
         onClick: e => e.target.focus() } : {}) }
-      defaultValue={props.global.state.maxComments} type='number' maxLength='5' required
+      defaultValue={initSavedMaxComments} type='number' maxLength='5' required
       min={minCommentsLimit} max={maxCommentsLimit} step={minCommentsLimit} />
   </span>
   { maxCommentsField > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit && !props.reloadingComments &&

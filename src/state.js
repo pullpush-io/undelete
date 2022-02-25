@@ -23,11 +23,17 @@ export const maxCommentsDefault = 800
 export const minCommentsLimit   = chunkSize
 export const maxCommentsLimit   = 20000
 
-// Contrains, saves, and returns it, but does not change the state (does not load more comments)
-export const saveMaxComments = maxComments => {
+// Constrains input to between minCommentsLimit and maxCommentsLimit
+export const constrainMaxComments = maxComments => {
   maxComments = Math.min(Math.round(maxComments), maxCommentsLimit)
   if (!(maxComments >= minCommentsLimit))  // also true when maxComments isn't a number
     maxComments = minCommentsLimit
+  return maxComments
+}
+
+// Contrains, saves, and returns it, but does not change the state (does not load more comments)
+export const saveMaxComments = maxComments => {
+  maxComments = constrainMaxComments(maxComments)
   put(maxCommentsKey, maxComments)
   return maxComments
 }
