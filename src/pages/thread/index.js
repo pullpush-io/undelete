@@ -227,6 +227,7 @@ class Thread extends React.Component {
             <LoadMore
               loadedAllComments={this.state.loadedAllComments}
               reloadingComments={this.state.reloadingComments}
+              total={this.state.pushshiftCommentLookup.size}
             />
           </>
         }

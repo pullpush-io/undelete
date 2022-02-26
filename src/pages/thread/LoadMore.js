@@ -1,25 +1,37 @@
 import React from 'react'
 import {connect, getMaxComments, maxCommentsDefault} from '../../state'
 
+let lastTotal
+const loadMoreComments = (props, maxComments) => {
+  lastTotal = props.total
+  props.global.loadMoreComments(maxComments)
+}
+
 const loadMore = (props) => {
   const maxCommentsPreferred = getMaxComments()
+  let loadElements
 
   if (props.reloadingComments)
-    return <p className='loading-more'><span>loading...</span></p>
-  else if (props.loadedAllComments)
-    return <p className='load-more'>
-      <a onClick={() => props.global.loadMoreComments(maxCommentsDefault)}>load new comments</a>
-    </p>
-  else
-    return <p className='load-more'>
-      {maxCommentsPreferred <= maxCommentsDefault / 2 &&
-        <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
-      }
-      <a onClick={() => props.global.loadMoreComments(maxCommentsDefault)}>load {maxCommentsDefault} more comments</a>
-      {maxCommentsPreferred >= maxCommentsDefault * 2 &&
-        <a onClick={() => props.global.loadMoreComments(maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>
-      }
-    </p>
+    loadElements = [<span key='loading'>loading...</span>]
+  else {
+    if (props.loadedAllComments)
+      loadElements = [<a key='default' onClick={() => loadMoreComments(props, maxCommentsDefault)}>load new comments</a>]
+    else {
+      loadElements = []
+      if (maxCommentsPreferred <= maxCommentsDefault / 2)
+        loadElements.push(<a key='pref' onClick={() => loadMoreComments(props, maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>)
+      loadElements.push(<a key='default' onClick={() => loadMoreComments(props, maxCommentsDefault)}>load {maxCommentsDefault} more comments</a>)
+      if (maxCommentsPreferred >= maxCommentsDefault * 2)
+        loadElements.push(<a key='pref' onClick={() => loadMoreComments(props, maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>)
+    }
+    if (lastTotal !== undefined) {
+      const newComments = props.total - lastTotal
+      loadElements.push(<span key='loaded' className='fade'>
+        {newComments > 0 ? `loaded ${newComments} more comments` : 'no new comments found'}
+      </span>)
+    }
+  }
+  return <p className='load-more'>{loadElements}</p>
 }
 
 export default connect(loadMore)

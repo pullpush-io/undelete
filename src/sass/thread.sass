@@ -142,14 +142,20 @@
     margin-bottom: 10px
 
 
-.load-more a
-    font-weight: bold
-    font-size: 10px
+.load-more
+  font-weight: bold
+  font-size: 10px
+
+  a
     margin-left: 16px
     cursor: pointer
 
-.loading-more span
-    color: $link
-    font-weight: bold
-    font-size: 10px
+  span
     margin-left: 16px
+
+  .fade
+    animation: fade-anim 3s 2s ease-in-out forwards
+
+  @keyframes fade-anim
+    100%
+      color: $background
