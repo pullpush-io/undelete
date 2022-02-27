@@ -28,10 +28,10 @@ const sortBy = props => {
       onMouseDown={() => usedMouse = true}
       onKeyDown=  {() => usedMouse = false}
       onChange=   {e  => {props.global.setCommentFilter(e.target.value); if (usedMouse) e.target.blur()}}>
-      <option value={filter.all}>All comments</option>
-      <option value={filter.removedDeleted}>Removed and deleted</option>
-      <option value={filter.removed}>Removed</option>
-      <option value={filter.deleted}>Deleted</option>
+      <option value={filter.all}>all comments</option>
+      <option value={filter.removedDeleted}>removed & deleted</option>
+      <option value={filter.removed}>removed</option>
+      <option value={filter.deleted}>deleted</option>
     </select>
     <span className='space' />
   </span>
