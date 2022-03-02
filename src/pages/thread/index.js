@@ -46,13 +46,18 @@ class Thread extends React.Component {
         if (isDeleted(post.selftext) || isRemoved(post.selftext) || post.removed_by_category) {
           getRemovedPost(threadID)
             .then(removedPost => {
-              const displayedPost = removedPost === undefined ? post : removedPost
-              if (isDeleted(post.selftext)) {
-                displayedPost.deleted = true
-              } else {
-                displayedPost.removed = true
+              if (removedPost === undefined)
+                removedPost = post
+              else {
+                removedPost.score = post.score
+                removedPost.num_comments = post.num_comments
               }
-              this.setState({ post: displayedPost })
+              if (isDeleted(post.selftext)) {
+                removedPost.deleted = true
+              } else {
+                removedPost.removed = true
+              }
+              this.setState({ post: removedPost })
             })
         }
       })
