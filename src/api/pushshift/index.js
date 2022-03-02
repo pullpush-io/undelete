@@ -50,7 +50,7 @@ class TokenBucket {
   // Removes all tokens, and will refill the next token msNextAvail
   // millis from now. After it's refilled, resumes normal refill rate.
   setNextAvail(msNextAvail) {
-    this.tokens = 0
+    this._tokens = 0
     this._msNextRefill = Date.now() + msNextAvail
   }
 }
