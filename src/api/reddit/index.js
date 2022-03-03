@@ -1,5 +1,6 @@
-import { fetchJson, chunk } from '../../utils'
+import { fetchJson } from '../../utils'
 
+export const chunkSize = 100;
 const baseURL = 'https://api.reddit.com'
 const requestSettings = {headers: {"Accept-Language": "en"}}
 
@@ -35,14 +36,9 @@ export const getPost = (subreddit, threadID) => (
 //    .catch(error => errorHandler(error, 'reddit.getThreads'))
 //)
 
-// Helper function that fetches a list of comments
-const fetchComments = (commentIDs) => (
+// Fetch multiple comments by id
+export const getComments = commentIDs => (
   fetchJson(`${baseURL}/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`, requestSettings)
     .then(results => results.data.children.map(({data}) => data))
-)
-
-export const getComments = commentIDs => (
-  Promise.all(chunk(commentIDs, 100).map(ids => fetchComments(ids)))
-    .then(results => results.flat())
     .catch(error => errorHandler(error, 'reddit.getComments'))
 )

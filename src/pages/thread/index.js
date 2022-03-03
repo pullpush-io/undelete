@@ -2,19 +2,56 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {
   getPost,
-  getComments as getRedditComments
+  getComments as getRedditComments,
+  chunkSize as redditChunkSize
 } from '../../api/reddit'
 import {
   getPost as getRemovedPost,
   getComments as getPushshiftComments
 } from '../../api/pushshift'
-import { isDeleted, isRemoved } from '../../utils'
+import { isDeleted, isRemoved, sleep } from '../../utils'
 import { connect, constrainMaxComments } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
 import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
 import LoadMore from './LoadMore'
+
+class ChunkedQueue {
+
+  constructor(chunkSize) {
+    if (!(chunkSize > 0))
+      throw RangeError('chunkSize must be > 0')
+    this._chunkSize = chunkSize
+    this._chunks = [[]]  // Array of Arrays
+    // Invariant: this._chunks always contains at least one Array
+  }
+
+  push(x) {
+    const last = this._chunks[this._chunks.length - 1]
+    if (last.length < this._chunkSize)
+      last.push(x)
+    else
+      this._chunks.push([x])
+  }
+
+  hasFullChunk() {
+    return this._chunks[0].length >= this._chunkSize
+  }
+
+  shiftChunk() {
+    const first = this._chunks.shift()
+    if (this._chunks.length == 0)
+      this._chunks.push([])
+    return first
+  }
+
+  shiftAll() {
+    const all = this._chunks.flat()
+    this._chunks = [[]]
+    return all
+  }
+}
 
 class Thread extends React.Component {
   state = {
@@ -96,80 +133,106 @@ class Thread extends React.Component {
 
   getComments (newCommentCount, after) {
     const { threadID } = this.props.match.params
-    const pushshiftCommentLookup = this.state.pushshiftCommentLookup
+    const { pushshiftCommentLookup, removed, deleted } = this.state
+    const redditIdQueue = new ChunkedQueue(redditChunkSize)
+    const pushshiftPromises = [], redditPromises = []
+    let redditError = false, doRedditComments
 
-    // Get comment ids from pushshift
-    getPushshiftComments(pushshiftCommentLookup, threadID, newCommentCount, after)
-      .then(([lastCreatedUtc, loadedAllComments]) => {
-        console.log(`Pushshift: ${pushshiftCommentLookup.size} comments`)
-        const ids = []
-        const missingIds = new Set()
-        this.lastCreatedUtc = lastCreatedUtc
-
-        // Extract ids from pushshift response
-        pushshiftCommentLookup.forEach(comment => {
-          ids.push(comment.id)
-          if (comment.parent_id != threadID &&
-              !pushshiftCommentLookup.has(comment.parent_id) &&
-              !missingIds.has(comment.parent_id)) {
-            ids.push(comment.parent_id)
-            missingIds.add(comment.parent_id)
+    // Process a chunk of comments downloaded from Pushshift (started below)
+    const processPushshiftComments = comments => {
+      pushshiftPromises.push(sleep(0).then(() => {
+        let count = 0
+        comments.forEach(comment => {
+          const { id, parent_id } = comment
+          if (!pushshiftCommentLookup.has(id)) {
+            pushshiftCommentLookup.set(id, comment)
+            redditIdQueue.push(id)
+            count++
+            if (parent_id != threadID && !pushshiftCommentLookup.has(parent_id)) {
+              pushshiftCommentLookup.set(parent_id, undefined)
+              redditIdQueue.push(parent_id)
+            }
           }
-        });
-        missingIds.clear()
+        })
+        while (redditIdQueue.hasFullChunk())
+          doRedditComments(redditIdQueue.shiftChunk())
+        return count
+      }))
+      return redditError  // causes getPushshiftComments() to exit early on a Reddit error
+    }
 
-        // Get all the comments from reddit
+    // Download a list of comments by id from Reddit, and process them
+    doRedditComments = ids => redditPromises.push(getRedditComments(ids)
+      .then(comments => {
+        comments.forEach(comment => {
+          let pushshiftComment = pushshiftCommentLookup.get(comment.id)
+          if (pushshiftComment === undefined) {
+            // When a parent comment is missing from pushshift, use the reddit comment instead
+            comment.parent_id = comment.parent_id.substring(3)
+            comment.link_id = comment.link_id.substring(3)
+            pushshiftComment = comment
+            pushshiftCommentLookup.set(comment.id, pushshiftComment)
+          } else {
+            // Replace pushshift score with reddit (it's usually more accurate)
+            pushshiftComment.score = comment.score
+          }
+
+          // Check what is removed / deleted according to reddit
+          if (isRemoved(comment.body)) {
+            removed.push(comment.id)
+            pushshiftComment.removed = true
+          } else if (isDeleted(comment.body)) {
+            deleted.push(comment.id)
+            pushshiftComment.deleted = true
+          } else if (pushshiftComment !== comment) {
+            if (isRemoved(pushshiftComment.body)) {
+              // If it's deleted in pushshift, but later restored by a mod, use the restored
+              comment.parent_id = comment.parent_id.substring(3)
+              comment.link_id = comment.link_id.substring(3)
+              pushshiftCommentLookup.set(comment.id, comment)
+            } else if (pushshiftComment.body != comment.body) {
+              pushshiftComment.edited_body = comment.body
+              pushshiftComment.edited = comment.edited
+            }
+          }
+        })
+        return comments.length
+      })
+      .catch(error => {
+        this.props.global.setError(error, error.helpUrl)
+        redditError = true
+      })
+    )
+
+    // Download comments from Pushshift, and process each chunk (above) as it's retrieved
+    getPushshiftComments(processPushshiftComments, threadID, newCommentCount, after)
+      .then(([lastCreatedUtc, loadedAllComments]) => {
+        this.lastCreatedUtc = lastCreatedUtc
+        if (redditError)
+          return
         this.props.global.setLoading('Comparing comments to Reddit API...')
-        return getRedditComments(ids)
-          .then(redditComments => {
-            console.log(`Reddit: ${redditComments.length} comments`)
-            const removed = []
-            const deleted = []
 
-            redditComments.forEach(comment => {
-              let pushshiftComment = pushshiftCommentLookup.get(comment.id)
-              if (pushshiftComment === undefined) {
-                // When a parent comment is missing from pushshift, use the reddit comment instead
-                comment.parent_id = comment.parent_id.substring(3)
-                comment.link_id = comment.link_id.substring(3)
-                pushshiftComment = comment
-                pushshiftCommentLookup.set(comment.id, pushshiftComment)
-              } else {
-                // Replace pushshift score with reddit (it's usually more accurate)
-                pushshiftComment.score = comment.score
-              }
+        // All comments have been retrieved from Pushshift; wait for processing to finish
+        Promise.all(pushshiftPromises).then(lengths => {
+          console.log('Pushshift:', lengths.reduce((a,b) => a+b, 0), 'comments')
 
-              // Check what is removed / deleted according to reddit
-              if (isRemoved(comment.body)) {
-                removed.push(comment.id)
-                pushshiftComment.removed = true
-              } else if (isDeleted(comment.body)) {
-                deleted.push(comment.id)
-                pushshiftComment.deleted = true
-              } else if (pushshiftComment !== comment) {
-                if (isRemoved(pushshiftComment.body)) {
-                  // If it's deleted in pushshift, but later restored by a mod, use the restored
-                  comment.parent_id = comment.parent_id.substring(3)
-                  comment.link_id = comment.link_id.substring(3)
-                  pushshiftCommentLookup.set(comment.id, comment)
-                } else if (pushshiftComment.body != comment.body) {
-                  pushshiftComment.edited_body = comment.body
-                  pushshiftComment.edited = comment.edited
-                }
-              }
-            })
-
-            this.props.global.setSuccess()
-            this.setState({
-              pushshiftCommentLookup,
-              removed,
-              deleted,
-              loadedAllComments,
-              loadingComments: false,
-              reloadingComments: false
-            })
+          // All comments from Pushshift have been processed; wait for Reddit to finish
+          doRedditComments(redditIdQueue.shiftAll())
+          Promise.all(redditPromises).then(lengths => {
+            console.log('Reddit:', lengths.reduce((a,b) => a+b, 0), 'comments')
+            if (!redditError) {
+              this.props.global.setSuccess()
+              this.setState({
+                pushshiftCommentLookup,
+                removed,
+                deleted,
+                loadedAllComments,
+                loadingComments: false,
+                reloadingComments: false
+              })
+            }
           })
-          .catch(e => this.props.global.setError(e, e.helpUrl))
+        })
       })
       .catch(e => this.props.global.setError(e, e.helpUrl))
   }

@@ -22,7 +22,7 @@ const unflatten = (commentMap, root, removed, deleted) => {
     } else if ((parentComment = commentMap.get(parentID)) !== undefined) {
       parentComment.replies.push(comment)
     } else {
-      console.error('MISSING PARENT ID:', parentID, 'for comment', comment)
+      console.warn('Missing parent ID:', parentID, 'for comment', comment)
     }
   })
 

@@ -1,4 +1,4 @@
-import { fetchJson } from '../../utils'
+import { fetchJson, sleep } from '../../utils'
 
 export const chunkSize = 100;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
@@ -11,9 +11,6 @@ const errorHandler = (msg, origError, from) => {
     error.helpUrl = '/about#psdown'
   throw error
 }
-
-const sleep = ms =>
-  new Promise(slept => setTimeout(slept, ms))
 
 class TokenBucket {
 
@@ -74,7 +71,10 @@ export const getPost = async threadID => {
   }
 }
 
-export const getComments = async (allComments, threadID, maxComments, after) => {
+// The callback() function is called with an Array of comments after each chunk is
+// retrieved. It should return as quickly as possible (scheduling time-taking work
+// later), and may return false to cause getComments to exit early, or true otherwise.
+export const getComments = async (callback, threadID, maxComments, after) => {
   let chunks = Math.ceil(maxComments / chunkSize), comments, lastCreatedUtc = 1
   while (true) {
 
@@ -92,18 +92,17 @@ export const getComments = async (allComments, threadID, maxComments, after) => 
         pushshiftTokenBucket.setNextAvail(delay)
       }
     }
-
-    comments.forEach(c => allComments.set(c.id, {
+    const exitEarly = callback(comments.map(c => ({
       ...c,
       parent_id: c.parent_id?.substring(3) || threadID,
       link_id:   c.link_id?.substring(3)   || threadID
-    }))
+    })))
+
+    const loadedAllComments = comments.length < chunkSize/2
     if (comments.length)
       lastCreatedUtc = comments[comments.length - 1].created_utc
-    if (comments.length < chunkSize/2)
-      return [ lastCreatedUtc, true ]
-    if (chunks <= 1)
-      return [ lastCreatedUtc, false ]
+    if (loadedAllComments || chunks <= 1 || exitEarly)
+      return [ lastCreatedUtc, loadedAllComments ]
     chunks--
     after = Math.max(lastCreatedUtc - 1, after + 1)
   }

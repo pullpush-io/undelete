@@ -18,14 +18,8 @@ export const fetchJson = (url, init = {}) =>
         })
     )
 
-// Take on big array and split it into an array of chunks with correct size
-export const chunk = (arr, size) => {
-  const chunks = []
-  for (let i = 0; i < arr.length; i += size) {
-    chunks.push(arr.slice(i, i + size))
-  }
-  return chunks
-}
+export const sleep = ms =>
+  new Promise(slept => setTimeout(slept, ms))
 
 // Reddits way of indicating that something is deleted (the '\\' is for Reddit and the other is for pushshift)
 export const isDeleted = textBody => textBody === '\\[deleted\\]' || textBody === '[deleted]'
