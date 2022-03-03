@@ -59,6 +59,7 @@ class Thread extends React.Component {
               }
               this.setState({ post: removedPost })
             })
+            .catch(e => this.props.global.setError(e, e.helpUrl))
         }
       })
       .catch(error => {
@@ -70,7 +71,7 @@ class Thread extends React.Component {
             this.setState({ post: { ...removedPost, removed: true } })
           })
           .catch(error => {
-            this.props.global.setError(error)
+            this.props.global.setError(error, error.helpUrl)
             // Create a dummy post so that comments will still be displayed
             this.setState({ post: { subreddit, id: threadID } })
           })
@@ -168,26 +169,9 @@ class Thread extends React.Component {
               reloadingComments: false
             })
           })
-          .catch(e => {
-            if (e.origError.name == 'TypeError') {  // The exception when blocked by Tracking Protection
-              // https://stackoverflow.com/a/9851769
-              const isFirefox = typeof InstallTrigger !== 'undefined'
-              if (isFirefox) {
-                this.props.global.setError(e, '/about#firefox')
-                return
-              } else {
-                const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)
-                const isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1)
-                if (isEdgeChromium) {
-                  this.props.global.setError(e, '/about#edge')
-                  return
-                }
-              }
-            }
-            throw e
-          })
+          .catch(e => this.props.global.setError(e, e.helpUrl))
       })
-      .catch(this.props.global.setError)
+      .catch(e => this.props.global.setError(e, e.helpUrl))
   }
 
   render () {

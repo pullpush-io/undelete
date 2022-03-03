@@ -3,11 +3,22 @@ import { fetchJson, chunk } from '../../utils'
 const baseURL = 'https://api.reddit.com'
 const requestSettings = {headers: {"Accept-Language": "en"}}
 
-const errorHandler = (error, from) => {
-  console.error(from + ': ' + error)
-  const e = new Error('Could not connect to Reddit')
-  e.origError = error
-  throw e
+const errorHandler = (origError, from) => {
+  console.error(from + ': ' + origError)
+  const error = new Error('Could not connect to Reddit')
+  if (origError.name == 'TypeError') {  // The exception when blocked by Tracking Protection
+    // https://stackoverflow.com/a/9851769
+    const isFirefox = typeof InstallTrigger !== 'undefined'
+    if (isFirefox)
+      error.helpUrl = '/about#firefox'
+    else {
+      const isChrome = !!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)
+      const isEdgeChromium = isChrome && (navigator.userAgent.indexOf("Edg") != -1)
+      if (isEdgeChromium)
+        error.helpUrl = '/about#edge'
+    }
+  }
+  throw error
 }
 
 // Return the post itself

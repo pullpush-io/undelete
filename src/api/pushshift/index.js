@@ -4,6 +4,14 @@ export const chunkSize = 100;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
 const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
 
+const errorHandler = (msg, origError, from) => {
+  console.error(from + ': ' + origError)
+  const error = new Error(msg)
+  if (origError.name == 'TypeError')  // Usually indicates that Pushshift is down
+    error.helpUrl = '/about#psdown'
+  throw error
+}
+
 const sleep = ms =>
   new Promise(slept => setTimeout(slept, ms))
 
@@ -62,8 +70,7 @@ export const getPost = async threadID => {
   try {
     return (await fetchJson(`${postURL}${threadID}`)).data[0]
   } catch (error) {
-    console.error('pushshift.getPost: ' + error)
-    throw new Error('Could not get removed post')
+    errorHandler('Could not get removed post', error, 'pushshift.getPost')
   }
 }
 
@@ -75,13 +82,11 @@ export const getComments = async (allComments, threadID, maxComments, after) => 
     while (true) {
       await pushshiftTokenBucket.waitForToken()
       try {
-        comments = (await fetchJson(`${commentURL}${threadID}&after=${after}`)).data
+        comments = (await fetchJson(`${commentURL}${threadID}${after ? `&after=${after}` : ''}`)).data
         break
       } catch (error) {
-        if (delay >= 8000) {  // after ~16s of consecutive failures
-          console.error('pushshift.getComments: ' + error)
-          throw new Error('Could not get removed comments')
-        }
+        if (delay >= 8000)  // after ~16s of consecutive failures
+          errorHandler('Could not get removed comments', error, 'pushshift.getComments')  // rethrows
         delay = delay * 2 || 125
         console.log('pushshift.getComments delay: ' + delay)
         pushshiftTokenBucket.setNextAvail(delay)
