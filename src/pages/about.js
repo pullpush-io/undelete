@@ -91,10 +91,10 @@ const About = props => {
         <div id='psdown' className={hash == '#psdown' ? 'highlighted' : ''}>
         <b className='question'><Link to='/about#psdown'>Q:</Link> Is Unddit/Pushshift down?</b>
         <p>
-          Occasionally, Pushshift (the service used by Unddit) goes offline for a short period.
+          Occasionally, Pushshift (the service used by Unddit) goes offline for a while.
           This can result in &ldquo;Could not get removed comments&rdquo; errors on Unddit.
           To check its status, click <a href='https://api.pushshift.io/reddit/comment/search/?size=1&sort=asc&fields=body&q=*&link_id=t4995r'>this direct link to Pushshift</a>.
-          You should either get a short message saying that Pushshift up, or an error.
+          You should either get a short message saying that Pushshift is up, or an error.
         </p>
         </div>
         <div id='difference' className={hash == '#difference' ? 'highlighted' : ''}>
