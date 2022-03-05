@@ -6,7 +6,7 @@ import {
   showRemovedAndDeleted, showRemoved, showDeleted
 } from '../../utils'
 
-const unflatten = (commentMap, root, removed, deleted) => {
+const unflatten = (commentMap, root) => {
   const commentTree = []
 
   commentMap.forEach(comment => {
@@ -68,31 +68,53 @@ const filterCommentTree = (comments, filterFunction) => {
   return hasOkComment
 }
 
+let commentTree, lastTotal, lastRoot, lastFilter, lastSort
+
 const commentSection = (props) => {
-  console.time('render comment section')
-  const commentTree = unflatten(props.comments, props.root, props.removed, props.deleted)
-  const {commentFilter, commentSort} = props
+  console.time('Build comment tree')
+  const {total, root, commentFilter, commentSort} = props
 
-  if (commentFilter === filter.removedDeleted) {
-    filterCommentTree(commentTree, showRemovedAndDeleted)
-  } else if (commentFilter === filter.removed) {
-    filterCommentTree(commentTree, showRemoved)
-  } else if (commentFilter === filter.deleted) {
-    filterCommentTree(commentTree, showDeleted)
+  const needsRebuild = !(total === lastTotal && root === lastRoot && (
+    commentFilter === lastFilter ||
+    lastFilter    === filter.all ||
+    lastFilter    === filter.removedDeleted && (
+      commentFilter === filter.removed ||
+      commentFilter === filter.deleted
+    )
+  ))
+  if (needsRebuild)
+    commentTree = unflatten(props.comments, root)
+
+  if (needsRebuild || commentFilter !== lastFilter) {
+    if (commentFilter === filter.removedDeleted) {
+      filterCommentTree(commentTree, showRemovedAndDeleted)
+    } else if (commentFilter === filter.removed) {
+      filterCommentTree(commentTree, showRemoved)
+    } else if (commentFilter === filter.deleted) {
+      filterCommentTree(commentTree, showDeleted)
+    }
   }
 
-  if (commentSort === sort.top) {
-    sortCommentTree(commentTree, topSort)
-  } else if (commentSort === sort.bottom) {
-    sortCommentTree(commentTree, bottomSort)
-  } else if (commentSort === sort.new) {
-    sortCommentTree(commentTree, newSort)
-  } else if (commentSort === sort.old) {
-    sortCommentTree(commentTree, oldSort)
+  if (needsRebuild || commentSort !== lastSort) {
+    if (commentSort === sort.top) {
+      sortCommentTree(commentTree, topSort)
+    } else if (commentSort === sort.bottom) {
+      sortCommentTree(commentTree, bottomSort)
+    } else if (commentSort === sort.new) {
+      sortCommentTree(commentTree, newSort)
+    } else if (commentSort === sort.old) {
+      sortCommentTree(commentTree, oldSort)
+    }
   }
-  console.timeEnd('render comment section')
 
-  return (
+  lastTotal  = total
+  lastRoot   = root
+  lastFilter = commentFilter
+  lastSort   = commentSort
+  console.timeEnd('Build comment tree')
+
+  console.time('Build html tree')
+  const htmlTree = (
     commentTree.length !== 0
       ? commentTree.map(comment => (
         <Comment
@@ -104,6 +126,8 @@ const commentSection = (props) => {
       ))
       : <p>No comments found</p>
   )
+  console.timeEnd('Build html tree')
+  return htmlTree
 }
 
 const areEqual = (prevProps, nextProps) => {
@@ -113,10 +137,8 @@ const areEqual = (prevProps, nextProps) => {
     return false
   if (nextProps.reloadingComments)
     return true
-  return prevProps.total          === nextProps.total          &&
-         prevProps.removed.length === nextProps.removed.length &&
-         prevProps.deleted.length === nextProps.deleted.length &&
-         prevProps.postAuthor     === nextProps.postAuthor
+  return prevProps.total      === nextProps.total &&
+         prevProps.postAuthor === nextProps.postAuthor
 }
 
 export default React.memo(commentSection, areEqual)

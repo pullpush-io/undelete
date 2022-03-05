@@ -99,29 +99,10 @@ export const get = (key, defaultValue) => {
 export const put = (key, value) => window.localStorage.setItem(key, JSON.stringify(value))
 
 // Sorting for comments
-export const topSort = (commentA, commentB) => {
-  if (commentA.score > commentB.score) return -1
-  if (commentA.score < commentB.score) return 1
-  return 0
-}
-
-export const bottomSort = (commentA, commentB) => {
-  if (commentA.score < commentB.score) return -1
-  if (commentA.score > commentB.score) return 1
-  return 0
-}
-
-export const newSort = (commentA, commentB) => {
-  if (commentA.created_utc > commentB.created_utc) return -1
-  if (commentA.created_utc < commentB.created_utc) return 1
-  return 0
-}
-
-export const oldSort = (commentA, commentB) => {
-  if (commentA.created_utc < commentB.created_utc) return -1
-  if (commentA.created_utc > commentB.created_utc) return 1
-  return 0
-}
+export const topSort    = (commentA, commentB) => commentB.score - commentA.score
+export const bottomSort = (commentA, commentB) => commentA.score - commentB.score
+export const newSort = (commentA, commentB) => commentB.created_utc - commentA.created_utc
+export const oldSort = (commentA, commentB) => commentA.created_utc - commentB.created_utc
 
 // Filter comments
 export const showRemoved = comment => comment.removed === true
