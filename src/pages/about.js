@@ -13,7 +13,7 @@ const About = props => {
   useEffect(() => {
     const id = hash.substr(1)
     if (id)
-      document.getElementById(id)?.scrollIntoView({behavior: "smooth"})
+      document.getElementById(id)?.scrollIntoView({behavior: 'smooth'})
   }, [hash])
 
   return (
@@ -28,11 +28,14 @@ const About = props => {
           (by users) comments/posts for Reddit.
         </p>
         <p>
-          <b>Usage</b>: Drag this bookmarklet
+          <b>PC Usage</b>: Press Ctrl-Shift-B to view the bookmark bar, and then drag this bookmarklet:
           <a className='bookmarklet' href='javascript:window.open(location.href.replace(/:\/\/([\w-]+.)?(reddit\.com\/r|reveddit\.com\/v)\//i, "://www.unddit.com/r/"), "_blank")'>
             Unddit
           </a>
-          to your bookmark bar and use it to get from Reddit to Unddit.
+          to the bar and click it when viewing a Reddit post.
+          <br /><br />
+          <b>Android Usage</b>: Install <a href='https://play.google.com/store/apps/details?id=com.agreenbhm.reveddit'>this app from the Play store</a>,
+          and then, while viewing a post in whichever Reddit app you prefer, click the Share button and select Unddit (which might be beneath Reveddit).
           <br /><br />
           Alternatively you can manually replace the <i>re</i> of <i>reddit</i> in the URL with <i>un</i>.
           <br />
