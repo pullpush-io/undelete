@@ -35,21 +35,14 @@ class ChunkedQueue {
       this._chunks.push([x])
   }
 
-  hasFullChunk() {
-    return this._chunks[0].length >= this._chunkSize
-  }
+  hasFullChunk = () => this._chunks[0].length >= this._chunkSize
+  isEmpty      = () => this._chunks[0].length == 0
 
   shiftChunk() {
     const first = this._chunks.shift()
     if (this._chunks.length == 0)
       this._chunks.push([])
     return first
-  }
-
-  shiftAll() {
-    const all = this._chunks.flat()
-    this._chunks = [[]]
-    return all
   }
 }
 
@@ -217,7 +210,8 @@ class Thread extends React.Component {
           console.log('Pushshift:', lengths.reduce((a,b) => a+b, 0), 'comments')
 
           // All comments from Pushshift have been processed; wait for Reddit to finish
-          doRedditComments(redditIdQueue.shiftAll())
+          while (!redditIdQueue.isEmpty())
+            doRedditComments(redditIdQueue.shiftChunk())
           Promise.all(redditPromises).then(lengths => {
             console.log('Reddit:', lengths.reduce((a,b) => a+b, 0), 'comments')
             if (!redditError) {
