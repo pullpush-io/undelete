@@ -42,7 +42,7 @@ const Comment = (props) => {
   return (
     <div id={props.id} className={commentStyle}>
       <div className={collapsed ? 'comment-head comment-collapsed' : 'comment-head'}>
-        <a onClick={() => setCollapsed(!collapsed)} className='comment-collapse'>[{collapsed ? '+' : '-'}]</a>
+        <a onClick={() => setCollapsed(!collapsed)} className='comment-collapse'>[{collapsed ? '+' : '\u2212'}]</a>
         <span className='space' />
         <a
           href={props.author !== '[deleted]' ? `https://www.reddit.com/user/${props.author}` : undefined}
