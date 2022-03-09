@@ -31,16 +31,6 @@ export const constrainMaxComments = maxComments => {
   return maxComments
 }
 
-// Contrains, saves, and returns it, but does not change the state (does not load more comments)
-export const saveMaxComments = maxComments => {
-  maxComments = constrainMaxComments(maxComments)
-  put(maxCommentsKey, maxComments)
-  return maxComments
-}
-
-// Gets the saved setting, regardless of the current state
-export const getMaxComments = () => get(maxCommentsKey, maxCommentsDefault)
-
 // Keys for localStorage
 const sortKey = 'commentSort'
 const filterKey = 'commentFilter'
@@ -50,11 +40,14 @@ class GlobalState extends Container {
   state = {
     commentSort: get(sortKey, sort.top),
     commentFilter: get(filterKey, filter.removedDeleted),
-    maxComments: get(maxCommentsKey, maxCommentsDefault),
+    loadingMoreComments: 0,  // max # of comments to attempt to load next
     statusText: '',
     statusHelpUrl: undefined,
     statusImage: undefined
   }
+
+  // Preferred max # of comments to get during (re-)loads
+  maxComments = get(maxCommentsKey, maxCommentsDefault)
 
   setCommentSort (sortType) {
     put(sortKey, sortType)
@@ -66,11 +59,15 @@ class GlobalState extends Container {
     this.setState({commentFilter: filterType})
   }
 
-  // Sets the current state based on the saved setting (loads more comments)
-  loadMaxComments = () => this.setState({maxComments: getMaxComments()})
+  // Contrains, saves, and returns it (does not load more comments)
+  setMaxComments (maxComments) {
+    this.maxComments = constrainMaxComments(maxComments)
+    put(maxCommentsKey, this.maxComments)
+    return this.maxComments
+  }
 
-  // Sets the current state loading moreComments, ignoring the saved setting
-  loadMoreComments = moreComments => this.setState({maxComments: this.state.maxComments + moreComments})
+  // Loads more comments
+  loadMoreComments = loadingMoreComments => this.setState({loadingMoreComments})
 
   setSuccess = () => {
     this.setState({statusText: '', statusHelpUrl: undefined, statusImage: '/images/success.png'})

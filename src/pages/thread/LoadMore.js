@@ -1,14 +1,14 @@
 import React from 'react'
-import {connect, getMaxComments, maxCommentsDefault} from '../../state'
+import {connect, maxCommentsDefault} from '../../state'
 
-let lastTotal
+let loadingStarted = false, showLoadedCount = false, lastTotal, newComments
 const loadMoreComments = (props, maxComments) => {
-  lastTotal = props.total
+  loadingStarted = true
   props.global.loadMoreComments(maxComments)
 }
 
 const loadMore = (props) => {
-  const maxCommentsPreferred = getMaxComments()
+  const maxCommentsPreferred = props.global.maxComments
   let loadElements
 
   if (props.reloadingComments)
@@ -24,8 +24,16 @@ const loadMore = (props) => {
       if (maxCommentsPreferred >= maxCommentsDefault * 2)
         loadElements.push(<a key='pref' onClick={() => loadMoreComments(props, maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>)
     }
-    if (lastTotal !== undefined) {
-      const newComments = props.total - lastTotal
+    if (loadingStarted) {
+      showLoadedCount = true
+      newComments = props.total - lastTotal
+      lastTotal = props.total
+      loadingStarted = false
+    } else if (lastTotal !== props.total) {
+      showLoadedCount = false
+      lastTotal = props.total
+    }
+    if (showLoadedCount) {
       loadElements.push(<span key='loaded' className='fade'>
         {newComments > 0 ? `loaded ${newComments} more comments` : 'no new comments found'}
       </span>)

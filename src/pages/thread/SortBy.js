@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import {connect, sort, filter, getMaxComments, saveMaxComments, minCommentsLimit, maxCommentsLimit} from '../../state'
+import {connect, sort, filter, minCommentsLimit, maxCommentsLimit, constrainMaxComments} from '../../state'
 
 const sortBy = props => {
-  const [maxCommentsField, setMaxCommentsField] = useState(props.global.state.maxComments)
-  const initSavedMaxComments = getMaxComments()
+  // The current value of the field; it'll be later saved after an onBlur event
+  const [maxCommentsField, setMaxCommentsField] = useState(props.global.maxComments)
   const isFirefox = typeof InstallTrigger !== 'undefined'
   let usedMouse;
 
@@ -41,16 +41,16 @@ const sortBy = props => {
     <input id='maxComments'
       onKeyDown={e => e.key == "Enter" && e.target.blur()}
       onChange= {e => setMaxCommentsField(parseInt(e.target.value))}
-      onBlur=   {e => e.target.value = saveMaxComments(e.target.value)}
+      onBlur=   {e => e.target.value = props.global.setMaxComments(e.target.value)}
       { ...(isFirefox ? {
         onClick: e => e.target.focus() } : {}) }
-      defaultValue={initSavedMaxComments} type='number' maxLength='5' required
+      defaultValue={props.global.maxComments} type='number' maxLength='5' required
       min={minCommentsLimit} max={maxCommentsLimit} step={minCommentsLimit} />
   </span>
-  { maxCommentsField > props.global.state.maxComments && props.global.state.maxComments < maxCommentsLimit && !props.reloadingComments &&
+  { !props.loadedAllComments && !props.reloadingComments && constrainMaxComments(maxCommentsField) - minCommentsLimit >= props.total &&
   <span className='nowrap'>
     <span className='space' />
-    <input onClick={() => {props.global.loadMaxComments()}} type='button' value='Reload' />
+    <input onClick={() => props.global.loadMoreComments(props.global.maxComments - props.total)} type='button' value='Reload' />
   </span> }
   </div>
   )

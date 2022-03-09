@@ -59,12 +59,6 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID } = this.props.match.params
-    let maxCommentsQuery = parseInt((new URLSearchParams(this.props.location.search)).get('max_comments'))
-    if (maxCommentsQuery > this.props.global.state.maxComments)
-      // Directly mutating the state is not recommended, but it's only done once and is probably OK here
-      this.props.global.state.maxComments = this.curMaxComments = constrainMaxComments(maxCommentsQuery)
-    else
-      this.curMaxComments = this.props.global.state.maxComments
     this.props.global.setLoading('Loading post...')
 
     // Get post from reddit
@@ -111,16 +105,18 @@ class Thread extends React.Component {
           this.props.global.setLoading('Loading comments from Pushshift...')
       })
 
-    this.getComments(this.props.global.state.maxComments, 0)
+    const maxCommentsQuery = constrainMaxComments(
+      parseInt((new URLSearchParams(this.props.location.search)).get('max_comments')))
+    this.getComments(Math.max(this.props.global.maxComments, maxCommentsQuery), 0)
   }
 
   componentDidUpdate () {
-    const newCommentCount = this.props.global.state.maxComments - this.curMaxComments
-    if (newCommentCount > 0) {
-      this.curMaxComments = this.props.global.state.maxComments
+    const { loadingMoreComments } = this.props.global.state
+    if (loadingMoreComments) {
+      this.props.global.state.loadingMoreComments = 0
       this.setState({reloadingComments: true})
       this.props.global.setLoading('Loading more comments from Pushshift...')
-      this.getComments(newCommentCount, this.lastCreatedUtc - 1)
+      this.getComments(loadingMoreComments, this.lastCreatedUtc - 1)
     }
   }
 
@@ -234,6 +230,7 @@ class Thread extends React.Component {
   render () {
     const { subreddit, id, author } = this.state.post
     const { commentID } = this.props.match.params
+    const reloadingComments = this.state.reloadingComments || this.props.global.state.loadingMoreComments
     const linkToRestOfComments = `/r/${subreddit}/comments/${id}/_/`
 
     const isSingleComment = commentID !== undefined
@@ -251,7 +248,9 @@ class Thread extends React.Component {
               deleted={this.state.deleted.length}
             />
             <SortBy
-              reloadingComments={this.state.reloadingComments}
+              loadedAllComments={this.state.loadedAllComments}
+              reloadingComments={reloadingComments}
+              total={this.state.pushshiftCommentLookup.size}
             />
             {isSingleComment &&
               <div className='view-rest-of-comment'>
@@ -267,12 +266,12 @@ class Thread extends React.Component {
               postAuthor={isDeleted(author) ? null : author}
               commentFilter={this.props.global.state.commentFilter}  // need to explicitly
               commentSort={this.props.global.state.commentSort}      // pass in these props
-              reloadingComments={this.state.reloadingComments}       // to ensure React.memo
+              reloadingComments={reloadingComments}                  // to ensure React.memo
               total={this.state.pushshiftCommentLookup.size}         // works correctly
             />
             <LoadMore
               loadedAllComments={this.state.loadedAllComments}
-              reloadingComments={this.state.reloadingComments}
+              reloadingComments={reloadingComments}
               total={this.state.pushshiftCommentLookup.size}
             />
           </>

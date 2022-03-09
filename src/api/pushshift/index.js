@@ -75,7 +75,7 @@ export const getPost = async threadID => {
 // retrieved. It should return as quickly as possible (scheduling time-taking work
 // later), and may return false to cause getComments to exit early, or true otherwise.
 export const getComments = async (callback, threadID, maxComments, after) => {
-  let chunks = Math.ceil(maxComments / chunkSize), comments, lastCreatedUtc = 1
+  let chunks = Math.floor(maxComments / chunkSize), comments, lastCreatedUtc = 1
   while (true) {
 
     let delay = 0
