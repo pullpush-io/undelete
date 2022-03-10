@@ -2,7 +2,7 @@ import { fetchJson, sleep } from '../../utils'
 
 export const chunkSize = 100;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
-const commentURL = `https://api.pushshift.io/reddit/comment/search/?size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
+const commentURL = `https://api.pushshift.io/reddit/comment/search/?metadata=true&size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
 
 const errorHandler = (msg, origError, from) => {
   console.error(from + ': ' + origError)
@@ -75,14 +75,14 @@ export const getPost = async threadID => {
 // retrieved. It should return as quickly as possible (scheduling time-taking work
 // later), and may return false to cause getComments to exit early, or true otherwise.
 export const getComments = async (callback, threadID, maxComments, after) => {
-  let chunks = Math.floor(maxComments / chunkSize), comments, lastCreatedUtc = 1
+  let chunks = Math.floor(maxComments / chunkSize), response, lastCreatedUtc = 1
   while (true) {
 
     let delay = 0
     while (true) {
       await pushshiftTokenBucket.waitForToken()
       try {
-        comments = (await fetchJson(`${commentURL}${threadID}${after ? `&after=${after}` : ''}`)).data
+        response = await fetchJson(`${commentURL}${threadID}${after ? `&after=${after}` : ''}`)
         break
       } catch (error) {
         if (delay >= 8000)  // after ~16s of consecutive failures
@@ -92,13 +92,14 @@ export const getComments = async (callback, threadID, maxComments, after) => {
         pushshiftTokenBucket.setNextAvail(delay)
       }
     }
+    const comments = response.data
     const exitEarly = callback(comments.map(c => ({
       ...c,
       parent_id: c.parent_id?.substring(3) || threadID,
       link_id:   c.link_id?.substring(3)   || threadID
     })))
 
-    const loadedAllComments = comments.length < chunkSize/2
+    const loadedAllComments = response.metadata.results_returned >= response.metadata.total_results
     if (comments.length)
       lastCreatedUtc = comments[comments.length - 1].created_utc
     if (loadedAllComments || chunks <= 1 || exitEarly)
