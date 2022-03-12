@@ -35,7 +35,7 @@ class ChunkedQueue {
       this._chunks.push([x])
   }
 
-  hasFullChunk = () => this._chunks[0].length >= this._chunkSize
+  hasFullChunk = () => this._chunks[0].length >= this._chunkSize * 0.9
   isEmpty      = () => this._chunks[0].length == 0
 
   shiftChunk() {
