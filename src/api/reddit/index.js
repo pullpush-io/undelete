@@ -23,7 +23,7 @@ const errorHandler = (origError, from) => {
 }
 
 // Return the post itself
-export const getPost = (subreddit, threadID) => (
+export const getPost = threadID => (
   fetchJson(`${baseURL}/comments/${threadID}.json?limit=1`, requestSettings)
     .then(thread => thread[0].data.children[0].data)
     .catch(error => errorHandler(error, 'reddit.getPost'))

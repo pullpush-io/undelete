@@ -17,6 +17,7 @@ import SortBy from './SortBy'
 import CommentInfo from './CommentInfo'
 import LoadMore from './LoadMore'
 
+// A FIFO queue with items pushed in individually, and shifted out in an Array of chunkSize
 class ChunkedQueue {
 
   constructor(chunkSize) {
@@ -50,8 +51,8 @@ class Thread extends React.Component {
   state = {
     post: {},
     pushshiftCommentLookup: new Map(),
-    removed: [],
-    deleted: [],
+    removed: 0,
+    deleted: 0,
     loadedAllComments: false,
     loadingComments: true,
     reloadingComments: false
@@ -62,7 +63,7 @@ class Thread extends React.Component {
     this.props.global.setLoading('Loading post...')
 
     // Get post from reddit
-    getPost(subreddit, threadID)
+    getPost(threadID)
       .then(post => {
         document.title = post.title
         this.setState({ post })
@@ -122,7 +123,7 @@ class Thread extends React.Component {
 
   getComments (newCommentCount, after) {
     const { threadID } = this.props.match.params
-    const { pushshiftCommentLookup, removed, deleted } = this.state
+    const { pushshiftCommentLookup } = this.state
     const redditIdQueue = new ChunkedQueue(redditChunkSize)
     const pushshiftPromises = [], redditPromises = []
     let redditError = false, doRedditComments
@@ -168,10 +169,10 @@ class Thread extends React.Component {
 
           // Check what is removed / deleted according to reddit
           if (isRemoved(comment.body)) {
-            removed.push(comment.id)
+            this.state.removed++
             pushshiftComment.removed = true
           } else if (isDeleted(comment.body)) {
-            deleted.push(comment.id)
+            this.state.deleted++
             pushshiftComment.deleted = true
           } else if (pushshiftComment !== comment) {
             if (isRemoved(pushshiftComment.body)) {
@@ -214,8 +215,8 @@ class Thread extends React.Component {
               this.props.global.setSuccess()
               this.setState({
                 pushshiftCommentLookup,
-                removed,
-                deleted,
+                removed: this.state.removed,
+                deleted: this.state.deleted,
                 loadedAllComments,
                 loadingComments: false,
                 reloadingComments: false
@@ -244,8 +245,8 @@ class Thread extends React.Component {
           <>
             <CommentInfo
               total={this.state.pushshiftCommentLookup.size}
-              removed={this.state.removed.length}
-              deleted={this.state.deleted.length}
+              removed={this.state.removed}
+              deleted={this.state.deleted}
             />
             <SortBy
               loadedAllComments={this.state.loadedAllComments}
@@ -261,8 +262,6 @@ class Thread extends React.Component {
             <CommentSection
               root={root}
               comments={this.state.pushshiftCommentLookup}
-              removed={this.state.removed}
-              deleted={this.state.deleted}
               postAuthor={isDeleted(author) ? null : author}
               commentFilter={this.props.global.state.commentFilter}  // need to explicitly
               commentSort={this.props.global.state.commentSort}      // pass in these props
