@@ -1,7 +1,7 @@
 import { fetchJson, sleep } from '../../utils'
 
 export const chunkSize = 100;
-const postURL    = 'https://api.pushshift.io/reddit/submission/search/?ids='
+const postURL    = 'https://api.pushshift.io/reddit/submission/search/?fields=author,created_utc,domain,edited,id,link_flair_text,num_comments,permalink,position,removed_by_category,retrieved_on,retrieved_utc,score,selftext,subreddit,thumbnail,thumbnail_height,thumbnail_width,title,url&ids='
 const commentURL = `https://api.pushshift.io/reddit/comment/search/?metadata=true&size=${chunkSize}&sort=asc&fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&q=*&link_id=`
 
 const errorHandler = (msg, origError, from) => {

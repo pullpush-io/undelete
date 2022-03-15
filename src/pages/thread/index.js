@@ -6,7 +6,7 @@ import {
   chunkSize as redditChunkSize
 } from '../../api/reddit'
 import {
-  getPost as getRemovedPost,
+  getPost as getPushshiftPost,
   getComments as getPushshiftComments
 } from '../../api/pushshift'
 import { isDeleted, isRemoved, sleep } from '../../utils'
@@ -65,32 +65,56 @@ class Thread extends React.Component {
     // Get post from reddit
     getPost(threadID)
       .then(post => {
+        let edited_selftext
         document.title = post.title
+        if (isDeleted(post.selftext))
+          post.deleted = true
+        else if (isRemoved(post.selftext) || post.removed_by_category)
+          post.removed = true
+        else if (post.edited) {
+          edited_selftext = post.selftext
+          post.selftext = '...'  // temporarily remove it to avoid flashing it onscreen
+        }
         this.setState({ post })
-        // Fetch the post from pushshift if it was deleted/removed
-        if (isDeleted(post.selftext) || isRemoved(post.selftext) || post.removed_by_category) {
-          getRemovedPost(threadID)
-            .then(removedPost => {
-              if (removedPost === undefined)
-                removedPost = post
-              else {
-                removedPost.score = post.score
-                removedPost.num_comments = post.num_comments
+        // Fetch the post from Pushshift if it was deleted/removed/edited
+        if (post.deleted || post.removed || post.edited) {
+          getPushshiftPost(threadID)
+            .then(origPost => {
+              if (origPost) {
+                if (post.deleted || post.removed) {  // use the post from Pushshift instead
+                  origPost.score = post.score
+                  origPost.num_comments = post.num_comments
+                  origPost.edited = post.edited
+                  if (post.deleted)
+                    origPost.deleted = true
+                  else
+                    origPost.removed = true
+                  this.setState({ post: origPost })
+                } else {  // it was only edited - update (if necessary) and use the Reddit post
+                  if (edited_selftext != origPost.selftext && !isRemoved(origPost.selftext)) {
+                    post.selftext = origPost.selftext
+                    post.edited_selftext = edited_selftext
+                  }
+                  this.setState({ post })
+                }
+              } else if (post.edited) {
+                post.selftext = edited_selftext  // restore it (after temporarily removing it above)
+                this.setState({ post })
               }
-              if (isDeleted(post.selftext)) {
-                removedPost.deleted = true
-              } else {
-                removedPost.removed = true
-              }
-              this.setState({ post: removedPost })
             })
-            .catch(e => this.props.global.setError(e, e.helpUrl))
+            .catch(e => {
+              this.props.global.setError(e, e.helpUrl)
+              if (post.edited) {
+                post.selftext = edited_selftext
+                this.setState({ post })
+              }
+            })
         }
       })
       .catch(error => {
         this.props.global.setError(error)
         // Fetch the post from pushshift on other errors (e.g. posts from banned subreddits)
-        getRemovedPost(threadID)
+        getPushshiftPost(threadID)
           .then(removedPost => {
             document.title = removedPost.title
             this.setState({ post: { ...removedPost, removed: true } })

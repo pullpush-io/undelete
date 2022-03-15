@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditThumbnails, isDeleted, isRemoved } from '../../utils'
 
@@ -24,7 +24,7 @@ export default (props) => {
     )
   }
 
-  let innerHTML;
+  let innerHTML, editedInnerHTML;
   if (isRemoved(props.selftext) && props.removed) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
@@ -34,7 +34,11 @@ export default (props) => {
     }
   } else if (props.selftext) {
     innerHTML = parse(props.selftext)
+    if (props.hasOwnProperty('edited_selftext'))
+      editedInnerHTML = parse(props.edited_selftext)
   }
+
+  const [showEdited, setShowEdited] = useState(false)
 
   return (
     <div className={`thread ${props.removed && 'removed'} ${props.deleted && 'deleted'}`}>
@@ -54,16 +58,24 @@ export default (props) => {
         }
         <span className='domain'>({props.domain})</span>
         <div className='thread-info'>
-          submitted <span className='thread-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span> by&nbsp;
-          <a className='thread-author author' href={userLink}>{props.author}</a>
-          &nbsp;to /r/{props.subreddit}
+          submitted <span className='thread-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>
+          {props.edited &&
+            <span className='thread-time' title={exactDateTime(props.edited)}> * (last edited {prettyDate(props.edited)})</span>}
+          &nbsp;by <a className='thread-author author' href={userLink}>{props.author}</a> to /r/{props.subreddit}
         </div>
         {innerHTML !== undefined &&
-          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: innerHTML }} />}
+          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />}
         <div className='total-comments'>
           <Link className='grey-link' to={props.permalink}><b>{props.num_comments} comments</b></Link>&nbsp;
           <a className='grey-link' href={`https://www.reddit.com${props.permalink}`}><b>reddit</b></a>&nbsp;
           <a className='grey-link' href={`https://reveddit.com${props.permalink}`}><b>reveddit</b></a>
+          {props.hasOwnProperty('edited_selftext') &&
+            <a onClick=  {() => setShowEdited(!showEdited)}
+               onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}
+               tabIndex= {0}
+               className='grey-link'
+               title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
+            ><b>*edited</b></a>}
         </div>
       </div>
     </div>
