@@ -42,7 +42,10 @@ const Comment = (props) => {
   return (
     <div id={props.id} className={commentStyle}>
       <div className={collapsed ? 'comment-head comment-collapsed' : 'comment-head'}>
-        <a onClick={() => setCollapsed(!collapsed)} className='comment-collapse'>[{collapsed ? '+' : '\u2212'}]</a>
+        <a onClick=  {() => setCollapsed(!collapsed)}
+           onKeyDown={e => e.key == "Enter" && setCollapsed(!collapsed)}
+           tabIndex= {0}
+           className='comment-collapse'>[{collapsed ? '+' : '\u2212'}]</a>
         <span className='space' />
         <a
           href={props.author !== '[deleted]' ? `https://www.reddit.com/user/${props.author}` : undefined}
@@ -66,9 +69,11 @@ const Comment = (props) => {
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
           <a href={`https://reveddit.com${permalink}`}>reveddit</a>
           {props.hasOwnProperty('edited_body') &&
-            <a onClick={() => setShowEdited(!showEdited)} title={
-              showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'
-            }>*edited</a>}
+            <a onClick=  {() => setShowEdited(!showEdited)}
+               onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}
+               tabIndex= {0}
+               title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
+            >*edited</a>}
         </div>
         <div>
           {props.replies.map(comment => (
