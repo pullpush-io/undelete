@@ -124,14 +124,16 @@
   
 
   .total-comments 
-    color: #828282
     font-size: 10px
+    font-weight: bold
     margin: 4px 0
 
-  .grey-link, .grey-link:link, .grey-link:visited, .grey-link:hover, .grey-link:focus, .grey-link:active  
-    color: #828282
-    margin-right: 4px
-    cursor: pointer
+    a, span
+      color: #828282
+      margin-right: 4px
+
+    a
+      cursor: pointer
 
 
 .view-rest-of-comment
@@ -147,12 +149,11 @@
   font-weight: bold
   font-size: 10px
 
-  a
+  a, span
     margin-left: 16px
-    cursor: pointer
 
-  span
-    margin-left: 16px
+  a
+    cursor: pointer
 
   .fade
     animation: fade-anim 3s 2s ease-in-out forwards

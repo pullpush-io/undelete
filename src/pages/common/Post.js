@@ -66,16 +66,15 @@ export default (props) => {
         {innerHTML !== undefined &&
           <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />}
         <div className='total-comments'>
-          <Link className='grey-link' to={props.permalink}><b>{props.num_comments} comments</b></Link>&nbsp;
-          <a className='grey-link' href={`https://www.reddit.com${props.permalink}`}><b>reddit</b></a>&nbsp;
-          <a className='grey-link' href={`https://reveddit.com${props.permalink}`}><b>reveddit</b></a>
+          <Link to={props.permalink}>{props.num_comments} comments</Link>&nbsp;
+          <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
+          <a href={`https://reveddit.com${props.permalink}`}>reveddit</a>
           {props.hasOwnProperty('edited_selftext') &&
             <a onClick=  {() => setShowEdited(!showEdited)}
                onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}
                tabIndex= {0}
-               className='grey-link'
                title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
-            ><b>*edited</b></a>}
+            >*edited</a>}
         </div>
       </div>
     </div>
