@@ -10,10 +10,13 @@ const unflatten = (commentMap, root) => {
   const commentTree = []
 
   commentMap.forEach(comment => {
-    comment.replies = []
+    if (comment)
+      comment.replies = []
   })
 
   commentMap.forEach(comment => {
+    if (!comment)
+      return
     const parentID = comment.parent_id
     let parentComment
 
