@@ -6,7 +6,7 @@ import {
   showRemovedAndDeleted, showRemoved, showDeleted
 } from '../../utils'
 
-const unflatten = (commentMap, root) => {
+const unflatten = (commentMap, rootID, postID) => {
   const commentTree = []
 
   commentMap.forEach(comment => {
@@ -14,28 +14,52 @@ const unflatten = (commentMap, root) => {
       comment.replies = []
   })
 
-  commentMap.forEach(comment => {
-    if (!comment)
-      return
-    const parentID = comment.parent_id
-    let parentComment
+  if (rootID == postID) {
+    commentMap.forEach(comment => {
+      if (!comment)
+        return
+      const parentID = comment.parent_id
+      if (parentID == postID)
+        commentTree.push(comment)
+      else {
+        const parentComment = commentMap.get(comment.parent_id)
+        if (parentComment)
+          parentComment.replies.push(comment)
+        else
+          console.warn('Missing parent ID:', parentID, 'for comment', comment)
+      }
+    })
+    return commentTree
 
-    if (parentID === root) {
-      commentTree.push(comment)
-    } else if ((parentComment = commentMap.get(parentID)) !== undefined) {
-      parentComment.replies.push(comment)
-    } else {
-      console.warn('Missing parent ID:', parentID, 'for comment', comment)
+  } else {
+    const missingRootReplies = []
+    commentMap.forEach(comment => {
+      if (!comment)
+        return
+      const parentID = comment.parent_id
+      const parentComment = commentMap.get(parentID)
+      if (parentComment)
+        parentComment.replies.push(comment)
+      else if (parentID == rootID)
+        missingRootReplies.push(comment)
+    })
+    let rootComment = commentMap.get(rootID)
+    if (!rootComment) {
+      const anyComment = commentMap.values().next().value
+      if (!anyComment)
+        return []
+      rootComment = {
+        id: rootID,
+        link_id:   anyComment.link_id,
+        parent_id: anyComment.link_id,
+        subreddit: anyComment.subreddit,
+        score:   '?',
+        body:    '...',
+        replies: missingRootReplies
+      }
     }
-  })
-
-  let rootComment
-  if ((rootComment = commentMap.get(root)) !== undefined) {
-    rootComment.replies = commentTree
     return [rootComment]
   }
-
-  return commentTree
 }
 
 const sortCommentTree = (comments, sortFunction) => {
@@ -86,7 +110,7 @@ const commentSection = (props) => {
     )
   ))
   if (needsRebuild)
-    commentTree = unflatten(props.comments, root)
+    commentTree = unflatten(props.comments, root, props.postID)
 
   if (needsRebuild || commentFilter !== lastFilter) {
     if (commentFilter === filter.removedDeleted) {

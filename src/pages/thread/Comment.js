@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, isRemoved } from '../../utils'
 
 const Comment = (props) => {
@@ -38,6 +38,15 @@ const Comment = (props) => {
   const [collapsed, setCollapsed] = useState(false)
   const [showEdited, setShowEdited] = useState(false)
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
+  const parentlink = props.parent_id == props.link_id ? undefined : (
+    props.depth == 0 ?
+      <NavLink
+        to={`/r/${props.subreddit}/comments/${props.link_id}/_/${props.parent_id}/`}
+        activeClassName='wait'
+      >parent</NavLink>
+    :
+      <a href={`#${props.parent_id}`}>parent</a>
+  )
 
   return (
     <div id={props.id} className={commentStyle}>
@@ -57,7 +66,8 @@ const Comment = (props) => {
         <span className='space' />
         <span className='comment-score'>{prettyScore(props.score)} point{(props.score !== 1) && 's'}</span>
         <span className='space' />
-        <span className='comment-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>
+        {props.created_utc &&
+          <span className='comment-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>}
         {(props.hasOwnProperty('edited_body') || props.edited) &&
           <span className='comment-time' title={props.edited ? exactDateTime(props.edited) : 'within 3 minutes'}
           >* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
@@ -68,6 +78,7 @@ const Comment = (props) => {
           <Link to={permalink}>permalink</Link>
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
           <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+          {parentlink}
           {props.hasOwnProperty('edited_body') &&
             <a onClick=  {() => setShowEdited(!showEdited)}
                onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}

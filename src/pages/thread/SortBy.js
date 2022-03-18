@@ -40,14 +40,14 @@ const sortBy = props => {
     <span className='space' />
     <input id='maxComments'
       onKeyDown={e => e.key == "Enter" && e.target.blur()}
-      onChange= {e => setMaxCommentsField(parseInt(e.target.value))}
+      onChange= {e => setMaxCommentsField(constrainMaxComments(parseInt(e.target.value)))}
       onBlur=   {e => e.target.value = props.global.setMaxComments(e.target.value)}
       { ...(isFirefox ? {
         onClick: e => e.target.focus() } : {}) }
       defaultValue={props.global.maxComments} type='number' maxLength='5' required
       min={minCommentsLimit} max={maxCommentsLimit} step={minCommentsLimit} />
   </span>
-  { !props.loadedAllComments && !props.reloadingComments && constrainMaxComments(maxCommentsField) - minCommentsLimit >= props.total &&
+  { !props.reloadingComments && !props.loadedAllComments && maxCommentsField > props.global.maxComments && maxCommentsField - minCommentsLimit >= props.total &&
   <span className='nowrap'>
     <span className='space' />
     <input onClick={() => props.global.loadMoreComments(props.global.maxComments - props.total)} type='button' value='Reload' />

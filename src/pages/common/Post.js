@@ -86,7 +86,9 @@ export default (props) => {
         {innerHTML !== undefined &&
           <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />}
         <div className='total-comments'>
-          <Link to={props.permalink}>{props.num_comments} comments</Link>&nbsp;
+          {props.reloadingComments ?
+            <span>{props.num_comments} comments</span> :
+            <Link to={props.permalink}>{props.num_comments} comments</Link>}&nbsp;
           <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
           <a href={`https://reveddit.com${props.permalink}`}>reveddit</a>
           {props.hasOwnProperty('edited_selftext') &&

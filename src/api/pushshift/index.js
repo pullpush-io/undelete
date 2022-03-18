@@ -74,7 +74,7 @@ export const getPost = async threadID => {
 // The callback() function is called with an Array of comments after each chunk is
 // retrieved. It should return as quickly as possible (scheduling time-taking work
 // later), and may return false to cause getComments to exit early, or true otherwise.
-export const getComments = async (callback, threadID, maxComments, after) => {
+export const getComments = async (callback, threadID, maxComments, after = 0, before = undefined) => {
   let chunks = Math.floor(maxComments / chunkSize), response, lastCreatedUtc = 1
   while (true) {
 
@@ -82,7 +82,7 @@ export const getComments = async (callback, threadID, maxComments, after) => {
     while (true) {
       await pushshiftTokenBucket.waitForToken()
       try {
-        response = await fetchJson(`${commentURL}${threadID}${after ? `&after=${after}` : ''}`)
+        response = await fetchJson(`${commentURL}${threadID}${after ? `&after=${after}` : ''}${before ? `&before=${before}` : ``}`)
         break
       } catch (error) {
         if (delay >= 8000)  // after ~16s of consecutive failures
