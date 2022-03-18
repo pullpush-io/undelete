@@ -88,12 +88,14 @@ export const getComments = async (callback, threadID, maxComments, after) => {
         if (delay >= 8000)  // after ~16s of consecutive failures
           errorHandler('Could not get removed comments', error, 'pushshift.getComments')  // rethrows
         delay = delay * 2 || 125
-        console.log('pushshift.getComments delay: ' + delay)
         pushshiftTokenBucket.setNextAvail(delay)
+        if (!callback([]))
+          return [ lastCreatedUtc, false ]
+        console.log('pushshift.getComments delay: ' + delay)
       }
     }
     const comments = response.data
-    const exitEarly = callback(comments.map(c => ({
+    const exitEarly = !callback(comments.map(c => ({
       ...c,
       parent_id: c.parent_id?.substring(3) || threadID,
       link_id:   c.link_id?.substring(3)   || threadID

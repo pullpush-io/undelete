@@ -7,6 +7,7 @@ const requestSettings = {headers: {"Accept-Language": "en"}}
 const errorHandler = (origError, from) => {
   console.error(from + ': ' + origError)
   const error = new Error('Could not connect to Reddit')
+  error.origError = origError
   if (origError.name == 'TypeError') {  // The exception when blocked by Tracking Protection
     // https://stackoverflow.com/a/9851769
     const isFirefox = typeof InstallTrigger !== 'undefined'

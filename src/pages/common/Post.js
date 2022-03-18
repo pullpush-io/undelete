@@ -4,7 +4,27 @@ import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditTh
 
 export default (props) => {
   if (!props.title) {
-    return <div />
+    if (props.removed) {
+      const permalink = `/r/${props.subreddit}/comments/${props.id}`
+      return (
+        <div class="thread removed">
+          <div class="thread-score-box">
+            <div class="vote upvote" />
+            <div class="thread-score">?</div>
+            <div class="vote downvote" />
+          </div>
+          <a class="thumbnail thumbnail-default" href={permalink} />
+          <div class="thread-content">
+            <a class="thread-title" href={permalink}>[removed too quickly to be archived]</a>
+            <div class="total-comments">
+              <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
+              <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+            </div>
+          </div>
+        </div>
+      )
+    } else
+      return <div />
   }
 
   const url = props.url.replace('https://www.reddit.com', '')
@@ -41,7 +61,7 @@ export default (props) => {
   const [showEdited, setShowEdited] = useState(false)
 
   return (
-    <div className={`thread ${props.removed && 'removed'} ${props.deleted && 'deleted'}`}>
+    <div className={`thread ${props.removed ? 'removed' : props.deleted ? 'deleted' : ''}`}>
       {props.position &&
         <span className='post-rank'>{props.position}</span>}
       <div className='thread-score-box'>

@@ -62,26 +62,33 @@ class Thread extends React.Component {
     const { subreddit, threadID } = this.props.match.params
     this.props.global.setLoading('Loading post...')
 
-    // Get post from reddit
+    // Get post from Reddit. Each code path below should end in either
+    //   setLoading() on success (if comments are still loading), or
+    //   setError() and assigning stopLoading = true on failure.
     getPost(threadID)
       .then(post => {
-        let edited_selftext
         document.title = post.title
         if (isDeleted(post.selftext))
           post.deleted = true
         else if (isRemoved(post.selftext) || post.removed_by_category)
           post.removed = true
-        else if (post.edited) {
-          edited_selftext = post.selftext
-          post.selftext = '...'  // temporarily remove it to avoid flashing it onscreen
-        }
-        this.setState({ post })
+
+        if (!post.deleted && !post.removed && !post.edited) {
+          this.setState({ post })
+          if (this.state.loadingComments)
+            this.props.global.setLoading('Loading comments from Pushshift...')
+
         // Fetch the post from Pushshift if it was deleted/removed/edited
-        if (post.deleted || post.removed || post.edited) {
+        } else {
+          const redditSelftext = post.selftext
+          post.selftext = '...'  // temporarily remove selftext to avoid flashing it onscreen
+          this.setState({ post })
           getPushshiftPost(threadID)
             .then(origPost => {
               if (origPost) {
-                if (post.deleted || post.removed) {  // use the post from Pushshift instead
+
+                // If found on Pushshift, and deleted on Reddit, use Pushshift's post instead
+                if (post.deleted || post.removed) {
                   origPost.score = post.score
                   origPost.num_comments = post.num_comments
                   origPost.edited = post.edited
@@ -90,44 +97,66 @@ class Thread extends React.Component {
                   else
                     origPost.removed = true
                   this.setState({ post: origPost })
-                } else {  // it was only edited - update (if necessary) and use the Reddit post
-                  if (edited_selftext != origPost.selftext && !isRemoved(origPost.selftext)) {
+
+                // If found on Pushshift, but it was only edited, update and use the Reddit post
+                } else {
+                  if (redditSelftext != origPost.selftext && !isRemoved(origPost.selftext)) {
                     post.selftext = origPost.selftext
-                    post.edited_selftext = edited_selftext
-                  }
+                    post.edited_selftext = redditSelftext
+                  } else
+                    post.selftext = redditSelftext  // edited selftext not archived by Pushshift, use Reddit's
                   this.setState({ post })
                 }
-              } else if (post.edited) {
-                post.selftext = edited_selftext  // restore it (after temporarily removing it above)
+
+              // Else if not found on Pushshift, nothing to do except restore the selftext (removed above)
+              } else {
+                post.selftext = redditSelftext
                 this.setState({ post })
               }
+
+              if (this.state.loadingComments)
+                this.props.global.setLoading('Loading comments from Pushshift...')
             })
-            .catch(e => {
-              this.props.global.setError(e, e.helpUrl)
-              if (post.edited) {
-                post.selftext = edited_selftext
-                this.setState({ post })
-              }
+            .catch(error => {
+              this.props.global.setError(error, error.helpUrl)
+              this.stopLoading = true
+              post.selftext = redditSelftext  // restore it (after temporarily removing it above)
+              this.setState({ post })
             })
         }
       })
       .catch(error => {
-        this.props.global.setError(error)
-        // Fetch the post from pushshift on other errors (e.g. posts from banned subreddits)
-        getPushshiftPost(threadID)
-          .then(removedPost => {
-            document.title = removedPost.title
-            this.setState({ post: { ...removedPost, removed: true } })
-          })
-          .catch(error => {
-            this.props.global.setError(error, error.helpUrl)
-            // Create a dummy post so that comments will still be displayed
-            this.setState({ post: { subreddit, id: threadID } })
-          })
-      })
-      .finally(() => {
-        if (this.state.loadingComments)
-          this.props.global.setLoading('Loading comments from Pushshift...')
+        const origMessage = error.origError?.message
+
+        // Fetch the post from Pushshift if quarantined/banned (403) or not found (404)
+        if (origMessage && (origMessage.startsWith('403') || origMessage.startsWith('404'))) {
+          getPushshiftPost(threadID)
+            .then(removedPost => {
+              if (removedPost) {
+                document.title = removedPost.title
+                this.setState({ post: { ...removedPost, removed: true } })
+                if (this.state.loadingComments)
+                  this.props.global.setLoading('Loading comments from Pushshift...')
+              } else {
+                if (origMessage.startsWith('403')) {  // If Reddit admits it exists but Pushshift can't find it, then
+                  this.setState({ post: { id: threadID, subreddit, removed: true } })  // create a dummy post and continue
+                  if (this.state.loadingComments)
+                    this.props.global.setLoading('Loading comments from Pushshift...')
+                } else {
+                  this.props.global.setError({ message: '404 Post not found' })
+                  this.stopLoading = true
+                }
+              }
+            })
+            .catch(error => {
+              this.props.global.setError(error, error.helpUrl)
+              this.stopLoading = true
+            })
+
+        } else {
+          this.props.global.setError(error, error.helpUrl)
+          this.stopLoading = true
+        }
       })
 
     const maxCommentsQuery = constrainMaxComments(
@@ -150,29 +179,31 @@ class Thread extends React.Component {
     const { pushshiftCommentLookup } = this.state
     const redditIdQueue = new ChunkedQueue(redditChunkSize)
     const pushshiftPromises = [], redditPromises = []
-    let redditError = false, doRedditComments
+    let doRedditComments
 
     // Process a chunk of comments downloaded from Pushshift (started below)
     const processPushshiftComments = comments => {
-      pushshiftPromises.push(sleep(0).then(() => {
-        let count = 0
-        comments.forEach(comment => {
-          const { id, parent_id } = comment
-          if (!pushshiftCommentLookup.has(id)) {
-            pushshiftCommentLookup.set(id, comment)
-            redditIdQueue.push(id)
-            count++
-            if (parent_id != threadID && !pushshiftCommentLookup.has(parent_id)) {
-              pushshiftCommentLookup.set(parent_id, undefined)
-              redditIdQueue.push(parent_id)
+      if (comments.length && !this.stopLoading) {
+        pushshiftPromises.push(sleep(0).then(() => {
+          let count = 0
+          comments.forEach(comment => {
+            const { id, parent_id } = comment
+            if (!pushshiftCommentLookup.has(id)) {
+              pushshiftCommentLookup.set(id, comment)
+              redditIdQueue.push(id)
+              count++
+              if (parent_id != threadID && !pushshiftCommentLookup.has(parent_id)) {
+                pushshiftCommentLookup.set(parent_id, undefined)
+                redditIdQueue.push(parent_id)
+              }
             }
-          }
-        })
-        while (redditIdQueue.hasFullChunk())
-          doRedditComments(redditIdQueue.shiftChunk())
-        return count
-      }))
-      return redditError  // causes getPushshiftComments() to exit early on a Reddit error
+          })
+          while (redditIdQueue.hasFullChunk())
+            doRedditComments(redditIdQueue.shiftChunk())
+          return count
+        }))
+      }
+      return !this.stopLoading  // causes getPushshiftComments() to exit early if set
     }
 
     // Download a list of comments by id from Reddit, and process them
@@ -214,7 +245,7 @@ class Thread extends React.Component {
       })
       .catch(error => {
         this.props.global.setError(error, error.helpUrl)
-        redditError = true
+        this.stopLoading = true
       })
     )
 
@@ -222,7 +253,7 @@ class Thread extends React.Component {
     getPushshiftComments(processPushshiftComments, threadID, newCommentCount, after)
       .then(([lastCreatedUtc, loadedAllComments]) => {
         this.lastCreatedUtc = lastCreatedUtc
-        if (redditError)
+        if (this.stopLoading)
           return
         this.props.global.setLoading('Comparing comments to Reddit API...')
 
@@ -235,7 +266,7 @@ class Thread extends React.Component {
             doRedditComments(redditIdQueue.shiftChunk())
           Promise.all(redditPromises).then(lengths => {
             console.log('Reddit:', lengths.reduce((a,b) => a+b, 0), 'comments')
-            if (!redditError) {
+            if (!this.stopLoading) {
               this.props.global.setSuccess()
               this.setState({
                 pushshiftCommentLookup,
