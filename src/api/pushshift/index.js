@@ -67,7 +67,7 @@ export const getPost = async threadID => {
   try {
     return (await fetchJson(`${postURL}${threadID}`)).data[0]
   } catch (error) {
-    errorHandler('Could not get removed post', error, 'pushshift.getPost')
+    errorHandler('Could not get removed/edited post', error, 'pushshift.getPost')
   }
 }
 
