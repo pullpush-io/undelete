@@ -363,11 +363,12 @@ class Thread extends React.Component {
           }
 
           // Check what is removed / deleted according to reddit
+          let removed = 0, deleted = 0
           if (isRemoved(comment.body)) {
-            this.state.removed++
+            removed++
             pushshiftComment.removed = true
           } else if (isDeleted(comment.body)) {
-            this.state.deleted++
+            deleted++
             pushshiftComment.deleted = true
           } else if (pushshiftComment !== comment) {
             if (isRemoved(pushshiftComment.body)) {
@@ -379,6 +380,7 @@ class Thread extends React.Component {
               pushshiftComment.edited = comment.edited
             }
           }
+          this.setState({ removed: this.state.removed + removed, deleted: this.state.deleted + deleted })
         })
         return comments.length
       })
