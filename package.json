@@ -29,27 +29,31 @@
   },
   "dependencies": {
     "core-js": "^3.21.1",
+    "npm": "^8.5.5",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.3.0",
-    "snuownd": "git+https://github.com/JordanMilne/snuownd.git",
+    "snuownd": "github:JordanMilne/snuownd",
     "unstated": "^2.1.1",
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.7",
+    "@babel/core": "^7.17.8",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "acorn": "^8.7.0",
-    "babel-loader": "^8.2.3",
-    "eslint": "^7.32.0",
+    "babel-loader": "^8.2.4",
+    "eslint": "^8.11.0",
     "sass": "^1.49.9",
     "standard": "^16.0.4",
     "webpack": "^5.70.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.4"
+  },
+  "overrides": {
+    "minimist": "git+https://github.com/meszaros-lajos-gyorgy/minimist-lite#semver:^v2.2.1"
   }
 }
