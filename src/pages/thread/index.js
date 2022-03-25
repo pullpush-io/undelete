@@ -90,6 +90,7 @@ class Thread extends React.Component {
   componentDidMount () {
     const { subreddit, threadID, commentID } = this.props.match.params
     this.props.global.setLoading('Loading post...')
+    console.time('Load comments')
 
     // Get post from Reddit. Each code path below should end in either
     //   setLoading() on success (if comments are still loading), or
@@ -147,6 +148,7 @@ class Thread extends React.Component {
                 this.props.global.setLoading('Loading comments from Pushshift...')
             })
             .catch(error => {
+              console.timeEnd('Load comments')
               this.props.global.setError(error, error.helpUrl)
               this.stopLoading = true
               post.selftext = redditSelftext  // restore it (after temporarily removing it above)
@@ -172,17 +174,20 @@ class Thread extends React.Component {
                   if (this.state.loadingComments)
                     this.props.global.setLoading('Loading comments from Pushshift...')
                 } else {
+                  console.timeEnd('Load comments')
                   this.props.global.setError({ message: '404 Post not found' })
                   this.stopLoading = true
                 }
               }
             })
             .catch(error => {
+              console.timeEnd('Load comments')
               this.props.global.setError(error, error.helpUrl)
               this.stopLoading = true
             })
 
         } else {
+          console.timeEnd('Load comments')
           this.props.global.setError(error, error.helpUrl)
           this.stopLoading = true
         }
@@ -245,6 +250,7 @@ class Thread extends React.Component {
       this.props.global.state.loadingMoreComments = 0
       this.setState({reloadingComments: true})
       this.props.global.setLoading('Loading more comments from Pushshift...')
+      console.time('Load comments')
       this.updateCurContig()
       this.getComments(loadingMoreComments, true)
 
@@ -256,6 +262,7 @@ class Thread extends React.Component {
       if (commentID === undefined) {
         this.setState({loadingComments: true})
         this.props.global.setLoading('Loading comments from Pushshift...')
+        console.time('Load comments')
         this.contigs.unshift({firstCreated: EARLIEST_CREATED})
         this.setCurContig(0)
         this.getComments(this.props.global.maxComments)
@@ -265,6 +272,7 @@ class Thread extends React.Component {
         this.commentIdAttempts.add(commentID)
         this.setState({reloadingComments: true})
         this.props.global.setLoading('Loading comments from Pushshift...')
+        console.time('Load comments')
         let createdUtcNotFound  // true if Reddit doesn't have the comment's created_utc
         getRedditComments([commentID])
           .then(([comment]) => {
@@ -286,6 +294,7 @@ class Thread extends React.Component {
                 this.redditIdsToPushshift(comment)
                 pushshiftCommentLookup.set(comment.id, comment)  // so use the Reddit comment instead
                 this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
+                console.timeEnd('Load comments')
                 this.props.global.setSuccess()
                 this.setState({pushshiftCommentLookup, loadingComments: false, reloadingComments: false})
               }
@@ -385,6 +394,7 @@ class Thread extends React.Component {
         return comments.length
       })
       .catch(error => {
+        console.timeEnd('Load comments')
         this.props.global.setError(error, error.helpUrl)
         this.stopLoading = true
       })
@@ -438,6 +448,7 @@ class Thread extends React.Component {
                 this.getComments(newCommentCount - pushshiftComments, true, commentHint)
 
               else {
+                console.timeEnd('Load comments')
                 this.props.global.setSuccess()
                 this.setState({
                   pushshiftCommentLookup,
@@ -453,6 +464,7 @@ class Thread extends React.Component {
         })
       })
       .catch(e => {
+        console.timeEnd('Load comments')
         this.props.global.setError(e, e.helpUrl)
         if (this.curContig().lastCreated === undefined) {
           this.contigs.splice(this.curContigIdx, 1)
