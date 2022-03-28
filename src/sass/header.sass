@@ -1,43 +1,43 @@
-header 
-  background-color: $red///*#19171c;/*#181818*/
+header
+  background-color: $removed
+  color: $white
   display: flex
   justify-content: space-between
   align-items: center
   padding: 10px
-  
+
   #header
-    a
-      color: #fff		
-  
+
     h1
-      margin: 7px 0
+      margin: 0 0 7px
       text-align: center
 
-      a
-        transition: color 0.3s
-    
+    .switch-toggle
+      margin-right: 14px
+      float: left
+      font-size: 14px
 
-      a:hover
-        text-decoration: none
-        color: #ff8b88
-    nav
-      a
-        margin: 0 7px
-        font-size: 20px
-    
-  #status 
+      label
+        cursor: pointer
+
+    a[href]
+      color: $white
+      font-size: 20px
+
+  #status
     display: flex
     justify-content: space-between
     align-items: center
 
     #status-text, #status-helpurl
-      color: #fff
       margin: 0 20px 0 0
+      text-align: center
 
     #status-helpurl
+      color: $white
       font-size: 20px
 
-    #status-image 
+    #status-image
       height: 64px
       width: 64px
       border-radius: 32px

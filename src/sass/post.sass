@@ -1,24 +1,31 @@
-#comment-info 
+#comment-info
   margin-top: 10px
   font-weight: bold
   padding-bottom: 5px
-  border-bottom: 1px dotted #808080
+  border-bottom: 1px dotted var(--border-lt)
   font-size: 16px
+  @media (prefers-color-scheme: light)
+    border-bottom-color: var(--l-border-lt)
 
 #comment-info span
   margin-right: 8px
 
 
 #comment-sort, #comment-sort input
-  color: #808080
+  color: var(--border-lt)
   font-size: 12px
   margin: 5px 0
-  background-color: $background
+  background-color: var(--background)
+  @media (prefers-color-scheme: light)
+    color: var(--l-border-lt)
+    background-color: var(--l-background)
 
 #comment-sort
 
   input
-    border-color: $border
+    border-color: var(--border)
+    @media (prefers-color-scheme: light)
+      border-color: var(--l-border)
 
     &[type='number']
       width: 54px
@@ -29,8 +36,13 @@
 
   input, select
     &:hover, &:focus
-      color: $light
+      color: var(--light)
+      @media (prefers-color-scheme: light)
+        color: var(--l-light)
 
   option
-    color: $light
-    background-color: $background
+    color: var(--light)
+    background-color: var(--background)
+    @media (prefers-color-scheme: light)
+      color: var(--l-light)
+      background-color: var(--l-background)

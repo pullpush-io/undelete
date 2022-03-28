@@ -25,7 +25,7 @@
   "scripts": {
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
-    "css": "sass --style compressed --no-source-map src/sass/index.sass dist/main.css"
+    "css": "sass -s compressed src/sass/index.sass >dist/main.css && sass -s compressed node_modules/css-toggle-switch/dist/toggle-switch-px.css >>dist/main.css"
   },
   "dependencies": {
     "core-js": "^3.21.1",
@@ -46,6 +46,7 @@
     "@babel/preset-react": "^7.16.7",
     "acorn": "^8.7.0",
     "babel-loader": "^8.2.4",
+    "css-toggle-switch": "^4.1.0",
     "eslint": "^8.11.0",
     "sass": "^1.49.9",
     "standard": "^16.0.4",

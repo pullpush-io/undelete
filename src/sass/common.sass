@@ -1,31 +1,71 @@
-html, body 
+html
   margin: 0
   padding: 0
-  background-color: $background
+  background-color: var(--background)
   font-family: verdana, arial, helvetica, sans-serif
+  @media (prefers-color-scheme: light)
+    background-color: var(--l-background)
+
+  // Blink (Chromium)
+  //
+  ::-webkit-scrollbar
+    background-color: var(--scrolltrack)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-scrolltrack)
+  //
+  ::-webkit-scrollbar-thumb
+    -webkit-box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8)
+    background-color: var(--scrollthumb)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-scrollthumb)
+  //
+  ::-webkit-scrollbar-corner
+    -webkit-box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8)
+    background-color: var(--scrollthumb)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-scrollthumb)
+
+  // Gecko (Firefox)
+  //
+  scrollbar-color: var(--scrollbar)
+  @media (prefers-color-scheme: light)
+    scrollbar-color: var(--l-scrollbar)
+
+  transition-property: color, background-color, border, border-color
+  transition-timing-function: ease-out
+  transition-duration: 0s  // changed to 0.4s after page loads in src/state.js
+
 
 .wait
   cursor: wait
 
 .main
   margin: 15px
-  color: white
+  color: var(--white)
+  @media (prefers-color-scheme: light)
+    color: var(--l-white)
 
 .removed
-  background-color: $removed
+  background-color: var(--removed-bg)
+  @media (prefers-color-scheme: light)
+    background-color: var(--l-removed-bg)
 
 .deleted
-  background-color: $deleted
+  background-color: var(--deleted-bg)
+  @media (prefers-color-scheme: light)
+    background-color: var(--l-deleted-bg)
 
 .removed-text
-  color: $red
+  color: $removed
 
 .deleted-text
-  color: $blue
+  color: $deleted
 
 a
-  color: $link
-  
+  color: var(--link)
+  @media (prefers-color-scheme: light)
+    color: var(--l-link)
+
 a:link, a:visited, a:active
   text-decoration: none
 
@@ -33,14 +73,16 @@ a:hover
   text-decoration: underline
 
 .author
-  color: $author
+  color: var(--author)
+  @media (prefers-color-scheme: light)
+    color: var(--l-author)
 
 .author:not([href])
   color: inherit
   text-decoration: none
 
 .nowrap
-  display: inline-block
+  display: inline-block !important
 
 .space
   margin-left: 5px
@@ -48,4 +90,6 @@ a:hover
 select
   background: transparent
   border: 0
-  color: #828282
+  color: var(--dim)
+  @media (prefers-color-scheme: light)
+    color: var(--l-dim)

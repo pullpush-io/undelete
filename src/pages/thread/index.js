@@ -106,7 +106,7 @@ class Thread extends React.Component {
         if (!post.deleted && !post.removed && !post.edited) {
           this.setState({ post })
           if (this.state.loadingComments)
-            this.props.global.setLoading('Loading comments from Pushshift...')
+            this.props.global.setLoading('Loading comments...')
 
         // Fetch the post from Pushshift if it was deleted/removed/edited
         } else {
@@ -145,7 +145,7 @@ class Thread extends React.Component {
               }
 
               if (this.state.loadingComments)
-                this.props.global.setLoading('Loading comments from Pushshift...')
+                this.props.global.setLoading('Loading comments...')
             })
             .catch(error => {
               console.timeEnd('Load comments')
@@ -167,12 +167,12 @@ class Thread extends React.Component {
                 document.title = removedPost.title
                 this.setState({ post: { ...removedPost, removed: true } })
                 if (this.state.loadingComments)
-                  this.props.global.setLoading('Loading comments from Pushshift...')
+                  this.props.global.setLoading('Loading comments...')
               } else {
                 if (origMessage.startsWith('403')) {  // If Reddit admits it exists but Pushshift can't find it, then
                   this.setState({ post: { id: threadID, subreddit, removed: true } })  // create a dummy post and continue
                   if (this.state.loadingComments)
-                    this.props.global.setLoading('Loading comments from Pushshift...')
+                    this.props.global.setLoading('Loading comments...')
                 } else {
                   console.timeEnd('Load comments')
                   this.props.global.setError({ message: '404 Post not found' })
@@ -249,7 +249,7 @@ class Thread extends React.Component {
     if (loadingMoreComments) {
       this.props.global.state.loadingMoreComments = 0
       this.setState({reloadingComments: true})
-      this.props.global.setLoading('Loading more comments from Pushshift...')
+      this.props.global.setLoading('Loading comments...')
       console.time('Load comments')
       this.updateCurContig()
       this.getComments(loadingMoreComments, true)
@@ -261,7 +261,7 @@ class Thread extends React.Component {
       const { commentID } = this.props.match.params
       if (commentID === undefined) {
         this.setState({loadingComments: true})
-        this.props.global.setLoading('Loading comments from Pushshift...')
+        this.props.global.setLoading('Loading comments...')
         console.time('Load comments')
         this.contigs.unshift({firstCreated: EARLIEST_CREATED})
         this.setCurContig(0)
@@ -271,7 +271,7 @@ class Thread extends React.Component {
       } else if (!this.commentIdAttempts.has(commentID)) {
         this.commentIdAttempts.add(commentID)
         this.setState({reloadingComments: true})
-        this.props.global.setLoading('Loading comments from Pushshift...')
+        this.props.global.setLoading('Loading comments...')
         console.time('Load comments')
         let createdUtcNotFound  // true if Reddit doesn't have the comment's created_utc
         getRedditComments([commentID])
@@ -421,7 +421,7 @@ class Thread extends React.Component {
           return
 
         // Finished retrieving comments from Pushshift; wait for processing to finish
-        this.props.global.setLoading('Comparing comments to Reddit API...')
+        this.props.global.setLoading('Comparing comments...')
         Promise.all(pushshiftPromises).then(lengths => {
           const pushshiftComments = lengths.reduce((a,b) => a+b, 0)
           console.log('Pushshift:', pushshiftComments, 'comments')

@@ -2,40 +2,49 @@
   margin: 0 auto
   padding: 20px
   border-radius: 5px
-  color: $light
+  color: var(--light)
   word-wrap: break-word
   max-width: 800px
-  background-color: #161616
+  background-color: var(--about-bg)
+  @media (prefers-color-scheme: light)
+    color: var(--l-light)
+    background-color: var(--l-about-bg)
 
   h2
     margin: 20px 0px 12px
 
   h2.about
     margin: 0
-    color: $red
+    color: $removed
   h2.todo
-    color: #239f2b
+    color: $about-todo
   h2.contact
-    color: #1b767a
+    color: $about-contact
 
   .highlighted
     animation: highlighted-anim 3s ease-out
 
   @keyframes highlighted-anim
     0%
-      background-color: lightblue
+      background-color: var(--about-q)
+  @media (prefers-color-scheme: light)
+    @keyframes highlighted-anim
+      0%
+        background-color: var(--l-about-q)
 
   .question
     font-size: 18px
-    color: lightblue
-    
+    color: var(--about-q)
+    @media (prefers-color-scheme: light)
+      color: var(--l-about-q)
+
   ul
     padding-left: 30px
     margin: 0
 
   .bookmarklet
-    background: $red
-    color: #fff
+    background: $removed
+    color: $white
     padding: 9px
     font-size: large
     font-weight: bold

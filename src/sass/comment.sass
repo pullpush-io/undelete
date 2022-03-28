@@ -1,11 +1,14 @@
-.comment 
+.comment
   min-width: 240px
   margin: 0 0 8px 0
   padding: 5px 8px 5px 20px
-  border: 1px solid #333
+  border: 1px solid var(--comment-brd)
   border-radius: 3px
-  color: $light
+  color: var(--light)
   font-size: 14px
+  @media (prefers-color-scheme: light)
+    border-color: var(--l-comment-brd)
+    color: var(--l-light)
 
   .comment-head
     font-size: 10px
@@ -14,48 +17,58 @@
     cursor: pointer
 
   .comment-collapsed span, .comment-collapsed a:not(.comment-collapse)
-    color: #828282
+    color: var(--dim)
     font-style: oblique
+    @media (prefers-color-scheme: light)
+      color: var(--l-dim)
 
-  .comment-author 
+  .comment-author
     font-weight: bold
 
   .comment-author:not([href])
-    color: #828282
+    color: var(--dim)
+    @media (prefers-color-scheme: light)
+      color: var(--l-dim)
 
   .comment-poster
     color: $light
-    background-color: #0055df
+    background-color: $poster
     padding: 0 2px
     border-radius: 3px
 
   .comment-score
-    color: #b4b4b4
+    color: var(--score)
     font-weight: bold
+    @media (prefers-color-scheme: light)
+      color: var(--l-score)
 
   .comment-time
-    color: #828282
+    color: var(--dim)
+    @media (prefers-color-scheme: light)
+      color: var(--l-dim)
 
   .comment-body
     max-width: 840px
     line-height: 20px
-  
+
     p
       margin: 5px 0
       line-height: 20px
-      
+
     a:hover
       text-decoration: none
 
-  .comment-links 
+  .comment-links
     margin-bottom: 6px
 
   .comment-links a
-    color: #828282
+    color: var(--dim)
     font-weight: bold
     font-size: 10px
     margin-right: 4px
     cursor: pointer
+    @media (prefers-color-scheme: light)
+      color: var(--l-dim)
 
   .comment-links a.wait
     cursor: wait
@@ -64,7 +77,11 @@
     text-decoration: none
 
 .comment-odd
-  background-color: #121212
+  background-color: var(--odd-bg)
+  @media (prefers-color-scheme: light)
+    background-color: var(--l-odd-bg)
 
 .comment-even
-  background-color: #161616
+  background-color: var(--even-bg)
+  @media (prefers-color-scheme: light)
+    background-color: var(--l-even-bg)

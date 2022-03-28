@@ -1,9 +1,209 @@
-$background: #262626
-$light: #ddd
-$border: #767676
-$red: #c70300
-$blue: #0000ff
-$link: #8cb3d9
-$author: #6a98af
-$removed: #840c09
-$deleted: #00007d
+$background:      #262626
+$scrolltrack:     black
+$scrollthumb:     #888
+$light:           #ddd
+$white:           white
+$border:          #767676
+$border-lt:       #808080
+$removed:         #c70300
+$deleted:         #0000ff
+$removed-bg:      #840c09
+$deleted-bg:      #00007d
+$link:            #8cb3d9
+$author:          #6a98af
+$dim:             #828282
+$poster:          #0055df
+$score:           #b4b4b4
+$rank:            #505050
+$odd-bg:          #121212
+$even-bg:         #161616
+$comment-brd:     #333
+
+$thread-title:    #a6a6a6
+$thread-score:    #646464
+$thread-domain:   #888
+$thread-flair:    #c8c8c8
+$thread-flr-bg:   #404040
+$thread-flr-brd:  #4d4d4d
+$thread-brd:      #666
+$thread-rest:     #ccc
+$thread-rest-bg:  #264d73
+$thread-rest-brd: #2966a3
+
+$about-bg:        $even-bg
+$about-todo:      #239f2b
+$about-contact:   #1b767a
+$about-q:         #add8e6
+
+$l-background:      #f1f1f1
+$l-scrolltrack:     #e7e7e7
+$l-scrollthumb:     #eee
+$l-light:           #111
+$l-white:           black
+$l-border:          #898989
+$l-border-lt:       #7f7f7f
+$l-removed-bg:      #ff9494
+$l-deleted-bg:      #a3c2ff
+$l-link:            #00e
+$l-author:          #369
+$l-dim:             #737373
+$l-score:           #4b4b4b
+$l-rank:            #afafaf
+$l-odd-bg:          #f6f6f6
+$l-even-bg:         white
+$l-comment-brd:     #ccc
+
+$l-thread-title:    #4d4d4d
+$l-thread-score:    #878787
+$l-thread-domain:   #777
+$l-thread-flair:    black
+$l-thread-flr-bg:   #c9c9c9
+$l-thread-flr-brd:  #999
+$l-thread-brd:      #999
+$l-thread-rest:     #333
+$l-thread-rest-bg:  #d9b28c
+$l-thread-rest-brd: #d6995c
+
+$l-about-bg:        $l-even-bg
+$l-about-q:         #522719
+
+
+:root
+
+  --background:      #{$background}
+  --scrolltrack:     #{$scrolltrack}
+  --scrollthumb:     #{$scrollthumb}
+  --scrollbar:       #{$scrollthumb} #{$scrolltrack}
+  --light:           #{$light}
+  --white:           #{$white}
+  --border:          #{$border}
+  --border-lt:       #{$border-lt}
+  --deleted-bg:      #{$deleted-bg}
+  --removed-bg:      #{$removed-bg}
+  --link:            #{$link}
+  --author:          #{$author}
+  --dim:             #{$dim}
+  --score:           #{$score}
+  --rank:            #{$rank}
+  --odd-bg:          #{$odd-bg}
+  --even-bg:         #{$even-bg}
+  --comment-brd:     #{$comment-brd}
+
+  --thread-title:    #{$thread-title}
+  --thread-score:    #{$thread-score}
+  --thread-domain:   #{$thread-domain}
+  --thread-flair:    #{$thread-flair}
+  --thread-flr-bg:   #{$thread-flr-bg}
+  --thread-flr-brd:  #{$thread-flr-brd}
+  --thread-brd:      #{$thread-brd}
+  --thread-rest:     #{$thread-rest}
+  --thread-rest-bg:  #{$thread-rest-bg}
+  --thread-rest-brd: #{$thread-rest-brd}
+
+  --about-bg:        #{$about-bg}
+  --about-q:         #{$about-q}
+
+  --l-background:      #{$background}
+  --l-scrolltrack:     #{$scrolltrack}
+  --l-scrollthumb:     #{$scrollthumb}
+  --l-scrollbar:       #{$scrollthumb} #{$scrolltrack}
+  --l-light:           #{$light}
+  --l-white:           #{$white}
+  --l-border:          #{$border}
+  --l-border-lt:       #{$border-lt}
+  --l-deleted-bg:      #{$deleted-bg}
+  --l-removed-bg:      #{$removed-bg}
+  --l-link:            #{$link}
+  --l-author:          #{$author}
+  --l-dim:             #{$dim}
+  --l-score:           #{$score}
+  --l-rank:            #{$rank}
+  --l-odd-bg:          #{$odd-bg}
+  --l-even-bg:         #{$even-bg}
+  --l-comment-brd:     #{$comment-brd}
+
+  --l-thread-title:    #{$thread-title}
+  --l-thread-score:    #{$thread-score}
+  --l-thread-domain:   #{$thread-domain}
+  --l-thread-flair:    #{$thread-flair}
+  --l-thread-flr-bg:   #{$thread-flr-bg}
+  --l-thread-flr-brd:  #{$thread-flr-brd}
+  --l-thread-brd:      #{$thread-brd}
+  --l-thread-rest:     #{$thread-rest}
+  --l-thread-rest-bg:  #{$thread-rest-bg}
+  --l-thread-rest-brd: #{$thread-rest-brd}
+
+  --l-about-bg:        #{$about-bg}
+  --l-about-q:         #{$about-q}
+
+
+[data-theme='LIGHT']
+
+  --background:      #{$l-background}
+  --scrolltrack:     #{$l-scrolltrack}
+  --scrollthumb:     #{$l-scrollthumb}
+  --scrollbar:       auto
+  --light:           #{$l-light}
+  --white:           #{$l-white}
+  --border:          #{$l-border}
+  --border-lt:       #{$l-border-lt}
+  --deleted-bg:      #{$l-deleted-bg}
+  --removed-bg:      #{$l-removed-bg}
+  --link:            #{$l-link}
+  --author:          #{$l-author}
+  --dim:             #{$l-dim}
+  --score:           #{$l-score}
+  --rank:            #{$l-rank}
+  --odd-bg:          #{$l-odd-bg}
+  --even-bg:         #{$l-even-bg}
+  --comment-brd:     #{$l-comment-brd}
+
+  --thread-title:    #{$l-thread-title}
+  --thread-score:    #{$l-thread-score}
+  --thread-domain:   #{$l-thread-domain}
+  --thread-flair:    #{$l-thread-flair}
+  --thread-flr-bg:   #{$l-thread-flr-bg}
+  --thread-flr-brd:  #{$l-thread-flr-brd}
+  --thread-brd:      #{$l-thread-brd}
+  --thread-rest:     #{$l-thread-rest}
+  --thread-rest-bg:  #{$l-thread-rest-bg}
+  --thread-rest-brd: #{$l-thread-rest-brd}
+
+  --about-bg:        #{$l-about-bg}
+  --about-q:         #{$l-about-q}
+
+
+[data-theme='LIGHT'], [data-theme='SYSTEM']
+
+  --l-background:      #{$l-background}
+  --l-scrolltrack:     #{$l-scrolltrack}
+  --l-scrollthumb:     #{$l-scrolltrack}
+  --l-scrollbar:       auto
+  --l-light:           #{$l-light}
+  --l-white:           #{$l-white}
+  --l-border:          #{$l-border}
+  --l-border-lt:       #{$l-border-lt}
+  --l-deleted-bg:      #{$l-deleted-bg}
+  --l-removed-bg:      #{$l-removed-bg}
+  --l-link:            #{$l-link}
+  --l-author:          #{$l-author}
+  --l-dim:             #{$l-dim}
+  --l-score:           #{$l-score}
+  --l-rank:            #{$l-rank}
+  --l-odd-bg:          #{$l-odd-bg}
+  --l-even-bg:         #{$l-even-bg}
+  --l-comment-brd:     #{$l-comment-brd}
+
+  --l-thread-title:    #{$l-thread-title}
+  --l-thread-score:    #{$l-thread-score}
+  --l-thread-domain:   #{$l-thread-domain}
+  --l-thread-flair:    #{$l-thread-flair}
+  --l-thread-flr-bg:   #{$l-thread-flr-bg}
+  --l-thread-flr-brd:  #{$l-thread-flr-brd}
+  --l-thread-brd:      #{$l-thread-brd}
+  --l-thread-rest:     #{$l-thread-rest}
+  --l-thread-rest-bg:  #{$l-thread-rest-bg}
+  --l-thread-rest-brd: #{$l-thread-rest-brd}
+
+  --l-about-bg:        #{$l-about-bg}
+  --l-about-q:         #{$l-about-q}

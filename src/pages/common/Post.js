@@ -60,8 +60,22 @@ export default (props) => {
 
   const [showEdited, setShowEdited] = useState(false)
 
-  return (
-    <div className={`thread ${props.removed ? 'removed' : props.deleted ? 'deleted' : ''}`}>
+  const totalComments = <div className='total-comments'>
+    {props.reloadingComments ?
+      <span>{props.num_comments} comments</span> :
+      <Link to={props.permalink}>{props.num_comments}&nbsp;comments</Link>}&nbsp;
+    <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
+    <a href={`https://reveddit.com${props.permalink}`}>reveddit</a>
+    {props.hasOwnProperty('edited_selftext') &&
+      <a onClick=  {() => setShowEdited(!showEdited)}
+         onKeyDown={e => e.key == 'Enter' && setShowEdited(!showEdited)}
+         tabIndex= {0}
+         title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
+      >*edited</a>}
+  </div>
+
+  return <div className={props.removed ? 'removed' : props.deleted ? 'deleted' : undefined}>
+    <div className='thread'>
       {props.position &&
         <span className='post-rank'>{props.position}</span>}
       <div className='thread-score-box'>
@@ -72,33 +86,25 @@ export default (props) => {
       {thumbnail}
       <div className='thread-content'>
         <a className='thread-title' href={url}>{props.title}</a>
-        {
-          props.link_flair_text &&
+        {props.link_flair_text &&
           <span className='link-flair'>{props.link_flair_text}</span>
         }
         <span className='domain'>({props.domain})</span>
         <div className='thread-info'>
           submitted <span className='thread-time' title={exactDateTime(props.created_utc)}>{prettyDate(props.created_utc)}</span>
           {props.edited &&
-            <span className='thread-time' title={exactDateTime(props.edited)}> * (last edited {prettyDate(props.edited)})</span>}
+            <span className='thread-time' title={exactDateTime(props.edited)}> * (last edited {prettyDate(props.edited)})</span>
+          }
           &nbsp;by <a className='thread-author author' href={userLink}>{props.author}</a> to /r/{props.subreddit}
         </div>
-        {innerHTML !== undefined &&
-          <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />}
-        <div className='total-comments'>
-          {props.reloadingComments ?
-            <span>{props.num_comments} comments</span> :
-            <Link to={props.permalink}>{props.num_comments} comments</Link>}&nbsp;
-          <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
-          <a href={`https://reveddit.com${props.permalink}`}>reveddit</a>
-          {props.hasOwnProperty('edited_selftext') &&
-            <a onClick=  {() => setShowEdited(!showEdited)}
-               onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}
-               tabIndex= {0}
-               title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
-            >*edited</a>}
-        </div>
+        {innerHTML === undefined && totalComments}
       </div>
     </div>
-  )
+    {innerHTML !== undefined &&
+      <div className='thread-content'>
+        <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />
+        {totalComments}
+      </div>
+    }
+  </div>
 }

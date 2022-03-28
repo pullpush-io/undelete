@@ -19,6 +19,13 @@ export const filter = {
   deleted: 'SHOW_DELETED'
 }
 
+// Light/Dark mode themes
+export const theme = {
+  dark: 'DARK',
+  light: 'LIGHT',
+  system: 'SYSTEM'
+}
+
 export const maxCommentsDefault = 800
 export const minCommentsLimit   = chunkSize
 export const maxCommentsLimit   = 20000
@@ -35,6 +42,10 @@ export const constrainMaxComments = maxComments => {
 const sortKey = 'commentSort'
 const filterKey = 'commentFilter'
 const maxCommentsKey = 'maxComments'
+const themeKey = 'theme'
+
+document.documentElement.dataset.theme = get(themeKey, theme.dark)
+setTimeout(() => document.documentElement.style.transitionDuration = '0.4s')
 
 class GlobalState extends Container {
   state = {
@@ -48,6 +59,8 @@ class GlobalState extends Container {
 
   // Preferred max # of comments to get during (re-)loads
   maxComments = get(maxCommentsKey, maxCommentsDefault)
+
+  curTheme = document.documentElement.dataset.theme
 
   setCommentSort (sortType) {
     put(sortKey, sortType)
@@ -68,6 +81,12 @@ class GlobalState extends Container {
 
   // Loads more comments
   loadMoreComments = loadingMoreComments => this.setState({loadingMoreComments})
+
+  setTheme (newTheme) {
+    put(themeKey, newTheme)
+    this.curTheme = newTheme
+    document.documentElement.dataset.theme = newTheme
+  }
 
   setSuccess = () => {
     this.setState({statusText: '', statusHelpUrl: undefined, statusImage: '/images/success.png'})
