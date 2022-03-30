@@ -13,9 +13,9 @@ export default (props) => {
             <div class="thread-score">?</div>
             <div class="vote downvote" />
           </div>
-          <a class="thumbnail thumbnail-default" href={permalink} />
+          <Link class="thumbnail thumbnail-default" to={permalink} />
           <div class="thread-content">
-            <a class="thread-title" href={permalink}>[removed too quickly to be archived]</a>
+            <Link class="thread-title" to={permalink}>[removed too quickly to be archived]</Link>
             <div class="total-comments">
               <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
               <a href={`https://reveddit.com${permalink}`}>reveddit</a>
@@ -27,7 +27,17 @@ export default (props) => {
       return <div />
   }
 
-  const url = props.url.replace('https://www.reddit.com', '')
+  let url = new URL(props.url, 'https://www.reddit.com')
+  if ((url.hostname.endsWith('.reddit.com') || url.hostname == 'reddit.com') &&
+       url.pathname.match(/^\/(?:r|user)\/[^/]+\/comments\/./)) {
+    url.protocol = document.location.protocol
+    url.host     = document.location.host
+  }
+  const isSameUrl = url.origin == document.location.origin &&
+    (new RegExp(`/(?:r|user)/[^/]+/comments/${props.id}\\b`)).test(url.pathname)
+  if (isSameUrl)
+    url = url.href.substring(url.origin.length)
+
   const userLink = isDeleted(props.author) ? undefined : `https://www.reddit.com/user/${props.author}`
 
   let thumbnail
@@ -35,12 +45,13 @@ export default (props) => {
   const thumbnailHeight = props.thumbnail_height ? props.thumbnail_height * 0.5 : 70
 
   if (redditThumbnails.includes(props.thumbnail)) {
-    thumbnail = <a href={url} className={`thumbnail thumbnail-${props.thumbnail}`} />
+    thumbnail = React.createElement(isSameUrl ? Link : 'a', {
+      [isSameUrl ? 'to' : 'href']: url,
+      className: `thumbnail thumbnail-${props.thumbnail}`
+    })
   } else if (props.thumbnail !== '') {
-    thumbnail = (
-      <a href={url}>
-        <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
-      </a>
+    thumbnail = React.createElement(isSameUrl ? Link : 'a', { [isSameUrl ? 'to' : 'href']: url },
+      <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
     )
   }
 
@@ -85,7 +96,7 @@ export default (props) => {
       </div>
       {thumbnail}
       <div className='thread-content'>
-        <a className='thread-title' href={url}>{props.title}</a>
+        { React.createElement(isSameUrl ? Link : 'a', { [isSameUrl ? 'to' : 'href']: url, className:'thread-title' }, props.title) }
         {props.link_flair_text &&
           <span className='link-flair'>{props.link_flair_text}</span>
         }
