@@ -1,6 +1,4 @@
 html
-  margin: 0
-  padding: 0
   background-color: var(--background)
   font-family: verdana, arial, helvetica, sans-serif
   @media (prefers-color-scheme: light)
@@ -31,16 +29,24 @@ html
   @media (prefers-color-scheme: light)
     scrollbar-color: var(--l-scrollbar)
 
-  transition-property: color, background-color, border, border-color
+  transition-property: background-color
   transition-timing-function: ease-out
   transition-duration: 0s  // changed to 0.4s after page loads in src/state.js
+
+div, input
+  transition-property: background-color, border-color
+  transition-timing-function: ease-out
+  transition-duration: 0.4s
+
+body
+  margin: 0
 
 
 .wait
   cursor: wait
 
 .main
-  margin: 15px
+  margin: 8px 15px 15px 15px
   color: var(--white)
   @media (prefers-color-scheme: light)
     color: var(--l-white)
