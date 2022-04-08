@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "core-js": "^3.21.1",
-    "npm": "^8.5.5",
+    "npm": "^8.6.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.3.0",
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.8",
+    "@babel/core": "^7.17.9",
     "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
     "@babel/preset-env": "^7.16.11",
@@ -47,12 +47,12 @@
     "acorn": "^8.7.0",
     "babel-loader": "^8.2.4",
     "css-toggle-switch": "^4.1.0",
-    "eslint": "^8.11.0",
-    "sass": "^1.49.9",
+    "eslint": "^8.12.0",
+    "sass": "^1.50.0",
     "standard": "^16.0.4",
-    "webpack": "^5.70.0",
+    "webpack": "^5.72.0",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.4"
+    "webpack-dev-server": "^4.8.1"
   },
   "overrides": {
     "minimist": "git+https://github.com/meszaros-lajos-gyorgy/minimist-lite#semver:^v2.2.1"
