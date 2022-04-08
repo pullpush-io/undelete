@@ -474,6 +474,10 @@ class Thread extends React.Component {
       })
   }
 
+  componentWillUnmount () {
+    this.stopLoading = true
+  }
+
   render () {
     const { subreddit, id, author } = this.state.post
     const { commentID } = this.props.match.params
