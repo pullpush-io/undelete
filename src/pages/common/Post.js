@@ -18,7 +18,7 @@ export default (props) => {
             <Link class="thread-title" to={permalink}>[removed too quickly to be archived]</Link>
             <div class="total-comments">
               <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
-              <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+              <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export default (props) => {
       <span>{props.num_comments} comments</span> :
       <Link to={props.permalink}>{props.num_comments}&nbsp;comments</Link>}&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
-    <a href={`https://reveddit.com${props.permalink}`}>reveddit</a>
+    <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
     {props.hasOwnProperty('edited_selftext') &&
       <a onClick=  {() => setShowEdited(!showEdited)}
          onKeyDown={e => e.key == 'Enter' && setShowEdited(!showEdited)}

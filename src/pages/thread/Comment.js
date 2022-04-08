@@ -45,7 +45,8 @@ const Comment = (props) => {
         activeClassName='wait'
       >parent</NavLink>
     :
-      <a href={`#${props.parent_id}`}>parent</a>
+      // Use a function, not just an object--state is recreated and scrollBehavior is always initialized
+      <Link to={() => ({hash: `#${props.parent_id}`, state: {scrollBehavior: 'smooth'}})}>parent</Link>
   )
 
   return (
@@ -75,9 +76,9 @@ const Comment = (props) => {
       <div style={collapsed ? {display: 'none'} : {}}>
         <div className='comment-body' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />
         <div className='comment-links'>
-          <Link to={permalink}>permalink</Link>
+          <Link to={() => ({pathname: permalink, hash: '#comment-info', state: {scrollBehavior: 'auto'}})}>permalink</Link>
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
-          <a href={`https://reveddit.com${permalink}`}>reveddit</a>
+          <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
           {parentlink}
           {props.hasOwnProperty('edited_body') &&
             <a onClick=  {() => setShowEdited(!showEdited)}

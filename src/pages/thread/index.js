@@ -214,6 +214,11 @@ class Thread extends React.Component {
           this.contigs.unshift({firstCreated: EARLIEST_CREATED})
           this.getComments(maxComments)
         })
+
+      // Set the scroll location to just below the post if not already set (only with permalinks)
+      if (!this.props.location.hash)
+        this.props.location.hash = '#comment-info'
+      this.props.location.state = {scrollBehavior: 'smooth'}
     }
   }
 
@@ -243,6 +248,7 @@ class Thread extends React.Component {
   }
 
   componentDidUpdate () {
+    let { loadingComments } = this.state
 
     // If the max-to-download Reload button or 'load more comments' was clicked
     const { loadingMoreComments } = this.props.global.state
@@ -255,12 +261,13 @@ class Thread extends React.Component {
       this.getComments(loadingMoreComments, true)
 
     // Otherwise if we're loading a comment tree we haven't downloaded yet
-    } else if (!this.state.loadingComments && !this.state.reloadingComments && !this.updateCurContig()) {
+    } else if (!loadingComments && !this.state.reloadingComments && !this.updateCurContig()) {
 
       // If we haven't downloaded from the earliest available yet (not a permalink)
       const { commentID } = this.props.match.params
       if (commentID === undefined) {
-        this.setState({loadingComments: true})
+        loadingComments = true
+        this.setState({loadingComments})
         this.props.global.setLoading('Loading comments...')
         console.time('Load comments')
         this.contigs.unshift({firstCreated: EARLIEST_CREATED})
@@ -296,7 +303,8 @@ class Thread extends React.Component {
                 this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
                 console.timeEnd('Load comments')
                 this.props.global.setSuccess()
-                this.setState({pushshiftCommentLookup, loadingComments: false, reloadingComments: false})
+                loadingComments = false
+                this.setState({pushshiftCommentLookup, loadingComments, reloadingComments: false})
               }
             } else
               createdUtcNotFound = true
@@ -315,6 +323,14 @@ class Thread extends React.Component {
             }
           })
       }
+    }
+
+    if (!loadingComments && this.props.location.state?.scrollBehavior) {
+      const { location } = this.props
+      const id = location.hash.substring(1)
+      if (id)
+        document.getElementById(id)?.scrollIntoView({behavior: location.state.scrollBehavior})
+      delete location.state
     }
   }
 
@@ -484,7 +500,6 @@ class Thread extends React.Component {
     const reloadingComments = this.state.loadingComments ||
                               this.state.reloadingComments ||
                               this.props.global.state.loadingMoreComments
-    const linkToRestOfComments = `/r/${subreddit}/comments/${id}/_/`
 
     const isSingleComment = commentID !== undefined
     const root = isSingleComment ? commentID : id
@@ -510,7 +525,11 @@ class Thread extends React.Component {
                 <div>you are viewing a single comment's thread.</div>
                 {this.state.reloadingComments ?
                   <div className='faux-link'>view the rest of the comments</div> :
-                  <Link to={linkToRestOfComments}>view the rest of the comments</Link>
+                  <Link to={() => ({
+                    pathname: `/r/${subreddit}/comments/${id}/_/`,
+                    hash: '#comment-info',
+                    state: {scrollBehavior: 'smooth'}}
+                  )}>view the rest of the comments</Link>
                 }
               </div>
             }
