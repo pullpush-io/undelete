@@ -46,7 +46,7 @@ const About = props => {
           uses <a href='https://pushshift.io/'>Jason Baumgartner's service</a> for getting removed comments.
         </p>
         <h2 className='todo'>FAQ</h2>
-        <div id='delete' className={hash == '#delete' ? 'highlighted' : ''}>
+        <div id='delete' className={hash == '#delete' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#delete'>Q:</Link> I posted some sensitive information on Reddit. Can you delete this from your page?</b>
         <p>
           No, I can't remove anything myself since I am not the not the one storing all the deleted comments.
@@ -54,7 +54,7 @@ const About = props => {
           If you want something sensitive removed permanently you should follow the <a href='https://www.reddit.com/r/pushshift/comments/pat409/online_removal_request_form_for_removal_requests/'>instructions here</a>.
         </p>
         </div>
-        <div id='removeddit' className={hash == '#removeddit' ? 'highlighted' : ''}>
+        <div id='removeddit' className={hash == '#removeddit' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#removeddit'>Q:</Link> Didn't this site used to be named Removeddit?</b>
         <p>
           The Removeddit site stopped working a short while ago, and this site was made to partially replace it.
@@ -63,7 +63,7 @@ const About = props => {
           In particular, Unddit does not currently support browsing subreddits, only specific posts.
         </p>
         </div>
-        <div id='how' className={hash == '#how' ? 'highlighted' : ''}>
+        <div id='how' className={hash == '#how' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#how'>Q:</Link> How does it work?</b>
         <p>
           This page is only possible because of the amazing work done by Jason.
@@ -73,7 +73,7 @@ const About = props => {
           By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
         </p>
         </div>
-        <div id='firefox' className={hash == '#firefox' ? 'highlighted' : ''}>
+        <div id='firefox' className={hash == '#firefox' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#firefox'>Q:</Link> Why doesn't it work in Firefox?</b>
         <p>
           If you have enabled Strict Enhanced Tracking Protection in Firefox, this will prevent Unddit from contacting Reddit's API.
@@ -82,7 +82,7 @@ const About = props => {
           It will still be enabled for other sites.
         </p>
         </div>
-        <div id='edge' className={hash == '#edge' ? 'highlighted' : ''}>
+        <div id='edge' className={hash == '#edge' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#edge'>Q:</Link> Why doesn't it work in Edge?</b>
         <p>
           If you have enabled Strict Tracking Protection in Edge, this will prevent Unddit from contacting Reddit's API.
@@ -91,7 +91,7 @@ const About = props => {
           It will still be enabled for other sites.
         </p>
         </div>
-        <div id='psdown' className={hash == '#psdown' ? 'highlighted' : ''}>
+        <div id='psdown' className={hash == '#psdown' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#psdown'>Q:</Link> Is Unddit/Pushshift down?</b>
         <p>
           Occasionally, Pushshift (the service used by Unddit) goes offline for a while.
@@ -100,7 +100,7 @@ const About = props => {
           You should either get a short message saying that Pushshift is up, or an error.
         </p>
         </div>
-        <div id='difference' className={hash == '#difference' ? 'highlighted' : ''}>
+        <div id='difference' className={hash == '#difference' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#difference'>Q:</Link> What's the difference between Ceddit and Removeddit/Unddit?</b>
         <p>
           Not much. Removeddit was created as a temporary replacement for Ceddit, at a time when Ceddit didn't work.
