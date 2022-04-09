@@ -46,3 +46,12 @@
     @media (prefers-color-scheme: light)
       color: var(--l-light)
       background-color: var(--l-background)
+
+  .attention
+    outline: 3px solid $removed
+    border-radius: 2px
+    animation: attention-anim 1s steps(2, jump-none) 2
+
+  @keyframes attention-anim
+    100%
+      outline-style: none

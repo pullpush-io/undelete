@@ -95,7 +95,7 @@ const filterCommentTree = (comments, filterFunction) => {
   return hasOkComment
 }
 
-let commentTree, lastTotal, lastRoot, lastFilter, lastSort
+let commentTree, lastTotal, lastRoot, lastFilter, lastSort, lengthBeforeFiltering
 
 const commentSection = (props) => {
   console.time('Build comment tree')
@@ -109,8 +109,10 @@ const commentSection = (props) => {
       commentFilter === filter.deleted
     )
   ))
-  if (needsRebuild)
+  if (needsRebuild) {
     commentTree = unflatten(props.comments, root, props.postID)
+    lengthBeforeFiltering = commentTree.length
+  }
 
   if (needsRebuild || commentFilter !== lastFilter) {
     if (commentFilter === filter.removedDeleted) {
@@ -139,6 +141,8 @@ const commentSection = (props) => {
   lastFilter = commentFilter
   lastSort   = commentSort
   console.timeEnd('Build comment tree')
+
+  props.setAllCommentsFiltered(commentTree.length == 0 && lengthBeforeFiltering > 0)
 
   console.time('Build html tree')
   const htmlTree = (

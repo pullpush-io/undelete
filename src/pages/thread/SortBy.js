@@ -22,7 +22,7 @@ const sortBy = props => {
     </select>
     <span className='space' />
   </span>
-  <span className='nowrap'>
+  <span className={props.allCommentsFiltered ? 'nowrap attention' : 'nowrap'}>
     <label htmlFor='commentFilter'>show:</label>
     <select id='commentFilter' defaultValue={props.global.state.commentFilter}
       onMouseDown={() => usedMouse = true}

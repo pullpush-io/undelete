@@ -57,10 +57,12 @@ class Thread extends React.Component {
     pushshiftCommentLookup: new Map(),
     removed: 0,
     deleted: 0,
+    allCommentsFiltered: false,
     loadedAllComments: false,
     loadingComments: true,
     reloadingComments: false
   }
+  nextAllCommentsFiltered = false
 
   // A 'contig' is an object representing a contiguous block of comments currently being downloaded or already
   // downloaded, e.g. { firstCreated: #, lastCreated: # } (secs past the epoch; min. value of EARLIEST_CREATED)
@@ -342,6 +344,9 @@ class Thread extends React.Component {
         document.getElementById(id)?.scrollIntoView({behavior: location.state.scrollBehavior})
       delete location.state
     }
+
+    if (this.nextAllCommentsFiltered != this.state.allCommentsFiltered)
+      this.setState({allCommentsFiltered: this.nextAllCommentsFiltered})
   }
 
   // Before calling, either create (and set to current) a new contig to begin downloading
@@ -523,6 +528,7 @@ class Thread extends React.Component {
           deleted={this.state.deleted}
         />
         <SortBy
+          allCommentsFiltered={this.state.allCommentsFiltered}
           loadedAllComments={this.state.loadedAllComments}
           reloadingComments={reloadingComments}
           total={this.state.pushshiftCommentLookup.size}
@@ -552,6 +558,7 @@ class Thread extends React.Component {
               commentSort={this.props.global.state.commentSort}      // pass in these props
               reloadingComments={reloadingComments}                  // to ensure React.memo
               total={this.state.pushshiftCommentLookup.size}         // works correctly
+              setAllCommentsFiltered={filtered => this.nextAllCommentsFiltered = filtered}
             />
             <LoadMore
               loadedAllComments={this.state.loadedAllComments}
