@@ -207,6 +207,16 @@ class Thread extends React.Component {
       this.commentIdAttempts.add(commentID)
       getRedditComments([commentID])
         .then(([comment]) => {
+          if (comment?.link_id) {
+            this.redditIdsToPushshift(comment)
+            if (comment.link_id != threadID) {
+              console.timeEnd('Load comments')
+              this.props.global.setError({ message: 'Invalid permalink' })
+              this.state.loadingComments = false
+              console.error('link_id mismatch:', comment)
+              return
+            }
+          }
           this.contigs.unshift({firstCreated: comment?.created_utc || EARLIEST_CREATED})
           this.getComments(maxComments, false, comment)
         })
@@ -228,7 +238,7 @@ class Thread extends React.Component {
     const { commentID } = this.props.match.params
     let curContigIdx = -1
     if (commentID === undefined)
-      curContigIdx = this.contigs[0].firstCreated == EARLIEST_CREATED ? 0 : -1
+      curContigIdx = this.contigs[0]?.firstCreated == EARLIEST_CREATED ? 0 : -1
     else {
       const created_utc = this.state.pushshiftCommentLookup.get(commentID)?.created_utc
       if (created_utc > EARLIEST_CREATED)
@@ -325,7 +335,7 @@ class Thread extends React.Component {
       }
     }
 
-    if (!loadingComments && this.props.location.state?.scrollBehavior) {
+    if (!loadingComments && !this.props.global.isErrored() && this.props.location.state?.scrollBehavior) {
       const { location } = this.props
       const id = location.hash.substring(1)
       if (id)

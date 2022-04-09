@@ -11,7 +11,9 @@ const loadMore = (props) => {
   const maxCommentsPreferred = props.global.maxComments
   let loadElements
 
-  if (props.reloadingComments)
+  if (props.global.isErrored())
+    return null
+  else if (props.reloadingComments)
     loadElements = [<span key='loading'>loading...</span>]
   else {
     if (props.loadedAllComments)

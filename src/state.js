@@ -106,6 +106,8 @@ class GlobalState extends Container {
     this.setState({statusText: '', statusHelpUrl: undefined, statusImage: undefined})
     document.body.classList.remove('wait')
   }
+
+  isErrored = () => this.state.statusImage?.endsWith('error.png')
 }
 
 // A redux-like connect function for Unstated

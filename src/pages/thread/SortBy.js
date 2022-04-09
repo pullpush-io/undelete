@@ -47,7 +47,8 @@ const sortBy = props => {
       defaultValue={props.global.maxComments} type='number' maxLength='5' required
       min={minCommentsLimit} max={maxCommentsLimit} step={minCommentsLimit} />
   </span>
-  { !props.reloadingComments && !props.loadedAllComments && maxCommentsField > props.global.maxComments && maxCommentsField - minCommentsLimit >= props.total &&
+  { !props.reloadingComments && !props.loadedAllComments && !props.global.isErrored() &&
+    maxCommentsField > props.global.maxComments && maxCommentsField - minCommentsLimit >= props.total &&
   <span className='nowrap'>
     <span className='space' />
     <input onClick={() => props.global.loadMoreComments(props.global.maxComments - props.total)} type='button' value='Reload' />
