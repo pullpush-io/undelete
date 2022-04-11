@@ -5,7 +5,7 @@ import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditTh
 export default (props) => {
   if (!props.title) {
     if (props.removed) {
-      const permalink = `/r/${props.subreddit}/comments/${props.id}`
+      const permalink = `/r/${props.subreddit}/comments/${props.id}/`
       return (
         <div class="thread removed">
           <div class="thread-score-box">
@@ -13,9 +13,9 @@ export default (props) => {
             <div class="thread-score">?</div>
             <div class="vote downvote" />
           </div>
-          <Link class="thumbnail thumbnail-default" to={permalink} />
+          <Link class="thumbnail thumbnail-default" to={permalink} replace={true} />
           <div class="thread-content">
-            <Link class="thread-title" to={permalink}>[removed too quickly to be archived]</Link>
+            <Link class="thread-title" to={permalink} replace={true}>[removed too quickly to be archived]</Link>
             <div class="total-comments">
               <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
               <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
@@ -47,12 +47,14 @@ export default (props) => {
   if (redditThumbnails.includes(props.thumbnail)) {
     thumbnail = React.createElement(isSameUrl ? Link : 'a', {
       [isSameUrl ? 'to' : 'href']: url,
+      replace: isSameUrl ? true : undefined,
       className: `thumbnail thumbnail-${props.thumbnail}`
     })
   } else if (props.thumbnail !== '') {
-    thumbnail = React.createElement(isSameUrl ? Link : 'a', { [isSameUrl ? 'to' : 'href']: url },
-      <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />
-    )
+    thumbnail = React.createElement(isSameUrl ? Link : 'a', {
+      [isSameUrl ? 'to' : 'href']: url,
+      replace: isSameUrl ? true : undefined
+    }, <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />)
   }
 
   let innerHTML, editedInnerHTML;
@@ -74,7 +76,7 @@ export default (props) => {
   const totalComments = <div className='total-comments'>
     {props.reloadingComments ?
       <span>{props.num_comments} comments</span> :
-      <Link to={props.permalink}>{props.num_comments}&nbsp;comments</Link>}&nbsp;
+      <Link to={props.permalink} replace={true}>{props.num_comments}&nbsp;comments</Link>}&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
     <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
     {props.hasOwnProperty('edited_selftext') &&
@@ -96,7 +98,11 @@ export default (props) => {
       </div>
       {thumbnail}
       <div className='thread-content'>
-        { React.createElement(isSameUrl ? Link : 'a', { [isSameUrl ? 'to' : 'href']: url, className:'thread-title' }, props.title) }
+        { React.createElement(isSameUrl ? Link : 'a', {
+          [isSameUrl ? 'to' : 'href']: url,
+          replace: isSameUrl ? true : undefined,
+          className:'thread-title'
+        }, props.title) }
         {props.link_flair_text &&
           <span className='link-flair'>{props.link_flair_text}</span>
         }
