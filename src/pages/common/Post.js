@@ -7,16 +7,16 @@ export default (props) => {
     if (props.removed) {
       const permalink = `/r/${props.subreddit}/comments/${props.id}/`
       return (
-        <div class="thread removed">
-          <div class="thread-score-box">
-            <div class="vote upvote" />
-            <div class="thread-score">?</div>
-            <div class="vote downvote" />
+        <div className="thread removed">
+          <div className="thread-score-box">
+            <div className="vote upvote" />
+            <div className="thread-score">?</div>
+            <div className="vote downvote" />
           </div>
-          <Link class="thumbnail thumbnail-default" to={permalink} replace={true} />
-          <div class="thread-content">
-            <Link class="thread-title" to={permalink} replace={true}>[removed too quickly to be archived]</Link>
-            <div class="total-comments">
+          <Link className="thumbnail thumbnail-default" to={permalink} replace={true} />
+          <div className="thread-content">
+            <Link className="thread-title" to={permalink} replace={true}>[removed too quickly to be archived]</Link>
+            <div className="total-comments">
               <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
               <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
             </div>
