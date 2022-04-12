@@ -4,11 +4,8 @@
 		{
 			targets: 'defaults',
 			useBuiltIns: 'usage',
-			corejs: 3
+			corejs: '3.21'
 		}],
 		"@babel/preset-react"
-	],
-	"plugins": [
-		"@babel/plugin-proposal-class-properties"
 	]
 }
