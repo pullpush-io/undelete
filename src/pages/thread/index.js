@@ -521,7 +521,7 @@ class Thread extends React.Component {
 
     return (
       <>
-        <Post {...this.state.post} reloadingComments={reloadingComments} />
+        <Post {...this.state.post} isLocFullPost={!isSingleComment && !this.props.location.hash} />
         <CommentInfo
           total={this.state.pushshiftCommentLookup.size}
           removed={this.state.removed}

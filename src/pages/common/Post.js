@@ -4,27 +4,25 @@ import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditTh
 
 export default (props) => {
   if (!props.title) {
-    if (props.removed) {
-      const permalink = `/r/${props.subreddit}/comments/${props.id}/`
-      return (
-        <div className="thread removed" key="post-removed">
-          <div className="thread-score-box">
-            <div className="vote upvote" />
-            <div className="thread-score">?</div>
-            <div className="vote downvote" />
-          </div>
-          <Link className="thumbnail thumbnail-default" to={permalink} replace={true} />
-          <div className="thread-content">
-            <Link className="thread-title" to={permalink} replace={true}>[removed too quickly to be archived]</Link>
-            <div className="total-comments">
-              <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
-              <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
-            </div>
-          </div>
+    const permalink = `/r/${props.subreddit}/comments/${props.id}/`
+    return <div className={props.removed ? 'thread removed' : 'thread'} key={props.removed ? 'post-removed' : 'post-empty'}>
+      <div className="thread-score-box">
+        <div className="vote upvote" />
+        <div className="thread-score">?</div>
+        <div className="vote downvote" />
+      </div>
+      <Link className="thumbnail thumbnail-default" to={permalink} replace={props.isLocFullPost} />
+      <div className="thread-content">
+        <Link className="thread-title" to={permalink} replace={props.isLocFullPost}>
+          {props.removed ? '[removed too quickly to be archived]' : '...'}
+        </Link>
+        <div className='thread-info'>&nbsp;</div>
+        <div className="total-comments">
+          <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
+          <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
         </div>
-      )
-    } else
-      return <div key="post-empty" />
+      </div>
+    </div>
   }
 
   let url = new URL(props.url, 'https://www.reddit.com')
@@ -33,9 +31,9 @@ export default (props) => {
     url.protocol = document.location.protocol
     url.host     = document.location.host
   }
-  const isSameUrl = url.origin == document.location.origin &&
+  const isUrlThisPost = url.origin == document.location.origin &&
     (new RegExp(`/(?:r|user)/[^/]+/comments/${props.id}\\b`)).test(url.pathname)
-  if (isSameUrl)
+  if (isUrlThisPost)
     url = url.href.substring(url.origin.length)
 
   const userLink = isDeleted(props.author) ? undefined : `https://www.reddit.com/user/${props.author}`
@@ -45,15 +43,15 @@ export default (props) => {
   const thumbnailHeight = props.thumbnail_height ? props.thumbnail_height * 0.5 : 70
 
   if (redditThumbnails.includes(props.thumbnail)) {
-    thumbnail = React.createElement(isSameUrl ? Link : 'a', {
-      [isSameUrl ? 'to' : 'href']: url,
-      replace: isSameUrl ? true : undefined,
+    thumbnail = React.createElement(isUrlThisPost ? Link : 'a', {
+      [isUrlThisPost ? 'to' : 'href']: url,
+      replace: isUrlThisPost ? props.isLocFullPost : undefined,
       className: `thumbnail thumbnail-${props.thumbnail}`
     })
   } else if (props.thumbnail !== '') {
-    thumbnail = React.createElement(isSameUrl ? Link : 'a', {
-      [isSameUrl ? 'to' : 'href']: url,
-      replace: isSameUrl ? true : undefined
+    thumbnail = React.createElement(isUrlThisPost ? Link : 'a', {
+      [isUrlThisPost ? 'to' : 'href']: url,
+      replace: isUrlThisPost ? props.isLocFullPost : undefined
     }, <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />)
   }
 
@@ -74,9 +72,7 @@ export default (props) => {
   const [showEdited, setShowEdited] = useState(false)
 
   const totalComments = <div className='total-comments'>
-    {props.reloadingComments ?
-      <span>{props.num_comments} comments</span> :
-      <Link to={props.permalink} replace={true}>{props.num_comments}&nbsp;comments</Link>}&nbsp;
+    <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
     <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
     {props.hasOwnProperty('edited_selftext') &&
@@ -98,9 +94,9 @@ export default (props) => {
       </div>
       {thumbnail}
       <div className='thread-content'>
-        { React.createElement(isSameUrl ? Link : 'a', {
-          [isSameUrl ? 'to' : 'href']: url,
-          replace: isSameUrl ? true : undefined,
+        { React.createElement(isUrlThisPost ? Link : 'a', {
+          [isUrlThisPost ? 'to' : 'href']: url,
+          replace: isUrlThisPost ? props.isLocFullPost : undefined,
           className:'thread-title'
         }, props.title) }
         {props.link_flair_text &&
