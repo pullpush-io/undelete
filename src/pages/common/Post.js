@@ -7,7 +7,7 @@ export default (props) => {
     if (props.removed) {
       const permalink = `/r/${props.subreddit}/comments/${props.id}/`
       return (
-        <div className="thread removed">
+        <div className="thread removed" key="post-removed">
           <div className="thread-score-box">
             <div className="vote upvote" />
             <div className="thread-score">?</div>
@@ -24,7 +24,7 @@ export default (props) => {
         </div>
       )
     } else
-      return <div />
+      return <div key="post-empty" />
   }
 
   let url = new URL(props.url, 'https://www.reddit.com')
@@ -58,14 +58,14 @@ export default (props) => {
   }
 
   let innerHTML, editedInnerHTML;
-  if (isRemoved(props.selftext) && props.removed) {
+  if (props.removed && isRemoved(props.selftext)) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
     } else {
       const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
       innerHTML = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
-  } else if (props.selftext) {
+  } else if (props.selftext && (props.is_self || !isDeleted(props.selftext))) {
     innerHTML = parse(props.selftext)
     if (props.hasOwnProperty('edited_selftext'))
       editedInnerHTML = parse(props.edited_selftext)
@@ -87,7 +87,7 @@ export default (props) => {
       >*edited</a>}
   </div>
 
-  return <div className={props.removed ? 'removed' : props.deleted ? 'deleted' : undefined}>
+  return <div className={props.removed ? 'removed' : props.deleted ? 'deleted' : undefined} key="post-found">
     <div className='thread'>
       {props.position &&
         <span className='post-rank'>{props.position}</span>}

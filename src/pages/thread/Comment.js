@@ -14,7 +14,7 @@ const Comment = (props) => {
   }
 
   let innerHTML, editedInnerHTML;
-  if (isRemoved(props.body) && props.removed) {
+  if (props.removed && isRemoved(props.body)) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
       innerHTML = '<p>[removed too quickly to be archived]</p>'
     } else if (props.created_utc < 1627776000) {  // Aug 1 2021

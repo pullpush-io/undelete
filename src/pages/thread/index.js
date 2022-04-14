@@ -105,7 +105,7 @@ class Thread extends React.Component {
         else if (isRemoved(post.selftext) || post.removed_by_category)
           post.removed = true
 
-        if (!post.deleted && !post.removed && !post.edited) {
+        if (post.is_self === false || !post.deleted && !post.removed && !post.edited) {
           this.setState({ post })
           if (this.state.loadingComments)
             this.props.global.setLoading('Loading comments...')
