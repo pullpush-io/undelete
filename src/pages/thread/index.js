@@ -230,8 +230,10 @@ class Thread extends React.Component {
       // Set the scroll location to just below the post if not already set (only with permalinks)
       if (!this.props.location.hash)
         this.props.location.hash = '#comment-info'
-      this.props.location.state = {scrollBehavior: 'smooth'}
     }
+
+    if (this.props.location.hash)
+      this.props.location.state = {scrollBehavior: 'smooth'}
   }
 
   // Updates this.curContigIdx based on URL's commentID if it's already downloaded.
@@ -337,12 +339,13 @@ class Thread extends React.Component {
       }
     }
 
-    if (!loadingComments && !this.props.global.isErrored() && this.props.location.state?.scrollBehavior) {
-      const { location } = this.props
-      const id = location.hash.substring(1)
-      if (id)
-        document.getElementById(id)?.scrollIntoView({behavior: location.state.scrollBehavior})
-      delete location.state
+    const { location } = this.props
+    if (location.state?.scrollBehavior && location.hash.length > 1 && !this.props.global.isErrored()) {
+      const hashElem = document.getElementById(location.hash.substring(1))
+      if (hashElem) {
+        hashElem.scrollIntoView({behavior: location.state.scrollBehavior})
+        delete location.state
+      }
     }
 
     if (this.nextAllCommentsFiltered != this.state.allCommentsFiltered)
