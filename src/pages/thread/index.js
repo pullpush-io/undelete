@@ -105,7 +105,7 @@ class Thread extends React.Component {
         else if (isRemoved(post.selftext) || post.removed_by_category)
           post.removed = true
 
-        if (post.is_self === false || !post.deleted && !post.removed && !post.edited) {
+        if (post.is_self === false ? !post.deleted : !post.deleted && !post.removed && !post.edited) {
           this.setState({ post })
           if (this.state.loadingComments)
             this.props.global.setLoading('Loading comments...')
@@ -113,7 +113,8 @@ class Thread extends React.Component {
         // Fetch the post from Pushshift if it was deleted/removed/edited
         } else {
           const redditSelftext = post.selftext
-          post.selftext = '...'  // temporarily remove selftext to avoid flashing it onscreen
+          if (post.is_self)
+            post.selftext = '...'  // temporarily remove selftext to avoid flashing it onscreen
           this.setState({ post })
           getPushshiftPost(threadID)
             .then(origPost => {
