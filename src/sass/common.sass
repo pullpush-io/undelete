@@ -99,3 +99,30 @@ select
   color: var(--dim)
   @media (prefers-color-scheme: light)
     color: var(--l-dim)
+
+
+// Show tooltip on click for touch/pen screens; credit to https://stackoverflow.com/a/60660207
+@media (pointer: coarse), (hover: none)
+
+  span[title], a[title]
+    position: relative
+    display: inline-flex
+    justify-content: center
+
+    &:hover::after
+      content: attr(title)
+      position: absolute
+      top: 95%
+      z-index: 1
+      padding: 3px
+      min-width: 125px
+      font-weight: normal
+      text-align: center
+      color: var(--white)
+      background-color: var(--tooltip-bg)
+      border: 1px solid var(--thread-brd)
+      border-radius: 3px
+      @media (prefers-color-scheme: light)
+        color: var(--l-white)
+        background-color: var(--l-tooltip-bg)
+        border-color: var(--l-thread-brd)
