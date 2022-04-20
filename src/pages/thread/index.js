@@ -210,15 +210,14 @@ class Thread extends React.Component {
       this.commentIdAttempts.add(commentID)
       getRedditComments([commentID])
         .then(([comment]) => {
-          if (comment?.link_id) {
+          if (comment)
             this.redditIdsToPushshift(comment)
-            if (comment.link_id != threadID) {
-              console.timeEnd('Load comments')
-              this.props.global.setError({ message: 'Invalid permalink' })
-              this.state.loadingComments = false
-              console.error('link_id mismatch:', comment)
-              return
-            }
+          if (comment?.link_id != threadID) {
+            console.timeEnd('Load comments')
+            this.props.global.setError({ message: 'Invalid permalink' })
+            this.state.loadingComments = false
+            console.error('link_id mismatch:', comment)
+            return
           }
           this.contigs.unshift({firstCreated: comment?.created_utc || EARLIEST_CREATED})
           this.getComments(maxComments, false, comment)
@@ -308,6 +307,7 @@ class Thread extends React.Component {
               if (insertBefore == 0 || created_utc >= this.contigs[insertBefore - 1].lastCreated) {
                 this.contigs.splice(insertBefore, 0, {firstCreated: created_utc})
                 this.setCurContig(insertBefore)
+                this.redditIdsToPushshift(comment)
                 this.getComments(this.props.global.maxComments, false, comment)
 
               // Otherwise an earlier attempt to download it from Pushshift turned up nothing,
@@ -357,7 +357,8 @@ class Thread extends React.Component {
   // after a new time, or set the current contig to begin adding to the end of that contig.
   //   persistent: if true, will try to continue downloading after the current contig has
   //               been completed and merged with the next contig.
-  //  commentHint: a Reddit comment for use if Pushshift is missing that same comment.
+  //  commentHint: a Reddit comment for use if Pushshift is missing that same comment;
+  //               its ids must have already been updated by redditIdsToPushshift()
   getComments (newCommentCount, persistent = false, commentHint = undefined) {
     const { threadID, commentID } = this.props.match.params
     const { pushshiftCommentLookup } = this.state
@@ -466,7 +467,13 @@ class Thread extends React.Component {
               commentHint.created_utc >= this.curContig().firstCreated && (
                 commentHint.created_utc < this.curContig().lastCreated || curContigLoadedAll
               )) {
-            this.redditIdsToPushshift(commentHint)
+            if (isRemoved(commentHint.body)) {
+              this.state.removed++
+              commentHint.removed = true
+            } else if (isDeleted(commentHint.body)) {
+              this.state.deleted++
+              commentHint.deleted = true
+            }
             pushshiftCommentLookup.set(commentHint.id, commentHint)
             commentHint = undefined
           }
