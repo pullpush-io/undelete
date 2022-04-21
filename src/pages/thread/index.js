@@ -91,6 +91,7 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID, commentID } = this.props.match.params
+    this.state.post = { subreddit, id: threadID }
     this.props.global.setLoading('Loading post...')
     console.time('Load comments')
 
