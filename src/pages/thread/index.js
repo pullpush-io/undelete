@@ -318,8 +318,7 @@ class Thread extends React.Component {
                 this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
                 console.timeEnd('Load comments')
                 this.props.global.setSuccess()
-                loadingComments = false
-                this.setState({pushshiftCommentLookup, loadingComments, reloadingComments: false})
+                this.setState({pushshiftCommentLookup, loadingComments: false, reloadingComments: false})
               }
             } else
               createdUtcNotFound = true
@@ -341,7 +340,8 @@ class Thread extends React.Component {
     }
 
     const { location } = this.props
-    if (location.state?.scrollBehavior && location.hash.length > 1 && !this.props.global.isErrored()) {
+    if (location.state?.scrollBehavior && location.hash.length > 1 &&
+        !loadingComments && !this.props.global.isErrored()) {
       const hashElem = document.getElementById(location.hash.substring(1))
       if (hashElem) {
         hashElem.scrollIntoView({behavior: location.state.scrollBehavior})
