@@ -87,6 +87,19 @@ class Thread extends React.Component {
     return comment
   }
 
+  // Can be called when a comment is missing from Pushshift;
+  // the comment's ids must have already been updated by redditIdsToPushshift()
+  useRedditComment (comment) {
+    if (isRemoved(comment.body)) {
+      this.state.removed++
+      commentHint.removed = true
+    } else if (isDeleted(comment.body)) {
+      this.state.deleted++
+      commentHint.deleted = true
+    }
+    this.state.pushshiftCommentLookup.set(comment.id, comment)
+  }
+
   commentIdAttempts = new Set()  // keeps track of attempts to load permalinks to avoid reattempts
 
   componentDidMount () {
@@ -315,7 +328,7 @@ class Thread extends React.Component {
               } else {
                 const { pushshiftCommentLookup } = this.state
                 this.redditIdsToPushshift(comment)
-                pushshiftCommentLookup.set(comment.id, comment)  // so use the Reddit comment instead
+                this.useRedditComment(comment)       // so use the Reddit comment instead
                 this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
                 console.timeEnd('Load comments')
                 this.props.global.setSuccess()
@@ -397,6 +410,7 @@ class Thread extends React.Component {
     // Download a list of comments by id from Reddit, and process them
     doRedditComments = ids => redditPromises.push(getRedditComments(ids)
       .then(comments => {
+        let removed = 0, deleted = 0
         comments.forEach(comment => {
           let pushshiftComment = pushshiftCommentLookup.get(comment.id)
           if (pushshiftComment === undefined) {
@@ -409,7 +423,6 @@ class Thread extends React.Component {
           }
 
           // Check what is removed / deleted according to reddit
-          let removed = 0, deleted = 0
           if (isRemoved(comment.body)) {
             removed++
             pushshiftComment.removed = true
@@ -426,8 +439,8 @@ class Thread extends React.Component {
               pushshiftComment.edited = comment.edited
             }
           }
-          this.setState({ removed: this.state.removed + removed, deleted: this.state.deleted + deleted })
         })
+        this.setState({ removed: this.state.removed + removed, deleted: this.state.deleted + deleted })
         return comments.length
       })
       .catch(error => {
@@ -468,14 +481,7 @@ class Thread extends React.Component {
               commentHint.created_utc >= this.curContig().firstCreated && (
                 commentHint.created_utc < this.curContig().lastCreated || curContigLoadedAll
               )) {
-            if (isRemoved(commentHint.body)) {
-              this.state.removed++
-              commentHint.removed = true
-            } else if (isDeleted(commentHint.body)) {
-              this.state.deleted++
-              commentHint.deleted = true
-            }
-            pushshiftCommentLookup.set(commentHint.id, commentHint)
+            this.useRedditComment(commentHint)
             commentHint = undefined
           }
 
