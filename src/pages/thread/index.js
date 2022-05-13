@@ -81,14 +81,15 @@ class Thread extends React.Component {
       console.warn("Can't merge contigs", this.curContig(), "and", nextContig)  // shouldn't happen
   }
 
-  redditIdsToPushshift (comment) {
+  // Convert Reddit fullnames to their short ID (base36) form
+  fullnamesToShortIDs (comment) {
     comment.parent_id = comment.parent_id?.substring(3) || this.props.match.params.threadID
     comment.link_id = comment.link_id?.substring(3)     || this.props.match.params.threadID
     return comment
   }
 
   // Can be called when a comment is missing from Pushshift;
-  // the comment's ids must have already been updated by redditIdsToPushshift()
+  // the comment's ids must have already been updated by fullnamesToShortIDs()
   useRedditComment (comment) {
     if (isRemoved(comment.body)) {
       this.state.removed++
@@ -225,7 +226,7 @@ class Thread extends React.Component {
       getRedditComments([commentID])
         .then(([comment]) => {
           if (comment)
-            this.redditIdsToPushshift(comment)
+            this.fullnamesToShortIDs(comment)
           if (comment?.link_id != threadID) {
             console.timeEnd('Load comments')
             this.props.global.setError({ message: 'Invalid permalink' })
@@ -321,13 +322,13 @@ class Thread extends React.Component {
               if (insertBefore == 0 || created_utc >= this.contigs[insertBefore - 1].lastCreated) {
                 this.contigs.splice(insertBefore, 0, {firstCreated: created_utc})
                 this.setCurContig(insertBefore)
-                this.redditIdsToPushshift(comment)
+                this.fullnamesToShortIDs(comment)
                 this.getComments(this.props.global.maxComments, false, comment)
 
               // Otherwise an earlier attempt to download it from Pushshift turned up nothing,
               } else {
                 const { pushshiftCommentLookup } = this.state
-                this.redditIdsToPushshift(comment)
+                this.fullnamesToShortIDs(comment)
                 this.useRedditComment(comment)       // so use the Reddit comment instead
                 this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
                 console.timeEnd('Load comments')
@@ -372,7 +373,7 @@ class Thread extends React.Component {
   //   persistent: if true, will try to continue downloading after the current contig has
   //               been completed and merged with the next contig.
   //  commentHint: a Reddit comment for use if Pushshift is missing that same comment;
-  //               its ids must have already been updated by redditIdsToPushshift()
+  //               its ids must have already been updated by fullnamesToShortIDs()
   getComments (newCommentCount, persistent = false, commentHint = undefined) {
     const { threadID, commentID } = this.props.match.params
     const { pushshiftCommentLookup } = this.state
