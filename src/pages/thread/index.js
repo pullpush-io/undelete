@@ -3,11 +3,13 @@ import { Link } from 'react-router-dom'
 import {
   getPost,
   getComments as getRedditComments,
+  getParentComments,
   chunkSize as redditChunkSize
 } from '../../api/reddit'
 import {
   getPost as getPushshiftPost,
   getComments as getPushshiftComments,
+  getCommentsFromIds,
   chunkSize as pushshiftChunkSize
 } from '../../api/pushshift'
 import { isDeleted, isRemoved, sleep } from '../../utils'
@@ -57,11 +59,14 @@ class Thread extends React.Component {
     pushshiftCommentLookup: new Map(),
     removed: 0,
     deleted: 0,
+    context: 0,
+    moreContextAvail: true,
     allCommentsFiltered: false,
     loadedAllComments: false,
     loadingComments: true,
     reloadingComments: false
   }
+  nextMoreContextAvail = true
   nextAllCommentsFiltered = false
 
   // A 'contig' is an object representing a contiguous block of comments currently being downloaded or already
@@ -212,8 +217,9 @@ class Thread extends React.Component {
       })
 
     // The max_comments query parameter can increase the initial comments-to-download
-    const maxComments = Math.max(this.props.global.maxComments, constrainMaxComments(
-      parseInt((new URLSearchParams(this.props.location.search)).get('max_comments'))))
+    const searchParams = new URLSearchParams(this.props.location.search)
+    const maxComments = Math.max(this.props.global.maxComments,
+      constrainMaxComments(parseInt(searchParams.get('max_comments'))))
 
     // Get comments starting from the earliest available (not a permalink)
     if (commentID === undefined) {
@@ -234,6 +240,9 @@ class Thread extends React.Component {
             console.error('link_id mismatch:', comment)
             return
           }
+          const context = parseInt(searchParams.get('context'))
+          if (context > 0)
+            this.contextPromise = this.getContext(context)
           this.contigs.unshift({firstCreated: comment?.created_utc || EARLIEST_CREATED})
           this.getComments(maxComments, false, comment)
         })
@@ -278,6 +287,7 @@ class Thread extends React.Component {
 
   componentDidUpdate () {
     let { loadingComments } = this.state
+    const { commentID } = this.props.match.params
 
     // If the max-to-download Reload button or 'load more comments' was clicked
     const { loadingMoreComments } = this.props.global.state
@@ -289,71 +299,92 @@ class Thread extends React.Component {
       this.updateCurContig()
       this.getComments(loadingMoreComments, true)
 
-    // Otherwise if we're loading a comment tree we haven't downloaded yet
-    } else if (!loadingComments && !this.state.reloadingComments && !this.updateCurContig()) {
+    // Otherwise if we're not already downloading comments, check to see if we need to start
+    } else if (!loadingComments && !this.state.reloadingComments) {
 
-      // If we haven't downloaded from the earliest available yet (not a permalink)
-      const { commentID } = this.props.match.params
-      if (commentID === undefined) {
-        loadingComments = true
-        this.setState({loadingComments})
-        this.props.global.setLoading('Loading comments...')
-        console.time('Load comments')
-        this.contigs.unshift({firstCreated: EARLIEST_CREATED})
-        this.setCurContig(0)
-        this.getComments(this.props.global.maxComments)
+      // If we're loading a comment tree we haven't downloaded yet
+      if (!this.updateCurContig()) {
 
-      // If we haven't downloaded this permalink yet
-      } else if (!this.commentIdAttempts.has(commentID)) {
-        this.commentIdAttempts.add(commentID)
-        this.setState({reloadingComments: true})
-        this.props.global.setLoading('Loading comments...')
-        console.time('Load comments')
-        let createdUtcNotFound  // true if Reddit doesn't have the comment's created_utc
-        getRedditComments([commentID])
-          .then(([comment]) => {
-            const created_utc = comment?.created_utc
-            if (created_utc > EARLIEST_CREATED) {
-              let insertBefore = this.contigs.findIndex(contig => created_utc < contig.firstCreated)
-              if (insertBefore == -1)
-                insertBefore = this.contigs.length
+        // If we haven't downloaded from the earliest available yet (not a permalink)
+        if (commentID === undefined) {
+          loadingComments = true
+          this.setState({loadingComments})
+          this.props.global.setLoading('Loading comments...')
+          console.time('Load comments')
+          this.contigs.unshift({firstCreated: EARLIEST_CREATED})
+          this.setCurContig(0)
+          this.getComments(this.props.global.maxComments)
 
-              // If comment isn't inside an existing contig, create a new one and start downloading
-              if (insertBefore == 0 || created_utc >= this.contigs[insertBefore - 1].lastCreated) {
-                this.contigs.splice(insertBefore, 0, {firstCreated: created_utc})
-                this.setCurContig(insertBefore)
-                this.fullnamesToShortIDs(comment)
-                this.getComments(this.props.global.maxComments, false, comment)
+        // Otherwise if we haven't downloaded this permalink yet
+        } else if (!this.commentIdAttempts.has(commentID)) {
+          this.commentIdAttempts.add(commentID)
+          this.setState({reloadingComments: true})
+          this.props.global.setLoading('Loading comments...')
+          console.time('Load comments')
+          let createdUtcNotFound  // true if Reddit doesn't have the comment's created_utc
+          getRedditComments([commentID])
+            .then(([comment]) => {
+              const created_utc = comment?.created_utc
+              if (created_utc > EARLIEST_CREATED) {
+                let insertBefore = this.contigs.findIndex(contig => created_utc < contig.firstCreated)
+                if (insertBefore == -1)
+                  insertBefore = this.contigs.length
 
-              // Otherwise an earlier attempt to download it from Pushshift turned up nothing,
-              } else {
-                const { pushshiftCommentLookup } = this.state
-                this.fullnamesToShortIDs(comment)
-                this.useRedditComment(comment)       // so use the Reddit comment instead
-                this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
-                console.timeEnd('Load comments')
-                this.props.global.setSuccess()
-                this.setState({pushshiftCommentLookup, loadingComments: false, reloadingComments: false})
+                // If comment isn't inside an existing contig, create a new one and start downloading
+                if (insertBefore == 0 || created_utc >= this.contigs[insertBefore - 1].lastCreated) {
+                  this.contigs.splice(insertBefore, 0, {firstCreated: created_utc})
+                  this.setCurContig(insertBefore)
+                  this.fullnamesToShortIDs(comment)
+                  this.getComments(this.props.global.maxComments, false, comment)
+
+                // Otherwise an earlier attempt to download it from Pushshift turned up nothing,
+                } else {
+                  this.fullnamesToShortIDs(comment)
+                  this.useRedditComment(comment)       // so use the Reddit comment instead
+                  this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
+                  console.timeEnd('Load comments')
+                  this.props.global.setSuccess()
+                  this.setState({loadingComments: false, reloadingComments: false})
+                }
+              } else
+                createdUtcNotFound = true
+            })
+            .catch(() => createdUtcNotFound = true)
+            .finally(() => {
+              if (createdUtcNotFound) {
+                // As a last resort, try to download starting from the previous contig;
+                // this only occurs once per commentID due to the commentIdAttempts Set.
+                if (this.curContigIdx > 0)
+                  this.setCurContig(this.curContigIdx - 1)
+                // If there is no previous, create one
+                else if (this.curContig().firstCreated != EARLIEST_CREATED)
+                  this.contigs.unshift({firstCreated: EARLIEST_CREATED})
+                this.getComments(this.props.global.maxComments)
               }
-            } else
-              createdUtcNotFound = true
-          })
-          .catch(() => createdUtcNotFound = true)
-          .finally(() => {
-            if (createdUtcNotFound) {
-              // As a last resort, try to download starting from the previous contig;
-              // this only occurs once per commentID due to the commentIdAttempts Set.
-              if (this.curContigIdx > 0)
-                this.setCurContig(this.curContigIdx - 1)
-              // If there is no previous, create one
-              else if (this.curContig().firstCreated != EARLIEST_CREATED)
-                this.contigs.unshift({firstCreated: EARLIEST_CREATED})
-              this.getComments(this.props.global.maxComments)
-            }
-          })
-      }
-    }
+            })
+        }
+      } // end of "If we're loading a comment tree we haven't downloaded yet"
 
+      // Check if the context query parameter has changed
+      if (commentID) {
+        const context = parseInt((new URLSearchParams(this.props.location.search)).get('context')) || 0
+        if (context > this.state.context) {
+          this.setState({reloadingComments: true})
+          this.props.global.setLoading('Loading comments...')
+          console.time('Load comments')
+          this.getContext(context)  // also updates state.context
+            .then(commentCount => {
+              console.log('Reddit:', commentCount, 'comments')
+              console.timeEnd('Load comments')
+              this.props.global.setSuccess()
+              this.setState({loadingComments: false, reloadingComments: false})
+            })
+        } else if (context >= 0 && context != this.state.context)
+          this.setState({ context })
+      }
+    } // end of "If we're not already downloading comments, check to see if we need to start"
+
+    // Handle any requested scrolling
     const { location } = this.props
     if (location.state?.scrollBehavior && location.hash.length > 1 &&
         !loadingComments && !this.props.global.isErrored()) {
@@ -364,8 +395,52 @@ class Thread extends React.Component {
       }
     }
 
+    if (this.nextMoreContextAvail != this.state.moreContextAvail)
+      this.setState({moreContextAvail: this.nextMoreContextAvail})
     if (this.nextAllCommentsFiltered != this.state.allCommentsFiltered)
       this.setState({allCommentsFiltered: this.nextAllCommentsFiltered})
+  }
+
+  // Before calling, state.pushshiftCommentLookup must be populated.
+  // Compares an array of Reddit comments with those in pushshiftCommentLookup,
+  // updating them to reflect their removed/deleted/edited status and then
+  // updates the state's removed/deleted count. Returns the number processed.
+  compareAndUpdateComments (redditComments) {
+    if (redditComments.length == 0)
+      return 0
+    const { pushshiftCommentLookup } = this.state
+    let removed = 0, deleted = 0
+    redditComments.forEach(redditComment => {
+      let pushshiftComment = pushshiftCommentLookup.get(redditComment.id)
+      if (pushshiftComment === undefined) {
+        // When a parent comment is missing from pushshift, use the redditComment instead
+        pushshiftComment = this.fullnamesToShortIDs(redditComment)
+        pushshiftCommentLookup.set(pushshiftComment.id, pushshiftComment)
+      } else {
+        // Replace pushshift score with reddit (it's usually more accurate)
+        pushshiftComment.score = redditComment.score
+      }
+
+      // Check what is removed / deleted according to reddit
+      if (isRemoved(redditComment.body)) {
+        removed++
+        pushshiftComment.removed = true
+      } else if (isDeleted(redditComment.body)) {
+        deleted++
+        pushshiftComment.deleted = true
+      } else if (pushshiftComment !== redditComment) {
+        if (isRemoved(pushshiftComment.body)) {
+          // If it's deleted in pushshift, but later restored by a mod, use the restored
+          this.fullnamesToShortIDs(redditComment)
+          pushshiftCommentLookup.set(redditComment.id, redditComment)
+        } else if (pushshiftComment.body != redditComment.body) {
+          pushshiftComment.edited_body = redditComment.body
+          pushshiftComment.edited = redditComment.edited
+        }
+      }
+    })
+    this.setState({ removed: this.state.removed + removed, deleted: this.state.deleted + deleted })
+    return redditComments.length
   }
 
   // Before calling, either create (and set to current) a new contig to begin downloading
@@ -410,40 +485,7 @@ class Thread extends React.Component {
 
     // Download a list of comments by id from Reddit, and process them
     doRedditComments = ids => redditPromises.push(getRedditComments(ids)
-      .then(comments => {
-        let removed = 0, deleted = 0
-        comments.forEach(comment => {
-          let pushshiftComment = pushshiftCommentLookup.get(comment.id)
-          if (pushshiftComment === undefined) {
-            // When a parent comment is missing from pushshift, use the reddit comment instead
-            pushshiftComment = this.redditIdsToPushshift(comment)
-            pushshiftCommentLookup.set(comment.id, pushshiftComment)
-          } else {
-            // Replace pushshift score with reddit (it's usually more accurate)
-            pushshiftComment.score = comment.score
-          }
-
-          // Check what is removed / deleted according to reddit
-          if (isRemoved(comment.body)) {
-            removed++
-            pushshiftComment.removed = true
-          } else if (isDeleted(comment.body)) {
-            deleted++
-            pushshiftComment.deleted = true
-          } else if (pushshiftComment !== comment) {
-            if (isRemoved(pushshiftComment.body)) {
-              // If it's deleted in pushshift, but later restored by a mod, use the restored
-              this.redditIdsToPushshift(comment)
-              pushshiftCommentLookup.set(comment.id, comment)
-            } else if (pushshiftComment.body != comment.body) {
-              pushshiftComment.edited_body = comment.body
-              pushshiftComment.edited = comment.edited
-            }
-          }
-        })
-        this.setState({ removed: this.state.removed + removed, deleted: this.state.deleted + deleted })
-        return comments.length
-      })
+      .then(comments => this.compareAndUpdateComments(comments))
       .catch(error => {
         console.timeEnd('Load comments')
         this.props.global.setError(error, error.helpUrl)
@@ -489,7 +531,10 @@ class Thread extends React.Component {
           // All comments from Pushshift have been processed; wait for Reddit to finish
           while (!redditIdQueue.isEmpty())
             doRedditComments(redditIdQueue.shiftChunk())
+          if (this.contextPromise)
+            redditPromises.push(this.contextPromise)
           Promise.all(redditPromises).then(lengths => {
+            this.contextPromise = undefined
             console.log('Reddit:', lengths.reduce((a,b) => a+b, 0), 'comments')
 
             if (!this.stopLoading) {
@@ -522,6 +567,26 @@ class Thread extends React.Component {
             this.setCurContig(this.contigs.length - 1)
         }
       })
+  }
+
+  // Makes a best-effort attempt to retrieve context# ancestors of the current commentID.
+  // Returns a Promise which resolves with the number retrieved, or rejects with undefined.
+  getContext (context) {
+    const { params } = this.props.match
+    const { pushshiftCommentLookup } = this.state
+    return getParentComments(params.threadID, params.commentID, context)
+      .then(redditComments => {
+        const ids = redditComments.map(c => c.id).filter(id => !pushshiftCommentLookup.has(id))
+        return getCommentsFromIds(ids)
+          .then(pushshiftComments => {
+            if (ids.length)
+              console.log('Pushshift:', pushshiftComments.length, 'comments')
+            this.setState({ context })
+            pushshiftComments.forEach(comment => pushshiftCommentLookup.set(comment.id, comment))
+            return this.compareAndUpdateComments(redditComments)
+          })
+      })
+      .catch(e => console.error(e))
   }
 
   componentWillUnmount () {
@@ -557,19 +622,30 @@ class Thread extends React.Component {
           <>
             {isSingleComment &&
               <div className='view-rest-of-comment'>
-                <div>you are viewing a single comment's thread.</div>
+                <div>you are viewing a single comment's thread.</div><div>
                 {this.state.reloadingComments ?
-                  <div className='faux-link'>view the rest of the comments</div> :
-                  <Link to={() => ({
+                  <span className='nowrap faux-link'>view the rest of the comments &rarr;</span> :
+                  <span className='nowrap'><Link to={() => ({
                     pathname: `/r/${subreddit}/comments/${id}/_/`,
                     hash: '#comment-info',
                     state: {scrollBehavior: 'smooth'}}
-                  )}>view the rest of the comments</Link>
+                  )}>view the rest of the comments</Link> &rarr;</span>
                 }
-              </div>
+                {this.state.moreContextAvail && this.state.context < 8 && <>
+                  <span className='space' />
+                  {this.state.reloadingComments ?
+                    <span className='nowrap faux-link'>view more context &rarr;</span> :
+                    <span className='nowrap'><Link to={() => ({
+                      pathname: `/r/${subreddit}/comments/${id}/_/${commentID}/`,
+                      search: `?context=${this.state.context < 4 ? 4 : 8}`}
+                    )}>view more context</Link> &rarr;</span>
+                  }
+                </>}
+              </div></div>
             }
             <CommentSection
               root={root}
+              context={this.state.context}
               postID={id}
               comments={this.state.pushshiftCommentLookup}
               postAuthor={isDeleted(author) ? null : author}
@@ -577,12 +653,14 @@ class Thread extends React.Component {
               commentSort={this.props.global.state.commentSort}      // pass in these props
               reloadingComments={reloadingComments}                  // to ensure React.memo
               total={this.state.pushshiftCommentLookup.size}         // works correctly
+              setMoreContextAvail={avail => this.nextMoreContextAvail = avail}
               setAllCommentsFiltered={filtered => this.nextAllCommentsFiltered = filtered}
             />
             <LoadMore
               loadedAllComments={this.state.loadedAllComments}
               reloadingComments={reloadingComments}
               total={this.state.pushshiftCommentLookup.size}
+              context={this.state.context}
             />
           </>
         }

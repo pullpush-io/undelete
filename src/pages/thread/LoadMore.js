@@ -1,7 +1,7 @@
 import React from 'react'
 import {connect, maxCommentsDefault} from '../../state'
 
-let loadingStarted = false, showLoadedCount = false, lastTotal, newComments
+let loadingStarted = false, showLoadedCount = false, lastTotal, lastContext, newComments
 const loadMoreComments = (props, maxComments) => {
   loadingStarted = true
   props.global.loadMoreComments(maxComments)
@@ -26,15 +26,22 @@ const loadMore = (props) => {
       if (maxCommentsPreferred >= maxCommentsDefault * 2)
         loadElements.push(<a key='pref' onClick={() => loadMoreComments(props, maxCommentsPreferred)}>load {maxCommentsPreferred} more comments</a>)
     }
+
+    // If loadMoreComments() was called and has completed (because reloadingComments is now false),
     if (loadingStarted) {
-      showLoadedCount = true
+      showLoadedCount = true  // then showLoadedCount below
       newComments = props.total - lastTotal
       lastTotal = props.total
+      lastContext = props.context
       loadingStarted = false
-    } else if (lastTotal !== props.total) {
-      showLoadedCount = false
+
+    // Otherwise if the comment total or context changed w/o calling loadMoreComments(),
+    } else if (lastTotal !== props.total || lastContext !== props.context) {
+      showLoadedCount = false  // then don't showLoadedCount below
       lastTotal = props.total
+      lastContext = props.context
     }
+
     if (showLoadedCount) {
       loadElements.push(<span key='loaded' className='fade'>
         {newComments > 0 ? `loaded ${newComments} more comments` : 'no new comments found'}
