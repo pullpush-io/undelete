@@ -518,7 +518,7 @@ class Thread extends React.Component {
         this.props.global.setError(e, e.helpUrl)
         if (this.curContig().lastCreated === undefined) {
           this.contigs.splice(this.curContigIdx, 1)
-          if (this.curContigIdx >= this.contigs.length)
+          if (this.contigs.length && this.curContigIdx >= this.contigs.length)
             this.setCurContig(this.contigs.length - 1)
         }
       })
