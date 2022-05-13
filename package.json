@@ -28,8 +28,8 @@
     "css": "sass -s compressed src/sass/index.sass >dist/main.css && sass -s compressed node_modules/css-toggle-switch/dist/toggle-switch-px.css >>dist/main.css"
   },
   "dependencies": {
-    "core-js": "^3.22.1",
-    "npm": "^8.7.0",
+    "core-js": "^3.22.5",
+    "npm": "^8.10.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-router-dom": "^5.3.1",
@@ -38,20 +38,20 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "@babel/cli": "^7.17.6",
-    "@babel/core": "^7.17.9",
+    "@babel/cli": "^7.17.10",
+    "@babel/core": "^7.17.10",
     "@babel/eslint-parser": "^7.17.0",
-    "@babel/preset-env": "^7.16.11",
+    "@babel/preset-env": "^7.17.10",
     "@babel/preset-react": "^7.16.7",
-    "acorn": "^8.7.0",
+    "acorn": "^8.7.1",
     "babel-loader": "^8.2.5",
     "css-toggle-switch": "^4.1.0",
-    "eslint": "^8.13.0",
-    "sass": "^1.50.1",
+    "eslint": "^8.15.0",
+    "sass": "^1.51.0",
     "standard": "^16.0.4",
-    "webpack": "^5.72.0",
+    "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.8.1"
+    "webpack-dev-server": "^4.9.0"
   },
   "overrides": {
     "minimist": "git+https://github.com/meszaros-lajos-gyorgy/minimist-lite#semver:^v2.2.1"
