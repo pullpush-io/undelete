@@ -110,6 +110,7 @@ class Thread extends React.Component {
 
   componentDidMount () {
     const { subreddit, threadID, commentID } = this.props.match.params
+    const { location } = this.props
     this.state.post = { subreddit, id: threadID }
     this.props.global.setLoading('Loading post...')
     console.time('Load comments')
@@ -217,7 +218,7 @@ class Thread extends React.Component {
       })
 
     // The max_comments query parameter can increase the initial comments-to-download
-    const searchParams = new URLSearchParams(this.props.location.search)
+    const searchParams = new URLSearchParams(location.search)
     const maxComments = Math.max(this.props.global.maxComments,
       constrainMaxComments(parseInt(searchParams.get('max_comments'))))
 
@@ -252,12 +253,15 @@ class Thread extends React.Component {
         })
 
       // Set the scroll location to just below the post if not already set (only with permalinks)
-      if (!this.props.location.hash)
-        this.props.location.hash = '#comment-info'
+      if (!location.hash)
+        location.hash = '#comment-info'
     }
 
-    if (this.props.location.hash)
-      this.props.location.state = {scrollBehavior: 'smooth'}
+    if (location.hash) {
+      location.state = {scrollBehavior: 'smooth'}
+      if (location.hash.startsWith('#thing_t1_'))
+        location.hash = '#' + location.hash.substring(10)
+    }
   }
 
   // Updates this.curContigIdx based on URL's commentID if it's already downloaded.
