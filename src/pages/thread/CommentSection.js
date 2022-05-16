@@ -142,10 +142,11 @@ const commentSection = (props) => {
     }
   }
 
-  lastTotal  = total
-  lastRoot   = root
-  lastFilter = commentFilter
-  lastSort   = commentSort
+  lastTotal   = total
+  lastRoot    = root
+  lastContext = context
+  lastFilter  = commentFilter
+  lastSort    = commentSort
   console.timeEnd('Build comment tree')
 
   props.setMoreContextAvail(commentTree.length > 0 && commentTree[0].parent_id != commentTree[0].link_id)

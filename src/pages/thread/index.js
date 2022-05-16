@@ -371,7 +371,7 @@ class Thread extends React.Component {
 
       // Check if the context query parameter has changed
       if (commentID) {
-        const context = parseInt((new URLSearchParams(this.props.location.search)).get('context')) || 0
+        const context = Math.max(parseInt((new URLSearchParams(this.props.location.search)).get('context')) || 0, 0)
         if (context > this.state.context) {
           this.setState({reloadingComments: true})
           this.props.global.setLoading('Loading comments...')
@@ -383,9 +383,11 @@ class Thread extends React.Component {
               this.props.global.setSuccess()
               this.setState({loadingComments: false, reloadingComments: false})
             })
-        } else if (context >= 0 && context != this.state.context)
+        } else if (context != this.state.context)
           this.setState({ context })
-      }
+      } else if (0 != this.state.context)
+        this.setState({ context: 0 })
+
     } // end of "If we're not already downloading comments, check to see if we need to start"
 
     // Handle any requested scrolling
@@ -575,6 +577,7 @@ class Thread extends React.Component {
 
   // Makes a best-effort attempt to retrieve context# ancestors of the current commentID.
   // Returns a Promise which resolves with the number retrieved, or rejects with undefined.
+  // (Each code path below must setState({ context }) to avoid an infinite loop.)
   getContext (context) {
     const { params } = this.props.match
     const { pushshiftCommentLookup } = this.state
@@ -585,12 +588,15 @@ class Thread extends React.Component {
           .then(pushshiftComments => {
             if (ids.length)
               console.log('Pushshift:', pushshiftComments.length, 'comments')
-            this.setState({ context })
+            this.setState({ context })  // Displays the retrieved context
             pushshiftComments.forEach(comment => pushshiftCommentLookup.set(comment.id, comment))
             return this.compareAndUpdateComments(redditComments)
           })
       })
-      .catch(e => console.error(e))
+      .catch(e => {
+        console.error(e)
+        this.setState({ context })
+      })
   }
 
   componentWillUnmount () {
