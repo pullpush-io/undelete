@@ -326,7 +326,8 @@ class Thread extends React.Component {
           this.props.global.setLoading('Loading comments...')
           console.time('Load comments')
           let createdUtcNotFound  // true if Reddit doesn't have the comment's created_utc
-          getRedditComments([commentID])
+          const hasComment = this.state.pushshiftCommentLookup.get(commentID);
+          (hasComment ? Promise.resolve([hasComment]) : getRedditComments([commentID]))
             .then(([comment]) => {
               const created_utc = comment?.created_utc
               if (created_utc > EARLIEST_CREATED) {
@@ -338,18 +339,20 @@ class Thread extends React.Component {
                 if (insertBefore == 0 || created_utc >= this.contigs[insertBefore - 1].lastCreated) {
                   this.contigs.splice(insertBefore, 0, {firstCreated: created_utc})
                   this.setCurContig(insertBefore)
-                  this.fullnamesToShortIDs(comment)
+                  if (!hasComment)
+                    this.fullnamesToShortIDs(comment)
                   this.getComments(this.props.global.maxComments, false, comment)
 
                 // Otherwise an earlier attempt to download it from Pushshift turned up nothing,
-                } else {
+                } else if (!hasComment) {
                   this.fullnamesToShortIDs(comment)
                   this.useRedditComment(comment)       // so use the Reddit comment instead
                   this.setCurContig(insertBefore - 1)  // (this was the failed earlier attempt)
                   console.timeEnd('Load comments')
                   this.props.global.setSuccess()
                   this.setState({loadingComments: false, reloadingComments: false})
-                }
+                } else
+                  createdUtcNotFound = true
               } else
                 createdUtcNotFound = true
             })
@@ -581,8 +584,32 @@ class Thread extends React.Component {
   getContext (context) {
     const { params } = this.props.match
     const { pushshiftCommentLookup } = this.state
-    return getParentComments(params.threadID, params.commentID, context)
+
+    // Check how many (if any) ancestors have already been retrieved
+    let comment = pushshiftCommentLookup.get(params.commentID), ancestorsFound = 0
+    if (comment) {
+      while (true) {
+        const parent = pushshiftCommentLookup.get(comment.parent_id)
+        if (!parent)
+          break
+        if (parent.parent_id == params.threadID) {
+          this.setState({ context })
+          return Promise.resolve(0)
+        }
+        ancestorsFound++
+        if (ancestorsFound >= context) {
+          this.setState({ context })
+          return Promise.resolve(0)
+        }
+        comment = parent
+      }
+    }
+
+    // Ask Reddit for a list of ancestors
+    return getParentComments(params.threadID, comment?.id || params.commentID, context - ancestorsFound)
       .then(redditComments => {
+
+        // Double-check which comments haven't yet been retrieved from Pushshift, and retreive them
         const ids = redditComments.map(c => c.id).filter(id => !pushshiftCommentLookup.has(id))
         return getCommentsFromIds(ids)
           .then(pushshiftComments => {
