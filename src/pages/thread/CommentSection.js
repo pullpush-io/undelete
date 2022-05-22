@@ -161,7 +161,7 @@ const commentSection = (props) => {
           {...comment}
           depth={0}
           postAuthor={props.postAuthor}
-          highlightedID={context ? root : null}
+          highlightedID={context && commentTree[0].id != root ? root : null}
         />
       ))
       : <p>No comments found</p>

@@ -56,7 +56,7 @@ export const getParentComments = (threadID, commentID, parents) => {
       // If there are fewer parents than requested, remove the comments which aren't parents
       const idx = children.findIndex(c => c.data.id == commentID)
       if (idx >= 0)
-        children.splice(idx + 1)
+        children.splice(idx)
       return children.map(({data}) => data)
     })
     .catch(error => errorHandler(error, 'reddit.getParentComments'))
