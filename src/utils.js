@@ -108,3 +108,16 @@ export const oldSort = (commentA, commentB) => commentA.created_utc - commentB.c
 export const showRemoved = comment => comment.removed === true
 export const showDeleted = comment => comment.deleted === true
 export const showRemovedAndDeleted = comment => comment.removed === true || comment.deleted === true
+
+// Edited text display modes
+export const editedModes = {
+  orig: 0,
+  edited: 1,
+  rich: 2,
+  length: 3
+}
+export const editedTitles = [
+  'The first archived edit is shown; click to change',
+  'The most recent edit is shown; click to change',
+  'Edits are highlighted; click to change'
+]

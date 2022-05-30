@@ -151,6 +151,26 @@
       cursor: pointer
 
 
+.thread-selftext, .comment
+
+  ins.diffins, ins.diffmod
+    text-decoration: none
+    background-color: var(--diff-ins)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-diff-ins)
+
+  ins.mod
+    text-decoration: none
+    background-color: var(--diff-mod)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-diff-mod)
+
+  del.diffdel, del.diffmod
+    background-color: var(--diff-del)
+    @media (prefers-color-scheme: light)
+      background-color: var(--l-diff-del)
+
+
 .view-rest-of-comment
     background-color: var(--thread-rest-bg)
     border-color: var(--thread-rest-brd)

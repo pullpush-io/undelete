@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditThumbnails, isDeleted, isRemoved } from '../../utils'
+import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditThumbnails,
+         isDeleted, isRemoved, editedModes, editedTitles } from '../../utils'
+import { Diff } from '@ali-tas/htmldiff-js'
 
 export default (props) => {
   if (!props.title) {
@@ -55,31 +57,37 @@ export default (props) => {
     }, <img className='thumbnail' src={props.thumbnail} width={thumbnailWidth} height={thumbnailHeight} alt='Thumbnail' />)
   }
 
-  let innerHTML, editedInnerHTML;
+  const innerHTML = Array(editedModes.length)
   if (props.removed && isRemoved(props.selftext)) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
-      innerHTML = '<p>[removed too quickly to be archived]</p>'
+      innerHTML[editedModes.orig] = '<p>[removed too quickly to be archived]</p>'
     } else {
       const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
-      innerHTML = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
+      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
   } else if (props.selftext && (props.is_self || !isDeleted(props.selftext))) {
-    innerHTML = parse(props.selftext)
-    if (props.hasOwnProperty('edited_selftext'))
-      editedInnerHTML = parse(props.edited_selftext)
+    innerHTML[editedModes.orig] = parse(props.selftext)
+    if (props.hasOwnProperty('edited_selftext')) {
+      innerHTML[editedModes.edited] = parse(props.edited_selftext)
+      innerHTML[editedModes.rich]   = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
+    }
   }
 
-  const [showEdited, setShowEdited] = useState(false)
+  let editedMode, setEditedMode
+  if (innerHTML[editedModes.rich])
+    [editedMode, setEditedMode] = useState(editedModes.rich)
+  else
+    editedMode = editedModes.orig
 
   const totalComments = <div className='total-comments'>
     <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
     <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
     {props.hasOwnProperty('edited_selftext') &&
-      <a onClick=  {() => setShowEdited(!showEdited)}
-         onKeyDown={e => e.key == 'Enter' && setShowEdited(!showEdited)}
+      <a onClick=  {() => setEditedMode((editedMode + 1) % editedModes.length)}
+         onKeyDown={e => e.key == 'Enter' && setEditedMode((editedMode + 1) % editedModes.length)}
          tabIndex= {0}
-         title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
+         title=    {editedTitles[editedMode]}
       >*edited</a>}
   </div>
 
@@ -110,12 +118,12 @@ export default (props) => {
           }
           &nbsp;by <a className='thread-author author' href={userLink}>{props.author}</a> to /r/{props.subreddit}
         </div>
-        {innerHTML === undefined && totalComments}
+        {innerHTML[editedModes.orig] === undefined && totalComments}
       </div>
     </div>
-    {innerHTML !== undefined &&
+    {innerHTML[editedModes.orig] !== undefined &&
       <div className='thread-content'>
-        <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />
+        <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: innerHTML[editedMode] }} />
         {totalComments}
       </div>
     }

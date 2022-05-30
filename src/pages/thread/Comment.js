@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, isRemoved } from '../../utils'
+import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime,
+         parse, isRemoved, editedModes, editedTitles } from '../../utils'
+import { Diff } from '@ali-tas/htmldiff-js'
 
 const Comment = (props) => {
   let commentStyle = 'comment '
@@ -16,30 +18,36 @@ const Comment = (props) => {
     commentStyle += ' highlighted'
   }
 
-  let innerHTML, editedInnerHTML;
+  const innerHTML = Array(editedModes.length)
   if (props.removed && isRemoved(props.body)) {
     if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
-      innerHTML = '<p>[removed too quickly to be archived]</p>'
+      innerHTML[editedModes.orig] = '<p>[removed too quickly to be archived]</p>'
     } else if (props.created_utc < 1627776000) {  // Aug 1 2021
       const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
-      innerHTML = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
+      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
     // After around Aug 1 2021, Pushshift began updating comments from Reddit after around
     // 24-48 hours, including removing(?) comments that were removed from Reddit. The presence
     // of either retrieved_utc or retrieved_on can currently be used to test for this behaviour.
     else if (props.hasOwnProperty('retrieved_utc')) {
-      innerHTML = `<p>[removed within ${prettyTimeDiff(props.retrieved_utc - props.created_utc)}]</p>`
+      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(props.retrieved_utc - props.created_utc)}]</p>`
     } else {
-      innerHTML = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc, true)}]</p>`
+      innerHTML[editedModes.orig] = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc, true)}]</p>`
     }
   } else {
-    innerHTML = parse(props.body)
-    if (props.hasOwnProperty('edited_body'))
-      editedInnerHTML = parse(props.edited_body)
+    innerHTML[editedModes.orig] = parse(props.body)
+    if (props.hasOwnProperty('edited_body')) {
+      innerHTML[editedModes.edited] = parse(props.edited_body)
+      innerHTML[editedModes.rich]   = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
+    }
   }
 
   const [collapsed, setCollapsed] = useState(false)
-  const [showEdited, setShowEdited] = useState(false)
+  let editedMode, setEditedMode
+  if (innerHTML[editedModes.rich])
+    [editedMode, setEditedMode] = useState(editedModes.rich)
+  else
+    editedMode = editedModes.orig
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
   const parentlink = props.parent_id == props.link_id ? undefined : (
     props.depth == 0 ?
@@ -77,17 +85,17 @@ const Comment = (props) => {
           >* (last edited {prettyDate(props.edited ? props.edited : props.created_utc)})</span>}
       </div>
       <div style={collapsed ? {display: 'none'} : {}}>
-        <div className='comment-body' dangerouslySetInnerHTML={{ __html: showEdited ? editedInnerHTML : innerHTML }} />
+        <div className='comment-body' dangerouslySetInnerHTML={{ __html: innerHTML[editedMode] }} />
         <div className='comment-links'>
           <Link to={() => ({pathname: permalink, hash: '#comment-info', state: {scrollBehavior: 'auto'}})}>permalink</Link>
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
           <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
           {parentlink}
           {props.hasOwnProperty('edited_body') &&
-            <a onClick=  {() => setShowEdited(!showEdited)}
-               onKeyDown={e => e.key == "Enter" && setShowEdited(!showEdited)}
+            <a onClick=  {() => setEditedMode((editedMode + 1) % editedModes.length)}
+               onKeyDown={e => e.key == "Enter" && setEditedMode((editedMode + 1) % editedModes.length)}
                tabIndex= {0}
-               title=    {showEdited ? 'The most recent version is shown; click to show the earliest archived' : 'The earliest archived version is shown; click to show the most recent'}
+               title=    {editedTitles[editedMode]}
             >*edited</a>}
         </div>
         <div>
