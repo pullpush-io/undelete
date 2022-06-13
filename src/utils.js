@@ -25,7 +25,7 @@ export const sleep = ms =>
 export const isDeleted = textBody => textBody === '\\[deleted\\]' || textBody === '[deleted]'
 
 // Reddits way of indicating that something is deleted
-export const isRemoved = textBody => textBody === '\\[removed\\]' || textBody === '[removed]'
+export const isRemoved = textBody => textBody === '\\[removed\\]' || textBody === '[removed]' || textBody === '[ Removed by Reddit ]'
 
 // Default thumbnails for reddit threads
 export const redditThumbnails = ['self', 'default', 'image', 'nsfw']
