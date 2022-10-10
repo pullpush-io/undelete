@@ -1,8 +1,59 @@
-import { fetchJson } from '../../utils'
+import { getAuth } from './auth'
+import { fetchJsonAndHeaders, sleep } from '../../utils'
 
 export const chunkSize = 100;
-const baseURL = 'https://api.reddit.com'
-const requestSettings = {headers: {"Accept-Language": "en"}}
+const baseURL = 'https://oauth.reddit.com'
+
+let limitDefault = 300
+let limitRemaining = limitDefault, limitResetAtMS = 0
+
+// Fetch JSON results from the Reddit API, respecting the reported API limits
+const fetchJson = async url => {
+  const init = await getAuth()
+
+  if (limitRemaining <= 0) {
+    const waitMS = limitResetAtMS - Date.now() + 1000
+    if (waitMS > 0) {
+      // TODO: update the UI to notify user of a delay
+      console.log(`Waiting ${waitMS}ms for Reddit API`)
+      await sleep(waitMS)
+    }
+    if (limitRemaining <= 0)
+      limitRemaining = limitDefault
+  }
+
+  limitRemaining--
+  init.headers['Accept-Language'] = 'en'
+  const response = await fetchJsonAndHeaders(url, init)
+  const headers = response.headers
+
+  const reportedLimitRemaining = parseInt(headers.get('X-Ratelimit-Remaining'))
+  const reportedLimitDefault = reportedLimitRemaining + parseInt(headers.get('X-Ratelimit-Used'))
+  if (reportedLimitDefault && reportedLimitDefault != limitDefault) {
+    // This should only happen if Reddit changes the API limits
+    console.warn('Correcting limitDefault from', limitDefault, 'to', reportedLimitDefault)
+    limitDefault = reportedLimitDefault
+  }
+
+  const reportedLimitResetAtMS = parseInt(headers.get('X-Ratelimit-Reset')) * 1000 + Date.now()
+  if (reportedLimitResetAtMS > limitResetAtMS + 30000) {
+    // This happens each time the Reddit API resets our limit
+    console.debug('Resetting limitResetAtMS from', limitResetAtMS, 'to', reportedLimitResetAtMS)
+    limitResetAtMS = reportedLimitResetAtMS
+  } else {
+    if (reportedLimitResetAtMS < limitResetAtMS) {
+      // This happens sporadically due to jitter
+      console.debug('Decreasing limitResetAtMS from', limitResetAtMS, 'to', reportedLimitResetAtMS)
+      limitResetAtMS = reportedLimitResetAtMS
+    }
+    if (reportedLimitRemaining < limitRemaining) {
+      // This probably shouldn't happen unless Reddit decreases the API limits
+      console.warn('Decreasing limitRemaining from', limitRemaining, 'to', reportedLimitRemaining)
+      limitRemaining = reportedLimitRemaining
+    }
+  }
+  return response.json
+}
 
 const errorHandler = (origError, from) => {
   console.error(from + ': ' + origError)
@@ -25,7 +76,7 @@ const errorHandler = (origError, from) => {
 
 // Return the post itself
 export const getPost = threadID => (
-  fetchJson(`${baseURL}/comments/${threadID}.json?limit=1`, requestSettings)
+  fetchJson(`${baseURL}/comments/${threadID}.json?limit=1`)
     .then(thread => thread[0].data.children[0].data)
     .catch(error => errorHandler(error, 'reddit.getPost'))
 )
@@ -39,7 +90,7 @@ export const getPost = threadID => (
 
 // Fetch multiple comments by id
 export const getComments = commentIDs => (
-  fetchJson(`${baseURL}/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`, requestSettings)
+  fetchJson(`${baseURL}/api/info?id=${commentIDs.map(id => `t1_${id}`).join()}`)
     .then(results => results.data.children.map(({data}) => data))
     .catch(error => errorHandler(error, 'reddit.getComments'))
 )
@@ -48,8 +99,7 @@ export const getComments = commentIDs => (
 export const getParentComments = (threadID, commentID, parents) => {
   parents = Math.min(parents, 8)
   return fetchJson(
-      `${baseURL}/comments/${threadID}?comment=${commentID}&context=${parents}&limit=${parents}&threaded=false&showmore=false`,
-      requestSettings
+      `${baseURL}/comments/${threadID}?comment=${commentID}&context=${parents}&limit=${parents}&threaded=false&showmore=false`
     )
     .then(results => {
       const { children } = results[1].data

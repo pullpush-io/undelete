@@ -3,13 +3,20 @@ import SnuOwnd from 'snuownd'
 const markdown = SnuOwnd.getParser()
 
 // Fetches JSON at the given url or throws a descriptive Error
-export const fetchJson = (url, init = {}) =>
+export const fetchJson = (url, init = {}) => fetchJsonAndHeaders(url, init)
+  .then(response => response.json)
+
+// Fetches JSON, returning an object with a .json and a .headers member
+export const fetchJsonAndHeaders = (url, init = {}) =>
   window.fetch(url, init)
     .then(response => response.ok ?
-      response.json()
-        .catch(error => {
-          throw new Error((response.statusText || response.status) + ', ' + error)
-        }) :
+      {
+        json: response.json()
+          .catch(error => {
+            throw new Error((response.statusText || response.status) + ', ' + error)
+          }),
+        headers: response.headers
+      } :
       response.text()
         .catch(error => {
           throw new Error((response.statusText || response.status) + ', ' + error)
