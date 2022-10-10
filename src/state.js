@@ -26,7 +26,7 @@ export const theme = {
   system: 'SYSTEM'
 }
 
-export const maxCommentsDefault = 800
+export const maxCommentsDefault = chunkSize * 4
 export const minCommentsLimit   = chunkSize
 export const maxCommentsLimit   = 20000
 

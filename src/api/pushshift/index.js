@@ -1,6 +1,6 @@
 import { fetchJson, sleep } from '../../utils'
 
-export const chunkSize = 100;
+export const chunkSize = 250;
 const postURL    = 'https://api.pushshift.io/reddit/submission/search/?fields=author,created_utc,domain,edited,id,link_flair_text,num_comments,permalink,position,removed_by_category,retrieved_on,retrieved_utc,score,selftext,subreddit,thumbnail,thumbnail_height,thumbnail_width,title,url&ids='
 const commentURL = 'https://api.pushshift.io/reddit/comment/search/?fields=author,body,created_utc,id,link_id,parent_id,retrieved_on,retrieved_utc,score,subreddit&'
 const commentURLbyIDs  = `${commentURL}ids=`
