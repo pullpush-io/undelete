@@ -6,16 +6,17 @@ import { fetchJson } from '../../utils'
 const clientID = 'NAhiRYXXEFeIXyFazmhGHQ'
 
 // Token for reddit API
-let token
+let token, tokenExpiresMS = 0, tokenPromise
 
-// TODO: only permit one getToken to run at a time
-// TODO: respect response.expires_in
 // TODO: respect login API limits?
-const getToken = () => {
+const getToken = async () => {
   // We have already gotten a token
-  if (token !== undefined) {
-    return Promise.resolve(token)
-  }
+  if (token && tokenExpiresMS > Date.now())
+    return token
+
+  // We are already waiting to get a token
+  if (tokenPromise)
+    return (await tokenPromise).access_token
 
   // Headers for getting reddit api token
   const tokenInit = {
@@ -27,15 +28,18 @@ const getToken = () => {
     body: `grant_type=${encodeURIComponent('https://oauth.reddit.com/grants/installed_client')}&device_id=DO_NOT_TRACK_THIS_DEVICE`
   }
 
-  return fetchJson('https://www.reddit.com/api/v1/access_token', tokenInit)
-    .then(response => {
-      token = response.access_token
-      return token
-    })
-    .catch(error => {
+  tokenPromise = fetchJson('https://www.reddit.com/api/v1/access_token', tokenInit)
+  try {
+    const response = await tokenPromise
+    tokenExpiresMS = Date.now() + 1000*( parseInt(response.expires_in) - 10 )
+    token = response.access_token
+  } catch (error) {
       console.error('reddit.getToken ->')
       throw error
-    })
+  } finally {
+    tokenPromise = undefined
+  }
+  return token
 }
 
 // Get header for general api calls
