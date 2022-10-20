@@ -45,11 +45,7 @@ const Comment = (props) => {
   }
 
   const [collapsed, setCollapsed] = useState(false)
-  let editedMode, setEditedMode
-  if (innerHTML[editedModes.rich])
-    [editedMode, setEditedMode] = useState(editedModes.rich)
-  else
-    editedMode = editedModes.orig
+  const [editedMode, setEditedMode] = useState(innerHTML[editedModes.rich] ? editedModes.rich : editedModes.orig)
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
   const parentlink = props.parent_id == props.link_id ? undefined : (
     props.depth == 0 ?

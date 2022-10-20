@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {connect, sort, filter, minCommentsLimit, maxCommentsLimit, constrainMaxComments} from '../../state'
 
-const sortBy = props => {
+const SortBy = props => {
   // The current value of the field; it'll be later saved after an onBlur event
   const [maxCommentsField, setMaxCommentsField] = useState(props.global.maxComments)
   const isFirefox = typeof InstallTrigger !== 'undefined'
@@ -57,4 +57,4 @@ const sortBy = props => {
   )
 }
 
-export default connect(sortBy)
+export default connect(SortBy)

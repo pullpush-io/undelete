@@ -75,11 +75,8 @@ const Post = (props) => {
     }
   }
 
-  let editedMode, setEditedMode
-  if (innerHTML[editedModes.rich])
-    [editedMode, setEditedMode] = useState(editedModes.rich)
-  else
-    editedMode = editedModes.orig
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [editedMode, setEditedMode] = useState(innerHTML[editedModes.rich] ? editedModes.rich : editedModes.orig)
 
   const totalComments = <div className='total-comments'>
     <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
