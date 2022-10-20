@@ -112,9 +112,9 @@ class GlobalState extends Container {
 
 // A redux-like connect function for Unstated
 export const connect = Component => {
-  return props => (
-    <Subscribe to={[GlobalState]}>
+  return function Connected(props) {
+    return <Subscribe to={[GlobalState]}>
       {globalState => <Component {...props} global={globalState} />}
     </Subscribe>
-  )
+  }
 }

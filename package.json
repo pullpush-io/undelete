@@ -19,13 +19,11 @@
     "url": "https://github.com/gurnec/removeddit/issues"
   },
   "homepage": "https://github.com/gurnec/removeddit#readme",
-  "standard": {
-    "parser": "babel-eslint"
-  },
   "scripts": {
     "start": "webpack-dev-server --mode development",
     "build": "webpack --mode production",
-    "css": "sass -s compressed src/sass/index.sass >dist/main.css && sass -s compressed node_modules/css-toggle-switch/dist/toggle-switch-px.css >>dist/main.css"
+    "css": "sass -s compressed src/sass/index.sass >dist/main.css && sass -s compressed node_modules/css-toggle-switch/dist/toggle-switch-px.css >>dist/main.css",
+    "eslint": "eslint src/*.js 'src/api/**' 'src/pages/**'"
   },
   "dependencies": {
     "@ali-tas/htmldiff-js": "^1.1.3",
@@ -48,8 +46,8 @@
     "babel-loader": "^8.2.5",
     "css-toggle-switch": "^4.1.0",
     "eslint": "^8.25.0",
+    "eslint-plugin-react": "^7.31.10",
     "sass": "^1.55.0",
-    "standard": "^16.0.4",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.11.1"

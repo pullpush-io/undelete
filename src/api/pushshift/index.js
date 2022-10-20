@@ -158,7 +158,7 @@ export const getComments = async (callback, threadID, maxComments, after = 0, be
       return getComments(callback, threadID, maxComments, 1503014401, before)
     firstChunk = false
 
-    const loadedAllComments = response.metadata.hasOwnProperty('total_results') ?
+    const loadedAllComments = Object.prototype.hasOwnProperty.call(response.metadata, 'total_results') ?
       response.metadata.results_returned >= response.metadata.total_results :
       comments.length < chunkSize/2
     if (comments.length)

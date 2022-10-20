@@ -9,6 +9,8 @@ import About from './pages/about'
 import Thread from './pages/thread'
 import NotFound from './pages/404'
 
+/* global __dirname */  // an eslint directive
+
 ReactDOM.render(
   <Provider>
     <BrowserRouter basename={__dirname}>

@@ -4,7 +4,9 @@ import { prettyScore, prettyDate, prettyTimeDiff, exactDateTime, parse, redditTh
          isDeleted, isRemoved, editedModes, editedTitles } from '../../utils'
 import { Diff } from '@ali-tas/htmldiff-js'
 
-export default (props) => {
+const hasOwnProperty = Object.prototype.hasOwnProperty
+
+const Post = (props) => {
   if (!props.title) {
     const permalink = `/r/${props.subreddit}/comments/${props.id}/`
     return <div className={props.removed ? 'thread removed' : 'thread'} key={props.removed ? 'post-removed' : 'post-empty'}>
@@ -59,15 +61,15 @@ export default (props) => {
 
   const innerHTML = Array(editedModes.length)
   if (props.removed && isRemoved(props.selftext)) {
-    if (!props.hasOwnProperty('retrieved_utc') && !props.hasOwnProperty('retrieved_on') || !props.hasOwnProperty('created_utc')) {
+    if (!hasOwnProperty.call(props, 'retrieved_utc') && !hasOwnProperty.call(props, 'retrieved_on') || !hasOwnProperty.call(props, 'created_utc')) {
       innerHTML[editedModes.orig] = '<p>[removed too quickly to be archived]</p>'
     } else {
-      const retrieved = props.hasOwnProperty('retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
+      const retrieved = hasOwnProperty.call(props, 'retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
       innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
   } else if (props.selftext && (props.is_self || !isDeleted(props.selftext))) {
     innerHTML[editedModes.orig] = parse(props.selftext)
-    if (props.hasOwnProperty('edited_selftext')) {
+    if (hasOwnProperty.call(props, 'edited_selftext')) {
       innerHTML[editedModes.edited] = parse(props.edited_selftext)
       innerHTML[editedModes.rich]   = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
     }
@@ -83,7 +85,7 @@ export default (props) => {
     <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
     <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
-    {props.hasOwnProperty('edited_selftext') &&
+    {hasOwnProperty.call(props, 'edited_selftext') &&
       <a onClick=  {() => setEditedMode((editedMode + 1) % editedModes.length)}
          onKeyDown={e => e.key == 'Enter' && setEditedMode((editedMode + 1) % editedModes.length)}
          tabIndex= {0}
@@ -129,3 +131,5 @@ export default (props) => {
     }
   </div>
 }
+
+export default Post

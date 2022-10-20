@@ -97,11 +97,11 @@ class Thread extends React.Component {
   // the comment's ids must have already been updated by fullnamesToShortIDs()
   useRedditComment (comment) {
     if (isRemoved(comment.body)) {
-      this.state.removed++
-      commentHint.removed = true
+      this.state.removed++  // eslint-disable-line react/no-direct-mutation-state
+      comment.removed = true
     } else if (isDeleted(comment.body)) {
-      this.state.deleted++
-      commentHint.deleted = true
+      this.state.deleted++  // eslint-disable-line react/no-direct-mutation-state
+      comment.deleted = true
     }
     this.state.pushshiftCommentLookup.set(comment.id, comment)
   }
@@ -111,7 +111,7 @@ class Thread extends React.Component {
   componentDidMount () {
     const { subreddit, threadID, commentID } = this.props.match.params
     const { location } = this.props
-    this.state.post = { subreddit, id: threadID }
+    this.setState({ post: {subreddit, id: threadID} })
     this.props.global.setLoading('Loading post...')
     console.time('Load comments')
 
@@ -237,7 +237,7 @@ class Thread extends React.Component {
           if (comment?.link_id != threadID) {
             console.timeEnd('Load comments')
             this.props.global.setError({ message: 'Invalid permalink' })
-            this.state.loadingComments = false
+            this.setState({loadingComments: false})
             console.error('link_id mismatch:', comment)
             return
           }
@@ -659,7 +659,7 @@ class Thread extends React.Component {
           <>
             {isSingleComment &&
               <div className='view-rest-of-comment'>
-                <div>you are viewing a single comment's thread.</div><div>
+                <div>you are viewing a single comment&apos;s thread.</div><div>
                 {this.state.reloadingComments ?
                   <span className='nowrap faux-link'>view the rest of the comments &rarr;</span> :
                   <span className='nowrap'><Link to={() => ({
