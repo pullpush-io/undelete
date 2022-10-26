@@ -62,7 +62,7 @@ class TokenBucket {
   }
 }
 
-const pushshiftTokenBucket = new TokenBucket(1015, 7)
+const pushshiftTokenBucket = new TokenBucket(2015, 7)
 
 export const getPost = async threadID => {
   await pushshiftTokenBucket.waitForToken()
