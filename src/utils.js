@@ -118,13 +118,13 @@ export const showRemovedAndDeleted = comment => comment.removed === true || comm
 
 // Edited text display modes
 export const editedModes = {
-  orig: 0,
-  edited: 1,
-  rich: 2,
+  dfault: 0,  // diff mode if it's been edited, otherwise same as orig
+  orig:   1,
+  edited: 2,
   length: 3
 }
 export const editedTitles = [
+  'Edits are highlighted; click to change',
   'The first archived edit is shown; click to change',
-  'The most recent edit is shown; click to change',
-  'Edits are highlighted; click to change'
+  'The most recent edit is shown; click to change'
 ]

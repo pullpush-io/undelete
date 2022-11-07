@@ -23,29 +23,30 @@ const Comment = (props) => {
   const innerHTML = Array(editedModes.length)
   if (props.removed && isRemoved(props.body)) {
     if (!hasOwnProperty.call(props, 'retrieved_utc') && !hasOwnProperty.call(props, 'retrieved_on') || !hasOwnProperty.call(props, 'created_utc')) {
-      innerHTML[editedModes.orig] = '<p>[removed too quickly to be archived]</p>'
+      innerHTML[editedModes.dfault] = '<p>[removed too quickly to be archived]</p>'
     } else if (props.created_utc < 1627776000) {  // Aug 1 2021
       const retrieved = hasOwnProperty.call(props, 'retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
-      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
+      innerHTML[editedModes.dfault] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
     // After around Aug 1 2021, Pushshift began updating comments from Reddit after around
     // 24-48 hours, including removing(?) comments that were removed from Reddit. The presence
     // of either retrieved_utc or retrieved_on can currently be used to test for this behaviour.
     else if (hasOwnProperty.call(props, 'retrieved_utc')) {
-      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(props.retrieved_utc - props.created_utc)}]</p>`
+      innerHTML[editedModes.dfault] = `<p>[removed within ${prettyTimeDiff(props.retrieved_utc - props.created_utc)}]</p>`
     } else {
-      innerHTML[editedModes.orig] = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc, true)}]</p>`
+      innerHTML[editedModes.dfault] = `<p>[either removed too quickly, or <a href='https://www.reddit.com/r/pushshift/comments/pgzdav/the_api_now_appears_to_rewrite_nearly_all/'>removed(?) from archive</a> after ${prettyTimeDiff(props.retrieved_on - props.created_utc, true)}]</p>`
     }
   } else {
-    innerHTML[editedModes.orig] = parse(props.body)
     if (hasOwnProperty.call(props, 'edited_body')) {
+      innerHTML[editedModes.orig]   = parse(props.body)
       innerHTML[editedModes.edited] = parse(props.edited_body)
-      innerHTML[editedModes.rich]   = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
-    }
+      innerHTML[editedModes.dfault] = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
+    } else
+      innerHTML[editedModes.dfault] = parse(props.body)
   }
 
   const [collapsed, setCollapsed] = useState(false)
-  const [editedMode, setEditedMode] = useState(innerHTML[editedModes.rich] ? editedModes.rich : editedModes.orig)
+  const [editedMode, setEditedMode] = useState(editedModes.dfault)
   const permalink = `/r/${props.subreddit}/comments/${props.link_id}/_/${props.id}/`
   const parentlink = props.parent_id == props.link_id ? undefined : (
     props.depth == 0 ?

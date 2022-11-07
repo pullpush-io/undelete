@@ -62,21 +62,22 @@ const Post = (props) => {
   const innerHTML = Array(editedModes.length)
   if (props.removed && isRemoved(props.selftext)) {
     if (!hasOwnProperty.call(props, 'retrieved_utc') && !hasOwnProperty.call(props, 'retrieved_on') || !hasOwnProperty.call(props, 'created_utc')) {
-      innerHTML[editedModes.orig] = '<p>[removed too quickly to be archived]</p>'
+      innerHTML[editedModes.dfault] = '<p>[removed too quickly to be archived]</p>'
     } else {
       const retrieved = hasOwnProperty.call(props, 'retrieved_utc') ? props.retrieved_utc : props.retrieved_on;
-      innerHTML[editedModes.orig] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
+      innerHTML[editedModes.dfault] = `<p>[removed within ${prettyTimeDiff(retrieved - props.created_utc)}]</p>`
     }
   } else if (props.selftext && (props.is_self || !isDeleted(props.selftext))) {
-    innerHTML[editedModes.orig] = parse(props.selftext)
     if (hasOwnProperty.call(props, 'edited_selftext')) {
+      innerHTML[editedModes.orig]   = parse(props.selftext)
       innerHTML[editedModes.edited] = parse(props.edited_selftext)
-      innerHTML[editedModes.rich]   = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
-    }
+      innerHTML[editedModes.dfault] = Diff.execute(innerHTML[editedModes.orig], innerHTML[editedModes.edited])
+    } else
+      innerHTML[editedModes.dfault] = parse(props.selftext)
   }
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
-  const [editedMode, setEditedMode] = useState(innerHTML[editedModes.rich] ? editedModes.rich : editedModes.orig)
+  const [editedMode, setEditedMode] = useState(editedModes.dfault)
 
   const totalComments = <div className='total-comments'>
     <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
