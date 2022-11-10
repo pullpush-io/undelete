@@ -118,10 +118,10 @@ const Post = (props) => {
           }
           &nbsp;by <a className='thread-author author' href={userLink}>{props.author}</a> to /r/{props.subreddit}
         </div>
-        {innerHTML[editedModes.orig] === undefined && totalComments}
+        {innerHTML[editedModes.dfault] === undefined && totalComments}
       </div>
     </div>
-    {innerHTML[editedModes.orig] !== undefined &&
+    {innerHTML[editedModes.dfault] !== undefined &&
       <div className='thread-content'>
         <div className='thread-selftext user-text' dangerouslySetInnerHTML={{ __html: innerHTML[editedMode] }} />
         {totalComments}
