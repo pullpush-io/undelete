@@ -123,15 +123,15 @@ export const getComments = async (callback, threadID, maxComments, after = 0, be
   let chunks = Math.floor(maxComments / chunkSize), firstChunk = true, response, lastCreatedUtc = 1
   while (true) {
 
+    let query = commentURLbyLink + threadID
+    if (!inBrokenRange(after))
+      query += '&q=*'
+    if (after)
+      query += `&after=${after}`
+    if (before)
+      query += `&before=${before}`
     let delay = 0
     while (true) {
-      let query = commentURLbyLink + threadID
-      if (!inBrokenRange(after))
-        query += '&q=*'
-      if (after)
-        query += `&after=${after}`
-      if (before)
-        query += `&before=${before}`
       await pushshiftTokenBucket.waitForToken()
       try {
         response = await fetchJson(query)
