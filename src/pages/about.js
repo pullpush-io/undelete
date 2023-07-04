@@ -43,7 +43,7 @@ const About = props => {
         </p>
         <p>
           Created by <a href='https://github.com/JubbeArt/'>Jesper Wrang</a> and
-          uses <a href='https://pushshift.io/'>Jason Baumgartner&apos;s service</a> for getting removed comments.
+          uses <a href='https://pullpush.io/'>Jason Baumgartner&apos;s service</a> for getting removed comments.
         </p>
         <h2 className='todo'>FAQ</h2>
         <div id='delete' className={hash == '#delete' ? 'highlighted' : undefined}>
@@ -67,7 +67,7 @@ const About = props => {
         <b className='question'><Link to='/about#how'>Q:</Link> How does it work?</b>
         <p>
           This page is only possible because of the amazing work done by Jason.
-          His service <a href='https://pushshift.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in a database.
+          His service <a href='https://pullpush.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in a database.
           Then sites like Unddit and Reveddit can fetch these comments from Pushshift.
           Unddit knows what comments Reddit shows (from Reddit&apos;s API) and what comments should be shown (from Pushshift&apos;s API).
           By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
@@ -96,7 +96,7 @@ const About = props => {
         <p>
           Occasionally, Pushshift (the service used by Unddit) goes offline for a while.
           This can result in &ldquo;Could not get removed post/comments&rdquo; errors on Unddit.
-          To check its status, click <a href='https://api.pushshift.io/reddit/comment/search/?size=1&sort=asc&fields=body&q=*&link_id=wdla1b'>this direct link to Pushshift</a>.
+          To check its status, click <a href='https://api.pullpush.io/reddit/comment/search/?size=1&sort=asc&fields=body&q=*&link_id=wdla1b'>this direct link to Pushshift</a>.
           You should either get a short message saying that Pushshift is up, or an error.
         </p>
         </div>
