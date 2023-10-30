@@ -3,7 +3,7 @@ import { fetchJson } from '../../utils'
 // Change this to your own client ID: https://www.reddit.com/prefs/apps
 // The app NEEDS TO BE an installed app and NOT a web app
 
-const clientID = 'NAhiRYXXEFeIXyFazmhGHQ'
+const clientID = "9umhhai8Bd3u3wh69U2dZw"
 
 // Token for reddit API
 let token, tokenExpiresMS = 0, tokenPromise

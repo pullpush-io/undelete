@@ -29,45 +29,32 @@ const About = props => {
         </p>
         <p>
           <b>PC Usage</b>: Press Ctrl-Shift-B to view the bookmark bar, and then drag this bookmarklet:
-          <a className='bookmarklet' href='javascript:window.open(location.href.replace(/:\/\/([\w-]+.)?(reddit\.com\/r|reveddit\.com\/v)\//i, "://www.unddit.com/r/"), "_blank")'>
+          <a className='bookmarklet' href='javascript:window.open(location.href.replace(/:\/\/([\w-]+.)?(reddit\.com\/r|reveddit\.com\/v)\//i, "://undelete.pullpush.io/r/"), "_blank")'>
             Unddit
           </a>
           to the bar and click it when viewing a Reddit post.
           <br /><br />
-          <b>Android Usage</b>: Install <a href='https://play.google.com/store/apps/details?id=com.agreenbhm.reveddit'>this app from the Play store</a>,
-          and then, while viewing a post in whichever Reddit app you prefer, click the Share button and select Unddit (which might be beneath Reveddit).
-          <br /><br />
-          Alternatively you can manually replace the <i>re</i> of <i>reddit</i> in the URL with <i>un</i>.
+          Alternatively you can manually replace the <i>www.reddit.com</i> in the URL with <i>undelete.pullpush.io</i>.
           <br />
-          E.g. <Link to='/r/Bitcoin/comments/7jzpir/'>https://unddit.com/r/Bitcoin/comments/7jzpir/</Link>
+          E.g. <Link to='/r/Bitcoin/comments/7jzpir/'>https://undelete.pullpush.io/r/Bitcoin/comments/7jzpir/</Link>
         </p>
         <p>
           Created by <a href='https://github.com/JubbeArt/'>Jesper Wrang</a> and
-          uses <a href='https://pullpush.io/'>Jason Baumgartner&apos;s service</a> for getting removed comments.
+          uses <a href='https://pullpush.io/'>PullPush service</a> for getting removed comments.
+          <img src="images/ps_narrow_light.png" alt="Powered by PullPush" />
         </p>
         <h2 className='todo'>FAQ</h2>
         <div id='delete' className={hash == '#delete' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#delete'>Q:</Link> I posted some sensitive information on Reddit. Can you delete this from your page?</b>
         <p>
-          No, I can&apos;t remove anything myself since I am not the not the one storing all the deleted comments.
-          This is done by an external service called Pushshift.io.
-          If you want something sensitive removed permanently you should follow the <a href='https://www.reddit.com/r/pushshift/comments/pat409/online_removal_request_form_for_removal_requests/'>instructions here</a>.
-        </p>
-        </div>
-        <div id='removeddit' className={hash == '#removeddit' ? 'highlighted' : undefined}>
-        <b className='question'><Link to='/about#removeddit'>Q:</Link> Didn&apos;t this site used to be named Removeddit?</b>
-        <p>
-          The Removeddit site stopped working a short while ago, and this site was made to partially replace it.
-          All creddit for the software which makes this site possible goes to the original author, Jesper Wrang.
-          Any bugs or problems are due to this site&apos;s operator.
-          In particular, Unddit does not currently support browsing subreddits, only specific posts.
+          Yes. Please submit a ticket to <a href='https://removals.pullpush.io/'>PullPush Removal Service</a>.
         </p>
         </div>
         <div id='how' className={hash == '#how' ? 'highlighted' : undefined}>
         <b className='question'><Link to='/about#how'>Q:</Link> How does it work?</b>
         <p>
-          This page is only possible because of the amazing work done by Jason.
-          His service <a href='https://pullpush.io/'>Pushshift.io</a> actively listens for new comments on Reddit and stores them in a database.
+          This page is only possible because of the work done by PullPush.
+          Their service <a href='https://pullpush.io/'>PullPush</a> actively listens for new comments on Reddit and stores them in a database.
           Then sites like Unddit and Reveddit can fetch these comments from Pushshift.
           Unddit knows what comments Reddit shows (from Reddit&apos;s API) and what comments should be shown (from Pushshift&apos;s API).
           By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
@@ -90,40 +77,6 @@ const About = props => {
           Click on the padlock symbol on the left side of the address bar, and then switch off Tracking Protection for this site.
           It will still be enabled for other sites.
         </p>
-        </div>
-        <div id='psdown' className={hash == '#psdown' ? 'highlighted' : undefined}>
-        <b className='question'><Link to='/about#psdown'>Q:</Link> Is Unddit/Pushshift down?</b>
-        <p>
-          Occasionally, Pushshift (the service used by Unddit) goes offline for a while.
-          This can result in &ldquo;Could not get removed post/comments&rdquo; errors on Unddit.
-          To check its status, click <a href='https://api.pullpush.io/reddit/comment/search/?size=1&sort=asc&fields=body&q=*&link_id=wdla1b'>this direct link to Pushshift</a>.
-          You should either get a short message saying that Pushshift is up, or an error.
-        </p>
-        </div>
-        <div id='difference' className={hash == '#difference' ? 'highlighted' : undefined}>
-        <b className='question'><Link to='/about#difference'>Q:</Link> What&apos;s the difference between Ceddit and Removeddit/Unddit?</b>
-        <p>
-          Not much. Removeddit was created as a temporary replacement for Ceddit, at a time when Ceddit didn&apos;t work.
-          Jesper thought this was necessary since he used Ceddit more then Reddit itself.
-          Months later Ceddit was fixed, but he didn&apos;t see any reason to remove what he had built.
-          Today both sites live side by side and strive for the same goal.
-        </p>
-        <div>
-          There are some minor differences in them though:
-          <ul>
-            <li>
-              Ceddit respects user-made deletions while Removeddit does not. This decision was made early on and I feel like it&apos;s too late to change now.
-              If I had created Removeddit today I might had thought more about what was right here.
-            </li>
-            <li>
-              Removeddit usually loads faster since it uses a slightly different algorithm for detecting removed comments.
-              Removeddit also uses significantly less JavaScript on the page which also should make the page load faster.
-            </li>
-            <li>
-              Ceddit provides user lookup while Removeddit doesn&apos;t.
-            </li>
-          </ul>
-        </div>
         </div>
 
         <h2 className='contact'>Links</h2>
