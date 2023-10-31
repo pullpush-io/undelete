@@ -5,9 +5,10 @@ import { Provider } from 'unstated'
 
 import Header from './pages/common/Header'
 import About from './pages/about'
-//import Subreddit from './pages/subreddit'
+import Subreddit from './pages/subreddit'
 import Thread from './pages/thread'
 import NotFound from './pages/404'
+
 
 /* global __dirname */  // an eslint directive
 
@@ -20,6 +21,7 @@ ReactDOM.render(
           <Switch>
             <Route exact path='/' component={About} />
             <Route path='/about' component={About} />
+            <Route path='/r/:subreddit' component={Subreddit} />
             <Route path='/r/:subreddit/comments/:threadID/:junk/:commentID' component={Thread} />
             <Route path='/r/:subreddit/comments/:threadID' component={Thread} />
             <Redirect from='/user/:username/comments/:threadID/:junk/:commentID'
