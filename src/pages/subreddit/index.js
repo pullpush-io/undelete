@@ -42,9 +42,11 @@ class Subreddit extends React.Component {
     })
      .then(threads => {
        threads.forEach(thread => {
-         thread.removed = true
-         thread.selftext = ''
+        thread.selftext = '',
+        thread.removed = thread.removed_by_category === "deleted" ? true : false
+        thread.permalink.slice(0, 25)
        })
+       console.log(threads)
        this.setState({ threads })
        this.props.global.setSuccess()
      })

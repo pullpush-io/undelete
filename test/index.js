@@ -1,6 +1,5 @@
 // import { fetchJson } from "../src/utils";
-const {getAuth} =  require("../api/reddit/auth")
-
+import {getAuth} from  "../api/reddit/auth"
 
 getAuth().then(token => console.log(token))
 
