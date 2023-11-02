@@ -111,3 +111,55 @@ export const getParentComments = (threadID, commentID, parents) => {
     })
     .catch(error => errorHandler(error, 'reddit.getParentComments'))
 }
+
+export const isThreadDeleted = thread => {
+
+  const isTopic = thread?.title != null
+  if (thread.author == null) return true //No author
+
+  if(thread.author.startsWith('[') && thread.author.endsWith(']'))
+    return true
+
+  if (thread.removed_by_category != null) return true
+
+  if (thread.removal_reason != null) return true
+
+  const crc = thread?.collapsed_reason_code;
+
+  //collapsed_reason_code: 'deleted'
+  if (crc && crc.toLowerCase() == 'deleted')
+    return true
+  
+  let text = isTopic ? thread.selftext : thread.body;
+
+  if (text == null)
+    return true
+  
+  if (text.length === 0 && !isTopic)
+    return true
+
+  /* 
+   * To be deleted the text needs to:
+   * - start and end with [ ]
+   * - be under 100 chars
+   * - contain deleted or removed
+   * Examples: '[ Deleted By User ]' '[removed]' '[ Removed by Reddit ]'
+  */
+
+  if (!(text.startsWith('[') && text.endsWith(']')))
+    return false
+
+  if(text.length > 100 )
+    return false
+
+  text = text.toLowerCase()
+
+  //text contains deleted or removed word
+  if(!(text.includes("deleted" || text.includes("removed")))){
+    return false
+  }
+
+  //Otherwise return true
+  return true
+
+}
