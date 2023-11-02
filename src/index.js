@@ -21,9 +21,9 @@ ReactDOM.render(
           <Switch>
             <Route exact path='/' component={About} />
             <Route path='/about' component={About} />
-            <Route path='/r/:subreddit' component={Subreddit} />
             <Route path='/r/:subreddit/comments/:threadID/:junk/:commentID' component={Thread} />
             <Route path='/r/:subreddit/comments/:threadID' component={Thread} />
+            <Route path='/r/:subreddit' component={Subreddit} />
             <Redirect from='/user/:username/comments/:threadID/:junk/:commentID'
                       to='/r/u_:username/comments/:threadID/:junk/:commentID' />
             <Redirect from='/user/:username/comments/:threadID' to='/r/u_:username/comments/:threadID' />

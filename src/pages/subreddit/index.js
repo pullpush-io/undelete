@@ -41,6 +41,7 @@ class Subreddit extends React.Component {
         threads.forEach(thread => {
           thread.removed = isThreadDeleted(thread)
           thread.selftext = ''
+          thread.url = thread.permalink
         })
         this.setState({ threads })
         this.props.global.setSuccess()
