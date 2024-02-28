@@ -9,21 +9,29 @@ export const fetchJson = (url, init = {}) => fetchJsonAndHeaders(url, init)
 // Fetches JSON, returning an object with a .json and a .headers member
 export const fetchJsonAndHeaders = (url, init = {}) =>
   window.fetch(url, init)
-    .then(response => response.ok ?
-      {
-        json: response.json()
+    .then(response => {
+      if (!response.ok) {
+        return response.text()
           .catch(error => {
             throw new Error((response.statusText || response.status) + ', ' + error)
-          }),
-        headers: response.headers
-      } :
-      response.text()
-        .catch(error => {
-          throw new Error((response.statusText || response.status) + ', ' + error)
-        }).then(text => {
-          throw new Error((response.statusText || response.status) + ': ' + text)
+          }).then(text => {
+            console.error((response.statusText || response.status) + ': ' + text);
+            throw new Error((response.statusText || response.status) + ': ' + text);
+          });
+      }
+
+      return response.text()
+        .then(text => {
+          //console.log('Response Content:', text);
+          return {
+            json: JSON.parse(text),
+            headers: response.headers
+          };
         })
-    )
+        .catch(error => {
+          throw new Error((response.statusText || response.status) + ', ' + error);
+        });
+    });
 
 export const sleep = ms =>
   new Promise(slept => setTimeout(slept, ms))
