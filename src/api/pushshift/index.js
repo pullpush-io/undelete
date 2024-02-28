@@ -139,10 +139,9 @@ export const getComments = async (callback, threadID, maxComments, after = 0, be
     const comments = response.data
     const exitEarly = !callback(comments.map(c => ({
       ...c,
-      parent_id: c.parent_id?.substring(3) || threadID,
+      parent_id: c.parent_id ? toBase36(c.parent_id) : threadID,
       link_id:   c.link_id?.substring(3)   || threadID
     })))
-
 
     firstChunk = false
 
