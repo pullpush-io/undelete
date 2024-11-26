@@ -5,6 +5,30 @@ import { getThreads, isThreadDeleted } from '../../api/reddit'
 import Post from '../common/Post'
 import { connect } from '../../state'
 
+function combineDataFunc(redditData, pullPushData) {
+  const combinedData = [];
+  const isDuplicateData = (id) => combinedData.some(obj => obj.id === id);
+  
+  if (redditData && Array.isArray(redditData)) {
+    redditData.forEach(obj => {
+      if (!isDuplicateData(obj.id)) {
+        combinedData.push(obj);
+      } 
+    });
+  };
+
+  if (pullPushData && Array.isArray(pullPushData)) {
+    pullPushData.forEach(obj => {
+      if (!isDuplicateData(obj.id)) {
+        obj.removed = true
+        combinedData.push(obj);
+      }
+    });
+  };
+  
+  return combinedData;
+}
+
 class Subreddit extends React.Component {
  state = {
    threads: [],
@@ -35,11 +59,17 @@ class Subreddit extends React.Component {
       .then(response => {
           const {data} = response
           const threadIDs = data.map(({id}) => id)
-          return getThreads(threadIDs)
+          return getThreads(threadIDs).then(redditData => {
+            return combineDataFunc(redditData, data)
+          })
       })
       .then(threads => {
         threads.forEach(thread => {
-          thread.removed = isThreadDeleted(thread)
+          if(thread?.removed === true) {
+            // skip removed evaluation if we established that the thread is removed already
+          }else {
+            thread.removed = isThreadDeleted(thread);
+          } 
           thread.selftext = ''
           thread.url = thread.permalink
         })
