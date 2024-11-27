@@ -2,14 +2,16 @@ import { getAuth } from './auth'
 import { fetchJsonAndHeaders, sleep } from '../../utils'
 
 export const chunkSize = 100;
-const baseURL = 'https://oauth.reddit.com'
+const baseURL = 'https://api.reddit.com'
 
 let limitDefault = 300
 let limitRemaining = limitDefault, limitResetAtMS = 0
 
 // Fetch JSON results from the Reddit API, respecting the reported API limits
 const fetchJson = async url => {
-  const init = await getAuth()
+  const init = {
+      headers: { }
+    }
 
   if (limitRemaining <= 0) {
     const waitMS = limitResetAtMS - Date.now() + 1000
