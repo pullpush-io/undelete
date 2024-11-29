@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { getRemovedThreadIDs } from '../../api/removeddit'
-import { getThreads, isThreadDeleted } from '../../api/reddit'
+import { getThreads } from '../../api/reddit'
+import { isItemDeleted } from '../../utils'
 import Post from '../common/Post'
 import { connect } from '../../state'
 
@@ -68,7 +69,7 @@ class Subreddit extends React.Component {
           if(thread?.removed === true) {
             // skip removed evaluation if we established that the thread is removed already
           }else {
-            thread.removed = isThreadDeleted(thread);
+            thread.removed = isItemDeleted(thread);
           } 
           thread.selftext = ''
           thread.url = thread.permalink

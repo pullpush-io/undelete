@@ -12,7 +12,7 @@ import {
   getCommentsFromIds,
   chunkSize as pushshiftChunkSize
 } from '../../api/pushshift'
-import { isDeleted, isRemoved, sleep } from '../../utils'
+import { isDeleted, isRemoved, sleep, isItemDeleted } from '../../utils'
 import { connect, constrainMaxComments } from '../../state'
 import Post from '../common/Post'
 import CommentSection from './CommentSection'
@@ -481,6 +481,11 @@ class Thread extends React.Component {
               if (commentID === undefined && parent_id != threadID && !pushshiftCommentLookup.has(parent_id)) {
                 pushshiftCommentLookup.set(parent_id, undefined)  // prevents adding it to the Queue multiple times
                 redditIdQueue.push(parent_id)
+              }
+            }
+            else {
+              if(isItemDeleted(pushshiftCommentLookup.get(id))) {
+                pushshiftCommentLookup.set(id, comment)
               }
             }
           })

@@ -1,4 +1,4 @@
-import { fetchJson, sleep } from '../../utils'
+import { isItemDeleted, fetchJson, sleep } from '../../utils'
 
 export const chunkSize = 100;
 const postURL    = 'https://api.pullpush.io/reddit/submission/search/?fields=author,created_utc,domain,edited,id,link_flair_text,num_comments,permalink,position,removed_by_category,retrieved_on,retrieved_utc,score,selftext,subreddit,thumbnail,thumbnail_height,thumbnail_width,title,url&ids='

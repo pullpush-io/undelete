@@ -136,3 +136,55 @@ export const editedTitles = [
   'The first archived edit is shown; click to change',
   'The most recent edit is shown; click to change'
 ]
+
+export const isItemDeleted = item => {
+
+  const isTopic = item?.title != null
+  if (item.author == null) return true //No author
+
+  if(item.author.startsWith('[') && item.author.endsWith(']'))
+    return true
+
+  if (item.removed_by_category != null) return true
+
+  if (item.removal_reason != null) return true
+
+  const crc = item?.collapsed_reason_code;
+
+  //collapsed_reason_code: 'deleted'
+  if (crc && crc.toLowerCase() == 'deleted')
+    return true
+  
+  let text = isTopic ? item.selftext : item.body;
+
+  if (text == null)
+    return true
+  
+  if (text.length === 0 && !isTopic)
+    return true
+
+  /* 
+   * To be deleted the text needs to:
+   * - start and end with [ ]
+   * - be under 100 chars
+   * - contain deleted or removed
+   * Examples: '[ Deleted By User ]' '[removed]' '[ Removed by Reddit ]'
+  */
+
+  if (!(text.startsWith('[') && text.endsWith(']')))
+    return false
+
+  if(text.length > 100 )
+    return false
+
+  text = text.toLowerCase()
+
+  //text contains deleted or removed word
+  if(!(text.includes("deleted" || text.includes("removed")))){
+    return false
+  }
+
+  //Otherwise return true
+  return true
+
+}
