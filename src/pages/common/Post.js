@@ -23,7 +23,6 @@ const Post = (props) => {
         <div className='thread-info'>&nbsp;</div>
         <div className="total-comments">
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>&nbsp;
-          <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
         </div>
       </div>
     </div>
@@ -82,7 +81,6 @@ const Post = (props) => {
   const totalComments = <div className='total-comments'>
     <Link to={props.permalink} replace={props.isLocFullPost}>{props.num_comments}&nbsp;comments</Link>&nbsp;
     <a href={`https://www.reddit.com${props.permalink}`}>reddit</a>&nbsp;
-    <a href={`https://www.reveddit.com${props.permalink}`}>reveddit</a>
     {hasOwnProperty.call(props, 'edited_selftext') &&
       <a onClick=  {() => setEditedMode((editedMode + 1) % editedModes.length)}
          onKeyDown={e => e.key == 'Enter' && setEditedMode((editedMode + 1) % editedModes.length)}

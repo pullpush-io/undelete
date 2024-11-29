@@ -55,7 +55,7 @@ const About = props => {
         <p>
           This page is only possible because of the work done by PullPush.
           Their service <a href='https://pullpush.io/'>PullPush</a> actively listens for new comments on Reddit and stores them in a database.
-          Then sites like Unddit and Reveddit can fetch these comments from Pushshift.
+          Then sites like Unddit can fetch these comments from PullPush.
           Unddit knows what comments Reddit shows (from Reddit&apos;s API) and what comments should be shown (from Pushshift&apos;s API).
           By comparing the comments from these 2 APIs, it can figure out what has been deleted and removed.
         </p>

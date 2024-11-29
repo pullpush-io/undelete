@@ -88,7 +88,6 @@ const Comment = (props) => {
         <div className='comment-links'>
           <Link to={() => ({pathname: permalink, hash: '#comment-info', state: {scrollBehavior: 'auto'}})}>permalink</Link>
           <a href={`https://www.reddit.com${permalink}`}>reddit</a>
-          <a href={`https://www.reveddit.com${permalink}`}>reveddit</a>
           {parentlink}
           {hasOwnProperty.call(props, 'edited_body') &&
             <a onClick=  {() => setEditedMode((editedMode + 1) % editedModes.length)}
