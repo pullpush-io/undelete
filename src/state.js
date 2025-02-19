@@ -47,10 +47,13 @@ const themeKey = 'theme'
 document.documentElement.dataset.theme = get(themeKey, theme.dark)
 setTimeout(() => document.documentElement.style.transitionDuration = '0.4s')
 
+const searchParams = new URLSearchParams(location.search)
+const allParam = searchParams.get('show') == 'all'
+
 class GlobalState extends Container {
   state = {
     commentSort: get(sortKey, sort.top),
-    commentFilter: get(filterKey, filter.removedDeleted),
+    commentFilter: get(filterKey, allParam ? filter.all : filter.removedDeleted),
     loadingMoreComments: 0,  // max # of comments to attempt to load next
     statusText: '',
     statusHelpUrl: undefined,
